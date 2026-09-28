@@ -28,6 +28,10 @@ final class CallController: ObservableObject {
 
     func toggleMute() { setMuted(!micMuted) }
 
+    func releaseMute() {
+        if micMuted { setMuted(false) }
+    }
+
     private func setMuted(_ mute: Bool) {
         let dev = mute ? Self.defaultInput : (mutedDevice ?? Self.defaultInput)
         guard dev != 0 else { return }

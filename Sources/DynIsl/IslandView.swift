@@ -304,18 +304,15 @@ private struct ExpandedView: View {
 private struct TabButton: View {
     let icon: String
     let selected: Bool
-    var customAirDrop = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Group {
-                if customAirDrop { AirDropGlyph(size: 13) } else { Image(systemName: icon).font(.system(size: 12, weight: .semibold)) }
-            }
-            .frame(width: 26, height: 22)
-            .background(Capsule().fill(.white.opacity(selected ? 0.18 : 0)))
-            .foregroundStyle(selected ? .white : .white.opacity(0.5))
-            .contentShape(Capsule())
+            Image(systemName: icon).font(.system(size: 12, weight: .semibold))
+                .frame(width: 26, height: 22)
+                .background(Capsule().fill(.white.opacity(selected ? 0.18 : 0)))
+                .foregroundStyle(selected ? .white : .white.opacity(0.5))
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
     }

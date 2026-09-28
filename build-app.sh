@@ -2,7 +2,6 @@
 set -e
 cd "$(dirname "$0")"
 swift build -c release
-pkill -x DynIsl && sleep 0.5 || true
 APP=build/DynIsl.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
@@ -41,6 +40,7 @@ else
 fi
 if [[ "$1" == "install" ]]; then
   DEST=/Applications/DynIsl.app
+  pkill -x DynIsl && sleep 0.5 || true
   rm -rf "$DEST"
   ditto "$APP" "$DEST"
   echo "Kuruldu: $DEST"

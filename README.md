@@ -37,8 +37,8 @@
 ## Kurulum
 
 ```bash
-git clone <depo-adresi>
-cd <depo-klasörü>
+git clone https://github.com/caganerdal/DynIsl.git
+cd DynIsl
 ./build-app.sh install
 ```
 
@@ -71,7 +71,7 @@ Her izin isteğe bağlıdır; verilmezse ilgili özellik çalışmaz, geri kalan
 
 ## Terminal komutu
 
-Kurulumla birlikte `~/.local/bin/island` komutu eklenir:
+Kurulumla birlikte `~/.local/bin/island` komutu eklenir. Bu klasör `PATH`'inizde değilse `~/.zshrc` dosyasına `export PATH="$HOME/.local/bin:$PATH"` satırını ekleyin.
 
 ```bash
 island "Build bitti"

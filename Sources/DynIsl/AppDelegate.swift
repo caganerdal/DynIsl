@@ -35,6 +35,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsBag: Any?
     private var statsBag: [Any] = []
     private var statsItem: NSStatusItem?
+    private var termSource: DispatchSourceSignal?
     private var lastStatsKey = ""
     private var dragTimer: Timer?
     private var dragBaseline = 0
@@ -43,13 +44,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let panelSize = NSSize(width: 820, height: 330)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        if let id = Bundle.main.bundleIdentifier,
-           NSRunningApplication.runningApplications(withBundleIdentifier: id)
-               .contains(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) {
-            NSApp.terminate(nil)
-            return
-        }
-
         panel = IslandPanel(contentRect: NSRect(origin: .zero, size: panelSize))
         let host = NSHostingView(rootView: IslandView()
             .environmentObject(model)
@@ -68,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupMouseTracking()
         setupStatusItem()
         setupMainMenu()
+        handleTerminationSignal()
         updateStatsItem()
         statsBag = [
             model.settings.$menuBarMode.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in
@@ -340,6 +335,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.windowsMenu = window
 
         NSApp.mainMenu = main
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        cleanUpBeforeExit()
+    }
+
+    private func cleanUpBeforeExit() {
+        model.call.releaseMute()
+        model.speedTest.cancel()
+    }
+
+    private func handleTerminationSignal() {
+        signal(SIGTERM, SIG_IGN)
+        let source = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        source.setEventHandler { [weak self] in
+            MainActor.assumeIsolated { self?.cleanUpBeforeExit() }
+            exit(0)
+        }
+        source.resume()
+        termSource = source
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
