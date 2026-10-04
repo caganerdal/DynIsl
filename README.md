@@ -58,6 +58,18 @@ Uygulama simgesini yeniden üretmek için:
 ./Tools/make-icon.sh
 ```
 
+## Güncelleme
+
+Uygulama günde bir kez GitHub'da yeni sürüm olup olmadığına bakar; varsa adada haber verir. Ayarlar › Genel › Güncellemeler'deki **Güncelle** düğmesi ya da Terminal'de:
+
+```bash
+cd DynIsl
+git pull
+./build-app.sh install
+```
+
+Sürüm numarası `VERSION` dosyasındadır.
+
 ## İzinler
 
 Her izin isteğe bağlıdır; verilmezse ilgili özellik çalışmaz, geri kalanı etkilenmez.
@@ -85,7 +97,7 @@ island run npm test
 ## Gizlilik
 
 - Her şey bilgisayarda çalışır; analiz, ölçüm ve kayıtlar cihazdan çıkmaz.
-- İnternete yalnızca şu durumlarda bağlanılır: hava durumu ([Open-Meteo](https://open-meteo.com), yuvarlanmış konumla), Spotify kapak görseli ve kullanıcı başlattığında hız testi (Apple sunucuları).
+- İnternete yalnızca şu durumlarda bağlanılır: hava durumu ([Open-Meteo](https://open-meteo.com), yuvarlanmış konumla), Spotify kapak görseli, günde bir kez yeni sürüm denetimi (GitHub, sadece son sürüm numarası okunur; kapatılabilir) ve kullanıcı başlattığında hız testi (Apple sunucuları).
 - Pano geçmişi yalnızca bellekte tutulur, şifre yöneticilerinden gelen kopyalar kaydedilmez, ekran kilitlenince silinir.
 - Ada, ekran paylaşımı ve kayıtlarda varsayılan olarak gizlenir.
 

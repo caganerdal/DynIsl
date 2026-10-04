@@ -3,6 +3,9 @@ set -e
 cd "$(dirname "$0")"
 swift build -c release
 APP=build/DynIsl.app
+VERSION=$(cat VERSION)
+BUILD=$(git rev-list --count HEAD 2>/dev/null || echo 1)
+SRC=$(pwd)
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 cp .build/release/DynIsl "$APP/Contents/MacOS/"
@@ -18,7 +21,9 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleExecutable</key><string>DynIsl</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.1</string>
+  <key>CFBundleShortVersionString</key><string>$VERSION</string>
+  <key>CFBundleVersion</key><string>$BUILD</string>
+  <key>DynIslSourcePath</key><string>${${SRC//&/&amp;}//</&lt;}</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSCalendarsFullAccessUsageDescription</key><string>Yaklaşan toplantıları adada göstermek ve başlamadan önce haber vermek için.</string>

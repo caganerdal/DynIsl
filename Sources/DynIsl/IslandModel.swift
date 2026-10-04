@@ -73,6 +73,7 @@ final class IslandModel: ObservableObject {
     let desktopCleaner = DesktopCleaner()
     let keepAwake = KeepAwake()
     let network = NetworkWatcher()
+    let updates = UpdateChecker()
     let downloadsCleaner = DownloadsCleaner()
     @Published var dashboardPage: DashboardPage? = .overview
     let settings = AppSettings()
@@ -87,7 +88,7 @@ final class IslandModel: ObservableObject {
         for publisher in [battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
                           calendar.objectWillChange, shelf.objectWillChange, downloads.objectWillChange,
                           settings.objectWillChange, screenshots.objectWillChange, speedTest.objectWillChange,
-                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange] {
+                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange, updates.objectWillChange] {
             bag.append(publisher.sink { [weak self] _ in self?.objectWillChange.send() })
         }
 
@@ -172,6 +173,11 @@ final class IslandModel: ObservableObject {
             self.showActivity(a, duration: 5)
         }
         network.start()
+
+        updates.onActivity = { [weak self] in self?.showActivity($0, duration: 5) }
+        updates.enabled = settings.checkUpdates
+        bag.append(settings.$checkUpdates.dropFirst().sink { [weak self] in self?.updates.enabled = $0 })
+        updates.start()
 
         system.onActivity = { [weak self] in self?.showActivity($0, duration: 5) }
         system.alertsEnabled = settings.systemAlerts

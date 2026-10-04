@@ -32,6 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private var statusMenu: NSMenu!
     private var keepAwakeMenu: NSMenu?
+    private var updateItem: NSMenuItem?
     private var monitors: [Any] = []
     private var settingsBag: Any?
     private var statsBag: [Any] = []
@@ -233,6 +234,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(item("Müzik: Oynat / Duraklat", #selector(togglePlay)))
         menu.addItem(item("AirDrop ile gönder…", #selector(airDrop)))
         menu.addItem(.separator())
+        let upd = item("Güncellemeleri denetle", #selector(updateMenuAction))
+        menu.addItem(upd)
+        updateItem = upd
+        menu.delegate = self
         menu.addItem(item("Ayarlar…", #selector(openSettings), key: ","))
         menu.addItem(item("Çıkış", #selector(quit), key: "q"))
         statusItem.menu = menu
@@ -250,7 +255,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
     @objc private func keepAwakeOff() { model.keepAwake.stop() }
 
+    @objc private func updateMenuAction() {
+        if model.updates.available != nil { model.updates.openReleasePage() } else { model.updates.check(manual: true) }
+    }
+
     func menuNeedsUpdate(_ menu: NSMenu) {
+        if menu === statusMenu {
+            updateItem?.title = model.updates.available.map { "Yeni sürüm var: v\($0.version)…" } ?? "Güncellemeleri denetle"
+            return
+        }
         guard menu === keepAwakeMenu else { return }
         let k = model.keepAwake
         for it in menu.items where it.action == #selector(keepAwakeFor(_:)) {

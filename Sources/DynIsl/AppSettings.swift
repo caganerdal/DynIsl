@@ -26,6 +26,7 @@ final class AppSettings: ObservableObject {
     @Published var calendarLeadMinutes: Int { didSet { d.set(calendarLeadMinutes, forKey: "calendarLeadMinutes") } }
     @Published var notifyFocus: Bool { didSet { d.set(notifyFocus, forKey: "notifyFocus") } }
     @Published var notifyNetwork: Bool { didSet { d.set(notifyNetwork, forKey: "notifyNetwork") } }
+    @Published var checkUpdates: Bool { didSet { d.set(checkUpdates, forKey: "checkUpdates") } }
     @Published var showPrivacy: Bool { didSet { d.set(showPrivacy, forKey: "showPrivacy") } }
     @Published var showDownloads: Bool { didSet { d.set(showDownloads, forKey: "showDownloads") } }
     @Published var rainAlerts: Bool { didSet { d.set(rainAlerts, forKey: "rainAlerts") } }
@@ -56,7 +57,7 @@ final class AppSettings: ObservableObject {
         d.register(defaults: [
             "openOnHover": true, "notifyBattery": true, "notifyBluetooth": true,
             "airPodsBatteryAlert": true, "chargeLimitAlert": true, "chargeLimit": 80, "fullPluggedAlert": true,
-            "notifyCalendar": true, "calendarLeadMinutes": 10, "notifyFocus": true, "notifyNetwork": true,
+            "notifyCalendar": true, "calendarLeadMinutes": 10, "notifyFocus": true, "notifyNetwork": true, "checkUpdates": true,
             "showPrivacy": true, "showDownloads": true, "downloadsToShelf": true,
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
@@ -83,6 +84,7 @@ final class AppSettings: ObservableObject {
         calendarLeadMinutes = d.integer(forKey: "calendarLeadMinutes")
         notifyFocus = d.bool(forKey: "notifyFocus")
         notifyNetwork = d.bool(forKey: "notifyNetwork")
+        checkUpdates = d.bool(forKey: "checkUpdates")
         showPrivacy = d.bool(forKey: "showPrivacy")
         showDownloads = d.bool(forKey: "showDownloads")
         rainAlerts = d.bool(forKey: "rainAlerts")
@@ -242,6 +244,35 @@ private struct SettingsView: View {
                     .font(.system(.caption, design: .monospaced))
                     .textSelection(.enabled)
                     .foregroundStyle(.secondary)
+            }
+            Section("Güncellemeler") {
+                Toggle("Yeni sürümleri günde bir kez denetle", isOn: $settings.checkUpdates)
+                HStack {
+                    Text(model.updates.checking ? "Denetleniyor…" : (model.updates.lastResult ?? "Henüz denetlenmedi"))
+                        .foregroundStyle(model.updates.available != nil ? .blue : .secondary)
+                    Spacer()
+                    Button("Şimdi denetle") { model.updates.check(manual: true) }
+                        .disabled(model.updates.checking)
+                }
+                if let r = model.updates.available {
+                    if !r.notes.isEmpty {
+                        Text(r.notes).font(.caption).foregroundStyle(.secondary).lineLimit(8)
+                    }
+                    HStack {
+                        Button("Neler yeni?") { model.updates.openReleasePage() }
+                        Spacer()
+                        Button("Komutu kopyala") { model.updates.copyCommand() }
+                        if model.updates.canRunUpdate {
+                            Button("Güncelle") { model.updates.runUpdate() }.buttonStyle(.borderedProminent)
+                        }
+                    }
+                    Text(model.updates.canRunUpdate
+                         ? "Güncelle, Terminal'de kaynak klasöründe git pull ve ./build-app.sh install komutlarını çalıştırır."
+                         : "Terminal'de DynIsl klasörüne gidip git pull ve ./build-app.sh install komutlarını çalıştır.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Text("Denetleme sadece GitHub'daki son sürüm numarasını okur, bilgisayarından hiçbir bilgi göndermez.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section {
                 HStack {
