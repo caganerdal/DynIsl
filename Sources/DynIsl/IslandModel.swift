@@ -72,6 +72,8 @@ final class IslandModel: ObservableObject {
     let call = CallController()
     let desktopCleaner = DesktopCleaner()
     let keepAwake = KeepAwake()
+    let network = NetworkWatcher()
+    let downloadsCleaner = DownloadsCleaner()
     @Published var dashboardPage: DashboardPage? = .overview
     let settings = AppSettings()
 
@@ -164,6 +166,12 @@ final class IslandModel: ObservableObject {
         bag.append(settings.$showWeather.dropFirst().sink { [weak self] on in
             if on { self?.weather.start() }
         })
+
+        network.onActivity = { [weak self] a in
+            guard let self, self.settings.notifyNetwork else { return }
+            self.showActivity(a, duration: 5)
+        }
+        network.start()
 
         system.onActivity = { [weak self] in self?.showActivity($0, duration: 5) }
         system.alertsEnabled = settings.systemAlerts

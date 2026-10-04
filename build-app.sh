@@ -26,6 +26,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>NSLocationUsageDescription</key><string>Bulunduğun yerin hava durumunu adada göstermek için (yaklaşık konum).</string>
   <key>NSLocationWhenInUseUsageDescription</key><string>Bulunduğun yerin hava durumunu adada göstermek için (yaklaşık konum).</string>
   <key>NSBluetoothAlwaysUsageDescription</key><string>Bluetooth cihazları (AirPods vb.) bağlandığında adada göstermek için.</string>
+  <key>NSDesktopFolderUsageDescription</key><string>Masaüstündeki dosyaları türüne ve ayına göre klasörlere düzenlemek için.</string>
+  <key>NSDownloadsFolderUsageDescription</key><string>İndirilenler klasöründe uzun süredir açılmamış dosyaları listelemek ve indirmeleri adada göstermek için.</string>
   <key>NSAppleEventsUsageDescription</key><string>Spotify ve Apple Music’te çalan şarkıyı göstermek ve kontrol etmek için.</string>
 </dict></plist>
 PLIST

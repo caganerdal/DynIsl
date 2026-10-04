@@ -25,6 +25,7 @@ final class AppSettings: ObservableObject {
     @Published var notifyCalendar: Bool { didSet { d.set(notifyCalendar, forKey: "notifyCalendar") } }
     @Published var calendarLeadMinutes: Int { didSet { d.set(calendarLeadMinutes, forKey: "calendarLeadMinutes") } }
     @Published var notifyFocus: Bool { didSet { d.set(notifyFocus, forKey: "notifyFocus") } }
+    @Published var notifyNetwork: Bool { didSet { d.set(notifyNetwork, forKey: "notifyNetwork") } }
     @Published var showPrivacy: Bool { didSet { d.set(showPrivacy, forKey: "showPrivacy") } }
     @Published var showDownloads: Bool { didSet { d.set(showDownloads, forKey: "showDownloads") } }
     @Published var rainAlerts: Bool { didSet { d.set(rainAlerts, forKey: "rainAlerts") } }
@@ -55,7 +56,7 @@ final class AppSettings: ObservableObject {
         d.register(defaults: [
             "openOnHover": true, "notifyBattery": true, "notifyBluetooth": true,
             "airPodsBatteryAlert": true, "chargeLimitAlert": true, "chargeLimit": 80, "fullPluggedAlert": true,
-            "notifyCalendar": true, "calendarLeadMinutes": 10, "notifyFocus": true,
+            "notifyCalendar": true, "calendarLeadMinutes": 10, "notifyFocus": true, "notifyNetwork": true,
             "showPrivacy": true, "showDownloads": true, "downloadsToShelf": true,
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
@@ -81,6 +82,7 @@ final class AppSettings: ObservableObject {
         notifyCalendar = d.bool(forKey: "notifyCalendar")
         calendarLeadMinutes = d.integer(forKey: "calendarLeadMinutes")
         notifyFocus = d.bool(forKey: "notifyFocus")
+        notifyNetwork = d.bool(forKey: "notifyNetwork")
         showPrivacy = d.bool(forKey: "showPrivacy")
         showDownloads = d.bool(forKey: "showDownloads")
         rainAlerts = d.bool(forKey: "rainAlerts")
@@ -332,6 +334,7 @@ private struct SettingsView: View {
                     }
                 }
                 Toggle("Odak modu", isOn: $settings.notifyFocus)
+                Toggle("İnternet koptu / geri geldi", isOn: $settings.notifyNetwork)
                 Toggle("Kamera ve mikrofon göstergesi", isOn: $settings.showPrivacy)
                 Toggle("İndirme ilerlemesi", isOn: $settings.showDownloads)
                 Toggle("Yağmur uyarısı", isOn: $settings.rainAlerts)

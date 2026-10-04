@@ -28,7 +28,8 @@ enum DashboardWindow {
                 .environmentObject(model.batteryInfo)
                 .environmentObject(model.speedTest)
                 .environmentObject(model.alerts)
-                .environmentObject(model.desktopCleaner))
+                .environmentObject(model.desktopCleaner)
+                .environmentObject(model.downloadsCleaner))
             let d = CloseDelegate { model.details.end(); NSApp.setActivationPolicy(.accessory) }
             w.delegate = d
             delegate = d
@@ -55,7 +56,7 @@ enum DashboardWindow {
 }
 
 enum DashboardPage: String, CaseIterable, Identifiable {
-    case overview, cpu, gpu, memory, storage, network, battery, displays, bluetooth, processes, desktop
+    case overview, cpu, gpu, memory, storage, network, battery, displays, bluetooth, processes, desktop, downloads
     var id: String { rawValue }
 
     var title: String {
@@ -71,6 +72,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .bluetooth: return "Bluetooth"
         case .processes: return "İşlemler"
         case .desktop: return "Masaüstü Düzenleme"
+        case .downloads: return "İndirilenler Temizliği"
         }
     }
 
@@ -87,6 +89,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .bluetooth: return "dot.radiowaves.left.and.right"
         case .processes: return "list.bullet.rectangle.fill"
         case .desktop: return "wand.and.stars"
+        case .downloads: return "arrow.down.circle.fill"
         }
     }
 
@@ -103,6 +106,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .bluetooth: return .blue
         case .processes: return .pink
         case .desktop: return .mint
+        case .downloads: return .orange
         }
     }
 }
@@ -122,6 +126,7 @@ struct DashboardView: View {
                 Section("Yazılım") {
                     row(.processes)
                     row(.desktop)
+                    row(.downloads)
                 }
             }
             .navigationSplitViewColumnWidth(min: 190, ideal: 210)
@@ -161,6 +166,7 @@ struct DashboardView: View {
         case .bluetooth: BluetoothPage()
         case .processes: ProcessesPage()
         case .desktop: DesktopPage()
+        case .downloads: DownloadsPage()
         }
     }
 }
@@ -753,6 +759,143 @@ private struct DesktopTile: View {
             Button("Sadece bunu düzenle") { cleaner.organize([file]) }
         }
         .help("Çift tıkla aç · sağ tıkla seçenekler")
+    }
+}
+
+private struct DownloadsPage: View {
+    @EnvironmentObject var cleaner: DownloadsCleaner
+    @State private var age = 90
+    @State private var kinds: Set<DownloadKind> = Set(DownloadKind.allCases.filter(\.selectedByDefault))
+    @State private var unchecked: Set<URL> = []
+    @State private var confirm = false
+
+    var body: some View {
+        let cutoff = Date().addingTimeInterval(-Double(age) * 86400)
+        let candidates = cleaner.items.filter { $0.lastUsed < cutoff }
+        let byKind = Dictionary(grouping: candidates, by: \.kind)
+        let shown = candidates.filter { kinds.contains($0.kind) }
+        let selected = shown.filter { !unchecked.contains($0.url) }
+        let selectedSize = selected.reduce(0) { $0 + $1.size }
+
+        VStack(alignment: .leading, spacing: 16) {
+            if let msg = cleaner.message {
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                    Text(msg)
+                    Spacer()
+                    if !cleaner.lastTrashed.isEmpty { Button("Geri al") { cleaner.undo() } }
+                    Button { cleaner.dismissMessage() } label: { Image(systemName: "xmark") }.buttonStyle(.borderless)
+                }
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.green.opacity(0.12)))
+            }
+
+            Card(title: "İndirilenler", icon: "arrow.down.circle.fill", tint: .orange) {
+                HStack(alignment: .center, spacing: 28) {
+                    Stat(label: "Klasörün tamamı", value: ByteCountFormatter.string(fromByteCount: cleaner.totalSize, countStyle: .file))
+                    Stat(label: "Seçili", value: "\(selected.count) öğe", tint: .orange)
+                    Stat(label: "Açılacak yer", value: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file), tint: .orange)
+                    Spacer()
+                    Picker("", selection: $age) {
+                        Text("1 ay").tag(30)
+                        Text("3 ay").tag(90)
+                        Text("6 ay").tag(180)
+                        Text("1 yıl").tag(365)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
+                    .help("Bu süredir açılmamış öğeler listelenir")
+                    Button(role: .destructive) { confirm = true } label: { Label("Çöp Sepeti'ne taşı", systemImage: "trash") }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                        .disabled(selected.isEmpty)
+                }
+
+                if candidates.isEmpty {
+                    Text(cleaner.scanning ? "Taranıyor…" : "Bu süredir açılmamış öğe yok ✨")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 60)
+                } else {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: 10)], spacing: 10) {
+                        ForEach(DownloadKind.allCases.filter { byKind[$0] != nil }) { k in
+                            let list = byKind[k] ?? []
+                            HStack(spacing: 8) {
+                                Toggle("", isOn: Binding(
+                                    get: { kinds.contains(k) },
+                                    set: { on in if on { kinds.insert(k) } else { kinds.remove(k) } }
+                                ))
+                                .toggleStyle(.checkbox)
+                                .labelsHidden()
+                                Image(systemName: k.icon).foregroundStyle(.orange).frame(width: 18)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(k.title).font(.callout.weight(.medium))
+                                    Text("\(list.count) öğe · \(ByteCountFormatter.string(fromByteCount: list.reduce(0) { $0 + $1.size }, countStyle: .file))")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(8)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.04)))
+                            .opacity(kinds.contains(k) ? 1 : 0.5)
+                        }
+                    }
+
+                    if !shown.isEmpty {
+                        Divider()
+                        VStack(spacing: 0) {
+                            ForEach(shown.prefix(150)) { item in
+                                HStack(spacing: 10) {
+                                    Toggle("", isOn: Binding(
+                                        get: { !unchecked.contains(item.url) },
+                                        set: { on in if on { unchecked.remove(item.url) } else { unchecked.insert(item.url) } }
+                                    ))
+                                    .toggleStyle(.checkbox)
+                                    .labelsHidden()
+                                    Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path))
+                                        .resizable().frame(width: 20, height: 20)
+                                    Text(item.name).lineLimit(1).truncationMode(.middle)
+                                    Spacer(minLength: 12)
+                                    Text(item.opened ? "Son açılış \(item.lastUsed.formatted(.relative(presentation: .named)))"
+                                                     : "Hiç açılmadı · \(item.lastUsed.formatted(.relative(presentation: .named))) indirildi")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                        .frame(width: 230, alignment: .trailing)
+                                    Text(ByteCountFormatter.string(fromByteCount: item.size, countStyle: .file))
+                                        .font(.callout.monospacedDigit())
+                                        .frame(width: 80, alignment: .trailing)
+                                }
+                                .padding(.vertical, 5)
+                                .opacity(unchecked.contains(item.url) ? 0.5 : 1)
+                                .contentShape(Rectangle())
+                                .contextMenu { Button("Finder'da göster") { cleaner.reveal(item) } }
+                                .onTapGesture(count: 2) { cleaner.reveal(item) }
+                            }
+                        }
+                        if shown.count > 150 {
+                            Text("+\(shown.count - 150) öğe daha").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            HStack(alignment: .top) {
+                Text("Seçtiğin süredir açılmamış dosya ve klasörler en büyükten küçüğe listelenir. Varsayılan olarak sadece kurulum dosyaları ve arşivler seçilidir. Hiçbir şey kalıcı olarak silinmez: öğeler Çöp Sepeti'ne gider ve son işlem geri alınabilir.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Button("İndirilenler'i aç") { cleaner.openFolder() }
+                Button { cleaner.scan() } label: { Image(systemName: "arrow.clockwise") }
+                    .help("Yeniden tara")
+            }
+        }
+        .onAppear { cleaner.scan() }
+        .alert("\(selected.count) öğe Çöp Sepeti'ne taşınsın mı?", isPresented: $confirm) {
+            Button("Taşı", role: .destructive) {
+                cleaner.moveToTrash(selected)
+                unchecked.removeAll()
+            }
+            Button("Vazgeç", role: .cancel) {}
+        } message: {
+            Text("\(ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file)) yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.")
+        }
     }
 }
 
