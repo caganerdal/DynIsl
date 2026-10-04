@@ -9,7 +9,7 @@ final class KeepAwake: ObservableObject {
 
     var onChange: ((IslandActivity) -> Void)?
 
-    private var assertion: IOPMAssertionID = 0
+    private var assertions: [IOPMAssertionID] = []
     private var timer: Timer?
 
     static let durations: [(title: String, minutes: Int)] = [
@@ -18,10 +18,14 @@ final class KeepAwake: ObservableObject {
 
     func start(minutes: Int) {
         if !isActive {
-            let r = IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleDisplaySleep as CFString,
-                                                IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                                "DynIsl: Uyanık tut" as CFString, &assertion)
-            guard r == kIOReturnSuccess else { return }
+            for type in [kIOPMAssertPreventUserIdleDisplaySleep, kIOPMAssertPreventUserIdleSystemSleep] {
+                var id: IOPMAssertionID = 0
+                if IOPMAssertionCreateWithName(type as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                                               "DynIsl: Uyanık tut" as CFString, &id) == kIOReturnSuccess {
+                    assertions.append(id)
+                }
+            }
+            guard !assertions.isEmpty else { return }
             isActive = true
         }
         self.minutes = minutes
@@ -44,8 +48,8 @@ final class KeepAwake: ObservableObject {
         guard isActive else { return }
         timer?.invalidate()
         timer = nil
-        IOPMAssertionRelease(assertion)
-        assertion = 0
+        assertions.forEach { IOPMAssertionRelease($0) }
+        assertions.removeAll()
         isActive = false
         endDate = nil
         onChange?(.init(icon: "moon.zzz.fill", tint: .indigo, title: expired ? "Süre doldu" : "Uyanık tut",
