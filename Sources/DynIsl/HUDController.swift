@@ -84,7 +84,8 @@ final class HUDController: ObservableObject {
     }
 
     private func handle(_ key: MediaKeyTap.Key, fine: Bool) -> Bool {
-        let step: Float = fine ? 1.0 / 64 : 1.0 / 16
+        let percent = UserDefaults.standard.integer(forKey: "volumeStep")
+        let step: Float = fine ? 0.01 : (percent > 0 ? Float(percent) / 100 : 1.0 / 16)
         switch key {
         case .volumeUp, .volumeDown:
             guard VolumeControl.isSettable else { return false }

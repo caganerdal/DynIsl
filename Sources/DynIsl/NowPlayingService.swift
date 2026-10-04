@@ -366,7 +366,17 @@ final class NowPlayingService: ObservableObject {
 
     func open(_ source: MediaSource) {
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: source.bundleID) else { return }
-        NSWorkspace.shared.openApplication(at: url, configuration: .init())
+        guard source.isRunning else {
+            NSWorkspace.shared.openApplication(at: url, configuration: .init())
+            return
+        }
+        queue.async {
+            if case .failure = Self.run("tell application id \"\(source.bundleID)\"\nreopen\nactivate\nend tell") {
+                DispatchQueue.main.async {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+        }
     }
 
     func openAutomationSettings() {

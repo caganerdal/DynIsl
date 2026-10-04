@@ -14,7 +14,7 @@
 
 ### Ada
 - **Müzik:** Spotify ve Apple Music için kapak, ilerleme çubuğu, oynat/duraklat/geç, ses, karışık çal, tekrar; Apple Music'te favori ve "sevmedim". Şarkı değişimlerinde yumuşak geçişler, kapak renginde parıltı.
-- **Ses ve parlaklık göstergesi:** macOS'un göstergesinin yerine adada kendi göstergesi (isteğe bağlı).
+- **Ses ve parlaklık göstergesi:** macOS'un göstergesinin yerine adada kendi göstergesi (isteğe bağlı); her basışta %2, %5 ya da %10 adım.
 - **Canlı bildirimler:** şarj ve pil, AirPods bağlanması ve pil uyarısı, takvim toplantıları, Odak modu, kamera/mikrofon kullanımı, indirme ilerlemesi, ekran görüntüsü önizlemesi, yağmur uyarısı, sistem uyarıları.
 - **Görüşme modu:** kamera ya da mikrofon açıkken görüşme süresi ve sistem genelinde mikrofonu kapatma.
 - **Sekmeler:** müzik, takvim, raf ve AirDrop, pano geçmişi, sistem kullanımı, pil analizi.
@@ -27,6 +27,7 @@
 
 ### Menü çubuğu
 - Canlı CPU ve RAM kullanımı.
+- Uyanık tut: Mac'in uykuya girmesini süresiz ya da 30 dk – 4 saat boyunca engeller.
 
 ## Gereksinimler
 

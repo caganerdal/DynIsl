@@ -861,6 +861,9 @@ private struct SystemCard: View {
                     .foregroundStyle(.cyan)
                 Label(SystemMonitor.formatBytes(sys.upBytesPerSec, perSecond: true), systemImage: "arrow.up")
                     .foregroundStyle(.purple)
+                Pill(model.keepAwake.isActive ? "☕ Uyanık" : "Uyanık tut",
+                     tint: model.keepAwake.isActive ? .orange : .gray) { model.keepAwake.toggle() }
+                    .help(model.keepAwake.remainingText ?? "Mac uykuya girmesin")
             }
             .font(.system(size: 12, weight: .medium).monospacedDigit())
             .frame(width: 96, alignment: .leading)

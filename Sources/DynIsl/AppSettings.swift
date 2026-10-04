@@ -10,6 +10,7 @@ final class AppSettings: ObservableObject {
     @Published var callMode: Bool { didSet { d.set(callMode, forKey: "callMode") } }
     @Published var hideFromCapture: Bool { didSet { d.set(hideFromCapture, forKey: "hideFromCapture") } }
     @Published var replaceHUD: Bool { didSet { d.set(replaceHUD, forKey: "replaceHUD") } }
+    @Published var volumeStep: Int { didSet { d.set(volumeStep, forKey: "volumeStep") } }
     @Published var menuBarMode: String { didSet { d.set(menuBarMode, forKey: "menuBarMode") } }
     var showsIconItem: Bool { menuBarMode != "stats" }
     var showsStatsItem: Bool { menuBarMode != "icon" }
@@ -59,7 +60,7 @@ final class AppSettings: ObservableObject {
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
             "alertDisk": true, "alertMemory": true, "alertThermal": true, "alertBatteryHealth": true, "showWeather": true, "weatherCity": "",
-            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "screenChoice": "auto",
+            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "screenChoice": "auto",
         ])
         openOnHover = d.bool(forKey: "openOnHover")
         if d.object(forKey: "menuBarMode") == nil, !d.bool(forKey: "menuBarStats") {
@@ -67,6 +68,7 @@ final class AppSettings: ObservableObject {
         }
         menuBarMode = d.string(forKey: "menuBarMode") ?? "both"
         replaceHUD = d.bool(forKey: "replaceHUD")
+        volumeStep = d.integer(forKey: "volumeStep")
         hideFromCapture = d.bool(forKey: "hideFromCapture")
         callMode = d.bool(forKey: "callMode")
         notifyBattery = d.bool(forKey: "notifyBattery")
@@ -206,7 +208,14 @@ private struct SettingsView: View {
                         Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }
                     }
                 }
-                Text("⇧⌥ ile birlikte basınca ince ayar yapılır. Göstergedeki çubuğu fareyle de sürükleyebilirsin.")
+                Picker("Her basışta", selection: $settings.volumeStep) {
+                    Text("%2").tag(2)
+                    Text("%5").tag(5)
+                    Text("%10").tag(10)
+                    Text("macOS gibi (16 kademe)").tag(0)
+                }
+                .disabled(!settings.replaceHUD)
+                Text("⇧⌥ ile birlikte basınca %1 ince ayar yapılır. Göstergedeki çubuğu fareyle de sürükleyebilirsin.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Section("Gizlilik") {

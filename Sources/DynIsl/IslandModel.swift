@@ -71,6 +71,7 @@ final class IslandModel: ObservableObject {
     let hud = HUDController()
     let call = CallController()
     let desktopCleaner = DesktopCleaner()
+    let keepAwake = KeepAwake()
     @Published var dashboardPage: DashboardPage? = .overview
     let settings = AppSettings()
 
@@ -84,7 +85,7 @@ final class IslandModel: ObservableObject {
         for publisher in [battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
                           calendar.objectWillChange, shelf.objectWillChange, downloads.objectWillChange,
                           settings.objectWillChange, screenshots.objectWillChange, speedTest.objectWillChange,
-                          hud.objectWillChange, call.objectWillChange] {
+                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange] {
             bag.append(publisher.sink { [weak self] _ in self?.objectWillChange.send() })
         }
 
@@ -94,6 +95,7 @@ final class IslandModel: ObservableObject {
             if self.settings.notifyBattery { self.showActivity(a) }
         }
         batteryInfo.start()
+        keepAwake.onChange = { [weak self] a in self?.showActivity(a, duration: 2) }
         bluetooth.onActivity = { [weak self] a in
             guard let self, self.settings.notifyBluetooth else { return }
             self.showActivity(a)

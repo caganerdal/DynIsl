@@ -26,11 +26,12 @@ final class IslandPanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let model = IslandModel()
     private var panel: IslandPanel!
     private var statusItem: NSStatusItem!
     private var statusMenu: NSMenu!
+    private var keepAwakeMenu: NSMenu?
     private var monitors: [Any] = []
     private var settingsBag: Any?
     private var statsBag: [Any] = []
@@ -205,6 +206,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(item("Sistem Paneli…", #selector(openDashboard), key: "0"))
         menu.addItem(item("İnternet hız testi", #selector(runSpeedTest)))
+        let awake = NSMenu()
+        awake.delegate = self
+        awake.autoenablesItems = false
+        for (i, d) in KeepAwake.durations.enumerated() {
+            let it = item(d.title, #selector(keepAwakeFor(_:)))
+            it.tag = i
+            awake.addItem(it)
+        }
+        awake.addItem(.separator())
+        awake.addItem(item("Kapat", #selector(keepAwakeOff)))
+        let awakeItem = NSMenuItem(title: "Uyanık tut", action: nil, keyEquivalent: "")
+        awakeItem.submenu = awake
+        menu.addItem(awakeItem)
+        keepAwakeMenu = awake
         menu.addItem(.separator())
         let test = NSMenu()
         test.addItem(item("Şarj oluyor", #selector(demoCharging)))
@@ -228,6 +243,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
         i.target = self
         return i
+    }
+
+    @objc private func keepAwakeFor(_ sender: NSMenuItem) {
+        model.keepAwake.start(minutes: KeepAwake.durations[sender.tag].minutes)
+    }
+    @objc private func keepAwakeOff() { model.keepAwake.stop() }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard menu === keepAwakeMenu else { return }
+        let k = model.keepAwake
+        for it in menu.items where it.action == #selector(keepAwakeFor(_:)) {
+            it.state = k.isActive && KeepAwake.durations[it.tag].minutes == k.minutes ? .on : .off
+        }
+        if let off = menu.items.last {
+            off.title = k.remainingText.map { "Kapat (\($0))" } ?? (k.isActive ? "Kapat" : "Kapalı")
+            off.isEnabled = k.isActive
+            off.state = k.isActive ? .off : .on
+        }
     }
 
     @objc private func demoCharging() {
