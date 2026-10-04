@@ -36,10 +36,28 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>NSAppleEventsUsageDescription</key><string>Spotify ve Apple Music’te çalan şarkıyı göstermek ve kontrol etmek için.</string>
 </dict></plist>
 PLIST
-IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null | grep -m1 -E '"(Apple Development|DynIsl)' | sed -E 's/.*"(.*)"/\1/')
+LOCAL_ID="DynIsl Local"
+make_local_identity() {
+  local tmp=$(mktemp -d)
+  printf '[req]\ndistinguished_name=dn\nprompt=no\n[dn]\nCN=%s\n[ext]\nbasicConstraints=critical,CA:false\nkeyUsage=critical,digitalSignature\nextendedKeyUsage=critical,codeSigning\n' "$LOCAL_ID" > "$tmp/c.cnf"
+  openssl req -x509 -newkey rsa:2048 -nodes -keyout "$tmp/k.pem" -out "$tmp/c.pem" -days 3650 -config "$tmp/c.cnf" -extensions ext >/dev/null 2>&1 &&
+  { openssl pkcs12 -export -inkey "$tmp/k.pem" -in "$tmp/c.pem" -out "$tmp/id.p12" -passout pass:dynisl -legacy >/dev/null 2>&1 ||
+    openssl pkcs12 -export -inkey "$tmp/k.pem" -in "$tmp/c.pem" -out "$tmp/id.p12" -passout pass:dynisl >/dev/null 2>&1; } &&
+  security import "$tmp/id.p12" -P dynisl -T /usr/bin/codesign >/dev/null 2>&1
+  local ok=$?
+  rm -rf "$tmp"
+  return $ok
+}
+IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null | grep -m1 '"Apple Development' | sed -E 's/.*"(.*)"/\1/')
+if [[ -z "$IDENTITY" ]]; then
+  if ! security find-identity -p codesigning 2>/dev/null | grep -q "\"$LOCAL_ID\""; then
+    echo "İlk kurulum: izinlerin güncellemelerden sonra korunması için yerel imza sertifikası oluşturuluyor…"
+    make_local_identity || true
+  fi
+  security find-identity -p codesigning 2>/dev/null | grep -q "\"$LOCAL_ID\"" && IDENTITY="$LOCAL_ID"
+fi
 SIGN_OPTS=(--force --options runtime --entitlements Resources/DynIsl.entitlements)
-if [[ -n "$IDENTITY" ]]; then
-  codesign "${SIGN_OPTS[@]}" --sign "$IDENTITY" "$APP"
+if [[ -n "$IDENTITY" ]] && codesign "${SIGN_OPTS[@]}" --sign "$IDENTITY" "$APP" 2>/dev/null; then
   echo "İmza: $IDENTITY"
 else
   codesign "${SIGN_OPTS[@]}" --sign - "$APP"

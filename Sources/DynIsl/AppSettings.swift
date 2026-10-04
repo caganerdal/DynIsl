@@ -206,7 +206,7 @@ private struct SettingsView: View {
                 Toggle("macOS göstergesi yerine adada göster", isOn: $settings.replaceHUD)
                 if settings.replaceHUD && model.hud.needsPermission {
                     HStack {
-                        Text("Ses ve parlaklık tuşlarını yakalamak için Erişilebilirlik izni gerekiyor.")
+                        Text("Ses ve parlaklık tuşlarını yakalamak için Erişilebilirlik izni gerekiyor. Listede DynIsl zaten açık görünüyorsa onu − ile kaldırıp yeniden ekle; güncellemeden sonra macOS eski izni tanımayabilir.")
                             .font(.caption).foregroundStyle(.orange)
                         Spacer()
                         Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }

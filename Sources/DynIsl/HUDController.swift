@@ -13,6 +13,8 @@ final class HUDController: ObservableObject {
     @Published private(set) var needsPermission = false
 
     var enabled = true { didSet { if enabled != oldValue { apply() } } }
+    var onNeedsPermission: (() -> Void)?
+    private var warned = false
 
     let tap = MediaKeyTap()
     private var hideWork: DispatchWorkItem?
@@ -60,6 +62,10 @@ final class HUDController: ObservableObject {
             } else {
                 needsPermission = true
                 waitForTrust()
+                if !warned {
+                    warned = true
+                    onNeedsPermission?()
+                }
             }
         } else {
             tap.stop()
@@ -114,7 +120,7 @@ final class HUDController: ObservableObject {
     }
 
     private func volumeChangedElsewhere() {
-        guard enabled, Date().timeIntervalSince(lastOwnChange) > 0.4 else { return }
+        guard enabled, tap.isRunning, Date().timeIntervalSince(lastOwnChange) > 0.4 else { return }
         show(HUDInfo(kind: .volume, level: Double(VolumeControl.volume), muted: VolumeControl.isMuted))
     }
 

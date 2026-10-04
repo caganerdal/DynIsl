@@ -46,7 +46,9 @@ final class ScreenshotMonitor: ObservableObject {
     private func handle(_ urls: [URL]) {
         for url in urls where !seen.contains(url) {
             seen.insert(url)
-            guard UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true,
+            let created = (try? url.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast
+            guard Date().timeIntervalSince(created) < 20,
+                  UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true,
                   let thumb = Self.thumbnail(for: url) else { continue }
             let shot = Screenshot(url: url, thumbnail: thumb, date: Date())
             current = shot

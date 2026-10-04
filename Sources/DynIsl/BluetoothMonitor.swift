@@ -9,6 +9,7 @@ final class BluetoothMonitor: NSObject {
     private var connectNote: IOBluetoothUserNotification?
     private var disconnectNotes: [String: IOBluetoothUserNotification] = [:]
     private var startedAt = Date()
+    private var knownAirPods = UserDefaults.standard.dictionary(forKey: "knownAirPodsSymbols") as? [String: String] ?? [:]
     private let profilerQueue = DispatchQueue(label: "dynamicisland.bluetooth")
 
     func start() {
@@ -42,12 +43,16 @@ final class BluetoothMonitor: NSObject {
         let name = device.name ?? "AirPods"
         let kind = DeviceKind(device: device)
 
-        if name.lowercased().contains("airpods") {
+        if let symbol = knownAirPods[address] {
+            airPodsConnected(address: address, name: name, symbol: symbol, announce: announce)
+        } else if name.lowercased().contains("airpods") {
             airPodsConnected(address: address, name: name, symbol: kind.symbol, announce: announce)
         } else if kind.isAudio {
-            fetchDetails(address: address, attempts: 3) { [weak self] details in
-                guard let symbol = details?.productSymbol, symbol.hasPrefix("airpods") else { return }
-                self?.airPodsConnected(address: address, name: name, symbol: symbol, announce: announce, details: details)
+            identify(address: address, attempts: 6) { [weak self] details in
+                guard let self, let symbol = details?.productSymbol else { return }
+                self.knownAirPods[address] = symbol
+                UserDefaults.standard.set(self.knownAirPods, forKey: "knownAirPodsSymbols")
+                self.airPodsConnected(address: address, name: name, symbol: symbol, announce: announce, details: details)
             }
         }
     }
@@ -111,6 +116,23 @@ final class BluetoothMonitor: NSObject {
         var productSymbol: String?
     }
 
+    private func identify(address: String, attempts: Int, completion: @escaping (Details?) -> Void) {
+        profilerQueue.asyncAfter(deadline: .now() + 0.3) {
+            let details = Self.readProfiler(address: address)
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    if details?.productSymbol != nil {
+                        completion(details)
+                    } else if details == nil, attempts > 1 {
+                        self.identify(address: address, attempts: attempts - 1, completion: completion)
+                    } else {
+                        completion(nil)
+                    }
+                }
+            }
+        }
+    }
+
     private func fetchDetails(address: String, attempts: Int, completion: @escaping (Details?) -> Void) {
         profilerQueue.asyncAfter(deadline: .now() + 1.5) {
             let details = Self.readProfiler(address: address)
@@ -151,11 +173,18 @@ final class BluetoothMonitor: NSObject {
                 let buds = [level("device_batteryLevelLeft"), level("device_batteryLevelRight")].compactMap { $0 }
                 let battery = buds.min() ?? level("device_batteryLevelMain")
                 let pid = (info["device_productID"] as? String).flatMap { Int($0.dropFirst(2), radix: 16) }
-                return Details(batteryLevel: battery, productSymbol: pid.flatMap(appleAudioSymbol))
+                let vid = (info["device_vendorID"] as? String).flatMap { Int($0.dropFirst(2), radix: 16) }
+                let isAppleHeadphones = vid == 0x004C && pid.map { $0 & 0xFF00 == 0x2000 && !beatsIDs.contains($0) } == true
+                    && (info["device_minorType"] as? String) == "Headphones"
+                return Details(batteryLevel: battery,
+                               productSymbol: pid.flatMap(appleAudioSymbol) ?? (isAppleHeadphones ? "airpods" : nil))
             }
         }
         return nil
     }
+
+    private nonisolated static let beatsIDs: Set<Int> = [0x2003, 0x2005, 0x2006, 0x2009, 0x200B, 0x200C, 0x200D,
+                                                          0x2010, 0x2011, 0x2016, 0x2017, 0x201D, 0x2025, 0x2026]
 
     private nonisolated static func appleAudioSymbol(_ pid: Int) -> String? {
         switch pid {

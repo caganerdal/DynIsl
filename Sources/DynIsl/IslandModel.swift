@@ -207,6 +207,15 @@ final class IslandModel: ObservableObject {
             self.call.update(camera: self.privacy.cameraOn, mic: self.privacy.micOn, apps: self.privacy.micApps)
         })
 
+        hud.onNeedsPermission = { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                MainActor.assumeIsolated {
+                    guard let self, self.hud.needsPermission else { return }
+                    self.showActivity(.init(icon: "lock.fill", tint: .orange, title: "Ses göstergesi",
+                                            trailing: "İzin gerekli"), duration: 5)
+                }
+            }
+        }
         hud.enabled = settings.replaceHUD
         bag.append(settings.$replaceHUD.dropFirst().sink { [weak self] in self?.hud.enabled = $0 })
         hud.start()
