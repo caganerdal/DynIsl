@@ -48,7 +48,7 @@ cd DynIsl
 ./build-app.sh install
 ```
 
-`build-app.sh` uygulamayı derler, `build/DynIsl.app` paketini oluşturur ve `install` ile `/Applications` klasörüne kurar. Anahtar zincirinde bir **Apple Development** sertifikası varsa onunla imzalar. Yoksa ilk kurulumda anahtar zincirine sadece bu bilgisayarda geçerli "DynIsl Local" adlı bir imza sertifikası ekler; böylece macOS izinleri güncellemelerden sonra korunur. İlk derlemede macOS, codesign'ın bu anahtarı kullanması için izin isteyebilir: "Her Zaman İzin Ver" de.
+`build-app.sh` uygulamayı derler, `build/DynIsl.app` paketini oluşturur ve `install` ile `/Applications` klasörüne kurar. Anahtar zincirinde bir **Apple Development** sertifikası varsa onunla imzalar. Yoksa ilk kurulumda anahtar zincirine sadece bu bilgisayarda geçerli "DynIsl Local" adlı bir imza sertifikası ekler; böylece macOS izinleri güncellemelerden sonra korunur. Her derlemede macOS, codesign'ın bu anahtarı kullanması için anahtar zinciri şifreni ister. "Her Zaman İzin Ver" yerine "İzin Ver" demen daha güvenlidir: böylece başka bir program bu sertifikayla kendini DynIsl gibi imzalayıp onun izinlerini sessizce kullanamaz.
 
 Sadece derlemek için:
 

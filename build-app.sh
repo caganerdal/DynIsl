@@ -43,7 +43,7 @@ make_local_identity() {
   openssl req -x509 -newkey rsa:2048 -nodes -keyout "$tmp/k.pem" -out "$tmp/c.pem" -days 3650 -config "$tmp/c.cnf" -extensions ext >/dev/null 2>&1 &&
   { openssl pkcs12 -export -inkey "$tmp/k.pem" -in "$tmp/c.pem" -out "$tmp/id.p12" -passout pass:dynisl -legacy >/dev/null 2>&1 ||
     openssl pkcs12 -export -inkey "$tmp/k.pem" -in "$tmp/c.pem" -out "$tmp/id.p12" -passout pass:dynisl >/dev/null 2>&1; } &&
-  security import "$tmp/id.p12" -P dynisl -T /usr/bin/codesign >/dev/null 2>&1
+  security import "$tmp/id.p12" -P dynisl >/dev/null 2>&1
   local ok=$?
   rm -rf "$tmp"
   return $ok
