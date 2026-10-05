@@ -12,8 +12,18 @@ final class BluetoothMonitor: NSObject {
     private var knownAirPods = UserDefaults.standard.dictionary(forKey: "knownAirPodsSymbols") as? [String: String] ?? [:]
     private let profilerQueue = DispatchQueue(label: "dynamicisland.bluetooth")
 
+    private var lastDisconnect: [String: Date] = [:]
+    private var lastAnnounce: [String: Date] = [:]
+    private var quietUntil = Date.distantPast
+    private var wakeObserver: NSObjectProtocol?
+
     func start() {
         startedAt = Date()
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.quietUntil = Date().addingTimeInterval(45) }
+        }
         connectNote = IOBluetoothDevice.register(forConnectNotifications: self, selector: #selector(deviceConnected(_:device:)))
     }
 
@@ -39,7 +49,12 @@ final class BluetoothMonitor: NSObject {
         disconnectNotes[address]?.unregister()
         disconnectNotes[address] = device.register(forDisconnectNotification: self, selector: #selector(deviceDisconnected(_:device:)))
 
-        let announce = Date().timeIntervalSince(startedAt) > 3
+        let now = Date()
+        let alreadyConnected = airPods[address] != nil
+        let briefDrop = lastDisconnect[address].map { now.timeIntervalSince($0) < 60 } ?? false
+        let recentlyShown = lastAnnounce[address].map { now.timeIntervalSince($0) < 120 } ?? false
+        let announce = now.timeIntervalSince(startedAt) > 3 && now >= quietUntil
+            && !alreadyConnected && !briefDrop && !recentlyShown
         let name = device.name ?? "AirPods"
         let kind = DeviceKind(device: device)
 
@@ -62,6 +77,7 @@ final class BluetoothMonitor: NSObject {
         warnedAt[address] = nil
         startBatteryWatch()
         guard announce else { return }
+        lastAnnounce[address] = Date()
         onActivity?(.init(icon: symbol, tint: .white, title: name, trailing: "Bağlandı"))
         let show: (Details?) -> Void = { [weak self] d in
             guard let self, let d, let battery = d.batteryLevel else { return }
@@ -76,6 +92,7 @@ final class BluetoothMonitor: NSObject {
         let address = Self.normalize(device.addressString ?? "")
         disconnectNotes[address]?.unregister()
         disconnectNotes[address] = nil
+        if airPods[address] != nil { lastDisconnect[address] = Date() }
         airPods[address] = nil
         warnedAt[address] = nil
         if airPods.isEmpty {
