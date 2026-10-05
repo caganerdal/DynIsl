@@ -101,7 +101,7 @@ struct IslandView: View {
                 HStack(spacing: 5) {
                     Image(systemName: model.call.usesCamera ? "video.fill" : "mic.fill")
                         .foregroundStyle(model.call.usesCamera ? .green : .orange)
-                    Text(model.call.appName ?? "Görüşme").font(.system(size: 12, weight: .medium)).lineLimit(1)
+                    Text(model.call.appName ?? String(localized: "Görüşme")).font(.system(size: 12, weight: .medium)).lineLimit(1)
                 }
             } trailing: {
                 HStack(spacing: 5) {
@@ -501,7 +501,7 @@ private struct MediaControlsBar: View {
                         guard let url = m.shareLink else { return }
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(url.absoluteString, forType: .string)
-                        model.showActivity(.init(icon: "link", tint: .green, title: "Spotify", trailing: "Link kopyalandı"), duration: 2)
+                        model.showActivity(.init(icon: "link", tint: .green, title: "Spotify", trailing: String(localized: "Link kopyalandı")), duration: 2)
                     }
                 }
                 ToggleIcon("arrow.up.forward.app", on: false, tint: .white,
@@ -519,7 +519,7 @@ private struct MediaControlsBar: View {
         }
     }
 
-    private func repeatHelp(_ i: NowPlayingInfo) -> String {
+    private func repeatHelp(_ i: NowPlayingInfo) -> LocalizedStringKey {
         switch i.repeatMode {
         case .off: return "Tekrar: kapalı"
         case .all: return "Tekrar: tümü"
@@ -532,10 +532,10 @@ private struct ToggleIcon: View {
     let name: String
     let on: Bool
     let tint: Color
-    let help: String
+    let help: LocalizedStringKey
     let action: () -> Void
 
-    init(_ name: String, on: Bool, tint: Color, help: String, action: @escaping () -> Void) {
+    init(_ name: String, on: Bool, tint: Color, help: LocalizedStringKey, action: @escaping () -> Void) {
         self.name = name; self.on = on; self.tint = tint; self.help = help; self.action = action
     }
 
@@ -621,7 +621,7 @@ private struct StatusCard: View {
                     Text(w.summary).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
                 }
                 .padding(.top, 6)
-                .help([w.place, "En yüksek \(w.high)° · En düşük \(w.low)°"].compactMap { $0 }.joined(separator: " · "))
+                .help([w.place, String(localized: "En yüksek \(w.high)° · En düşük \(w.low)°")].compactMap { $0 }.joined(separator: " · "))
             }
 
             Spacer(minLength: 8)
@@ -704,12 +704,12 @@ private struct StatusIcons: View {
             }
             if model.settings.showPrivacy, model.privacy.micOn {
                 Image(systemName: "mic.fill").foregroundStyle(.orange)
-                    .help("Mikrofon: " + model.privacy.micApps.joined(separator: ", "))
+                    .help(String(localized: "Mikrofon: ") + model.privacy.micApps.joined(separator: ", "))
             }
             if model.battery.hasBattery {
                 Button { model.tab = .battery } label: {
                     HStack(spacing: 5) {
-                        Text("%\(model.battery.level)").font(.system(size: 11, weight: .medium))
+                        Text(pc(model.battery.level)).font(.system(size: 11, weight: .medium))
                         Image(systemName: model.battery.symbol)
                             .foregroundStyle(model.battery.isCharging ? .green : .white)
                     }
@@ -868,7 +868,7 @@ private struct SystemCard: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 18) {
-            RingGauge(value: sys.cpu, label: "CPU", detail: "%\(Int(sys.cpu * 100))", tint: gaugeTint(sys.cpu))
+            RingGauge(value: sys.cpu, label: "CPU", detail: pc(Int(sys.cpu * 100)), tint: gaugeTint(sys.cpu))
             RingGauge(value: sys.memory, label: "RAM",
                       detail: String(format: "%.1f / %.0f GB", sys.memoryUsed / 1_073_741_824, sys.memoryTotal / 1_073_741_824),
                       tint: gaugeTint(sys.memory))
@@ -880,7 +880,7 @@ private struct SystemCard: View {
                     .foregroundStyle(.purple)
                 Pill(model.keepAwake.isActive ? "☕ Uyanık" : "Uyanık tut",
                      tint: model.keepAwake.isActive ? .orange : .gray) { model.keepAwake.toggle() }
-                    .help(model.keepAwake.remainingText ?? "Mac uykuya girmesin")
+                    .help(model.keepAwake.remainingText ?? String(localized: "Mac uykuya girmesin"))
             }
             .font(.system(size: 12, weight: .medium).monospacedDigit())
             .frame(width: 96, alignment: .leading)
@@ -901,7 +901,7 @@ private struct SystemCard: View {
                     HStack {
                         Text(p.name).font(.system(size: 11)).lineLimit(1)
                         Spacer(minLength: 6)
-                        Text("%\(Int(p.cpu))")
+                        Text(pc(Int(p.cpu)))
                             .font(.system(size: 11, weight: .semibold).monospacedDigit())
                             .foregroundStyle(p.cpu >= 90 ? .orange : .white.opacity(0.8))
                     }
@@ -948,15 +948,15 @@ private struct BatteryCard: View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("%\(b.level)").font(.system(size: 30, weight: .semibold, design: .rounded))
+                    Text(pc(b.level)).font(.system(size: 30, weight: .semibold, design: .rounded))
                     Text(stateLine(b)).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(2)
                 }
                 InfoRow(icon: "bolt.fill", tint: .yellow,
                         title: b.isCharging ? "Şarj gücü" : b.externalPower ? "Güç" : "Güç çekişi",
-                        value: (b.isCharging || !b.externalPower ? String(format: "%.1f W", b.watts) : "Adaptörden")
-                            + (b.adapterWatts.map { " · \($0) W adaptör" } ?? ""))
+                        value: (b.isCharging || !b.externalPower ? String(format: "%.1f W", b.watts) : String(localized: "Adaptörden"))
+                            + (b.adapterWatts.map { String(localized: " · \($0) W adaptör") } ?? ""))
                 InfoRow(icon: "heart.fill", tint: healthTint(b.healthPercent), title: "Sağlık",
-                        value: [b.healthPercent.map { "%\($0)" }, b.condition].compactMap { $0 }.joined(separator: " · "))
+                        value: [b.healthPercent.map { pc($0) }, b.condition].compactMap { $0 }.joined(separator: " · "))
                 VStack(alignment: .leading, spacing: 3) {
                     InfoRow(icon: "arrow.triangle.2.circlepath", tint: .blue, title: "Döngü",
                             value: "\(b.cycleCount) / \(b.designCycles)")
@@ -1012,7 +1012,7 @@ private struct BatteryCard: View {
                 }
                 HStack(spacing: 12) {
                     if let d = b.drainPerHour {
-                        Label(String(format: "Pilde ort. %%%.0f/sa", d), systemImage: "chart.line.downtrend.xyaxis")
+                        Label(String(localized: "Pilde ort. \(pc(Int(d.rounded())))/sa"), systemImage: "chart.line.downtrend.xyaxis")
                     }
                     if b.onBatteryToday > 60 {
                         Label("Bugün pilde \(formatMinutes(Int(b.onBatteryToday / 60)))", systemImage: "clock")
@@ -1025,10 +1025,10 @@ private struct BatteryCard: View {
     }
 
     private func stateLine(_ b: BatteryAnalytics) -> String {
-        if b.fullyCharged { return "Tamamen dolu" }
-        if b.isCharging { return b.minutesToFull.map { "Şarj oluyor\n\(formatMinutes($0))'da dolar" } ?? "Şarj oluyor" }
-        if b.externalPower { return "Adaptöre bağlı\nşarj beklemede" }
-        return b.minutesToEmpty.map { "Pilde\n~\(formatMinutes($0)) kaldı" } ?? "Pilde\nhesaplanıyor…"
+        if b.fullyCharged { return String(localized: "Tamamen dolu") }
+        if b.isCharging { return b.minutesToFull.map { String(localized: "Şarj oluyor\n\(formatMinutes($0))'da dolar") } ?? String(localized: "Şarj oluyor") }
+        if b.externalPower { return String(localized: "Adaptöre bağlı\nşarj beklemede") }
+        return b.minutesToEmpty.map { String(localized: "Pilde\n~\(formatMinutes($0)) kaldı") } ?? String(localized: "Pilde\nhesaplanıyor…")
     }
 
     private func healthTint(_ p: Int?) -> Color {
@@ -1040,7 +1040,7 @@ private struct BatteryCard: View {
 private struct InfoRow: View {
     let icon: String
     let tint: Color
-    let title: String
+    let title: LocalizedStringKey
     let value: String
 
     var body: some View {
@@ -1127,7 +1127,7 @@ private struct ClipRow: View {
         .onHover { hover = $0 }
         .onTapGesture {
             withAnimation(.snappy) { model.clipboard.copy(item) }
-            model.showActivity(.init(icon: "doc.on.doc.fill", tint: .blue, title: "Panoya kopyalandı", trailing: "✓"), duration: 1.5)
+            model.showActivity(.init(icon: "doc.on.doc.fill", tint: .blue, title: String(localized: "Panoya kopyalandı"), trailing: "✓"), duration: 1.5)
         }
         .help("Tıkla: tekrar kopyala")
     }
@@ -1193,7 +1193,7 @@ private struct EventRow: View {
 
     private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "tr_TR")
+        f.locale = appLocale
         f.dateFormat = "HH:mm"
         return f
     }()
@@ -1201,13 +1201,13 @@ private struct EventRow: View {
     private var timeText: String {
         let f = Self.timeFormatter
         var range = "\(f.string(from: event.start)) – \(f.string(from: event.end))"
-        if Calendar.current.isDateInTomorrow(event.start) { range = "Yarın " + range }
+        if Calendar.current.isDateInTomorrow(event.start) { range = String(localized: "Yarın ") + range }
         let now = Date()
         if event.start <= now {
-            return range + " · şu an"
+            return range + String(localized: " · şu an")
         }
         let mins = Int(ceil(event.start.timeIntervalSince(now) / 60))
-        if mins < 60 { return range + " · \(mins) dk sonra" }
+        if mins < 60 { return range + String(localized: " · \(mins) dk sonra") }
         if let loc = event.location, event.meetingURL == nil { return range + " · " + loc }
         return range
     }
@@ -1492,12 +1492,16 @@ private struct IconButton: View {
 }
 
 private struct Pill: View {
-    let title: String
+    let title: LocalizedStringKey
     let tint: Color
     let action: () -> Void
 
-    init(_ title: String, tint: Color, action: @escaping () -> Void) {
+    init(_ title: LocalizedStringKey, tint: Color, action: @escaping () -> Void) {
         self.title = title; self.tint = tint; self.action = action
+    }
+
+    init(verbatim title: String, tint: Color, action: @escaping () -> Void) {
+        self.init(LocalizedStringKey(title), tint: tint, action: action)
     }
 
     var body: some View {
@@ -1542,7 +1546,7 @@ struct NotchShape: Shape {
 
 func countdown(to date: Date) -> String {
     let mins = Int(ceil(date.timeIntervalSinceNow / 60))
-    return mins <= 0 ? "Şimdi" : "\(mins) dk"
+    return mins <= 0 ? String(localized: "Şimdi") : String(localized: "\(mins) dk")
 }
 
 func formatSeconds(_ s: Int) -> String {

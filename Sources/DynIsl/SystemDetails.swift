@@ -358,7 +358,7 @@ final class SystemDetails: ObservableObject {
             defer { p = cur.pointee.ifa_next }
             let name = String(cString: cur.pointee.ifa_name)
             guard name.hasPrefix("en") || name.hasPrefix("bridge") || name.hasPrefix("utun") else { continue }
-            var e = list[name] ?? (name == wifiName ? "Wi-Fi" : name.hasPrefix("utun") ? "VPN" : name.hasPrefix("bridge") ? "Köprü" : "Ethernet", nil, 0, 0)
+            var e = list[name] ?? (name == wifiName ? "Wi-Fi" : name.hasPrefix("utun") ? "VPN" : name.hasPrefix("bridge") ? String(localized: "Köprü") : String(localized: "Ethernet"), nil, 0, 0)
             guard let addr = cur.pointee.ifa_addr else { continue }
             if addr.pointee.sa_family == UInt8(AF_LINK), let data = cur.pointee.ifa_data {
                 let d = data.assumingMemoryBound(to: if_data.self).pointee
@@ -393,7 +393,7 @@ final class SystemDetails: ObservableObject {
         guard let i = CWWiFiClient.shared().interface(), i.powerOn() else { wifi = nil; return }
         let ch = i.wlanChannel()
         let band: String? = switch ch?.channelBand {
-        case .band2GHz: "2,4 GHz"
+        case .band2GHz: String(localized: "2,4 GHz")
         case .band5GHz: "5 GHz"
         case .band6GHz: "6 GHz"
         default: nil
@@ -401,7 +401,7 @@ final class SystemDetails: ObservableObject {
         let security: String? = switch i.security() {
         case .wpa2Personal, .wpa2Enterprise: "WPA2"
         case .wpa3Personal, .wpa3Enterprise, .wpa3Transition: "WPA3"
-        case .none: "Açık"
+        case .none: String(localized: "Şifresiz")
         case .unknown: nil
         default: "WPA"
         }
@@ -450,8 +450,8 @@ final class SystemDetails: ObservableObject {
                 for (name, value) in entry {
                     guard let info = value as? [String: Any] else { continue }
                     let lvl = { (k: String) in (info[k] as? String).flatMap { Int($0.filter(\.isNumber)) } }
-                    let batteries = [("Sol", lvl("device_batteryLevelLeft")), ("Sağ", lvl("device_batteryLevelRight")),
-                                     ("Kutu", lvl("device_batteryLevelCase")), ("Pil", lvl("device_batteryLevelMain"))]
+                    let batteries = [(String(localized: "Sol"), lvl("device_batteryLevelLeft")), (String(localized: "Sağ"), lvl("device_batteryLevelRight")),
+                                     (String(localized: "Kutu"), lvl("device_batteryLevelCase")), (String(localized: "Pil"), lvl("device_batteryLevelMain"))]
                         .compactMap { k, v in v.map { (k, $0) } }
                     out.append(BluetoothDeviceInfo(name: name, address: info["device_address"] as? String ?? name,
                                                    kind: info["device_minorType"] as? String ?? "",

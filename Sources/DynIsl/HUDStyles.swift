@@ -3,7 +3,7 @@ import SwiftUI
 extension HUDInfo {
     var shown: Double { muted ? 0 : level }
     var tint: Color { kind == .brightness ? .yellow : .white }
-    var percentText: String { muted ? "Sessiz" : "\(Int((shown * 100).rounded()))" }
+    var percentText: String { muted ? String(localized: "Sessiz") : "\(Int((shown * 100).rounded()))" }
 }
 
 struct HUDSymbol: View {
@@ -175,3 +175,7 @@ struct LiquidShape: Shape {
         return p
     }
 }
+
+let appLocale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "tr")
+
+func pc(_ n: Int) -> String { n.formatted(.percent.locale(appLocale)) }

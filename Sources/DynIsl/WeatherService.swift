@@ -54,7 +54,7 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
             case .authorizedAlways, .authorized:
                 manager.requestLocation()
             default:
-                status = "Konum izni yok — Ayarlar'dan şehir gir"
+                status = String(localized: "Konum izni yok — Ayarlar'dan şehir gir")
             }
         }
     }
@@ -84,12 +84,12 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         DispatchQueue.main.async {
-            MainActor.assumeIsolated { self.status = "Konum alınamadı" }
+            MainActor.assumeIsolated { self.status = String(localized: "Konum alınamadı") }
         }
     }
 
     private func reverseGeocode(_ loc: CLLocation) {
-        CLGeocoder().reverseGeocodeLocation(loc, preferredLocale: Locale(identifier: "tr_TR")) { [weak self] marks, _ in
+        CLGeocoder().reverseGeocodeLocation(loc, preferredLocale: appLocale) { [weak self] marks, _ in
             let name = marks?.first.flatMap { $0.locality ?? $0.administrativeArea }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
@@ -109,7 +109,7 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
                 MainActor.assumeIsolated {
                     guard let self else { return }
                     guard let r = result?.first, let lat = r["latitude"] as? Double, let lon = r["longitude"] as? Double else {
-                        self.status = "“\(city)” bulunamadı"
+                        self.status = String(localized: "“\(city)” bulunamadı")
                         return
                     }
                     self.placeName = r["name"] as? String
@@ -144,7 +144,7 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
     private func apply(_ json: [String: Any]?, failed: Bool) {
         guard let json, let cur = json["current"] as? [String: Any],
               let temp = cur["temperature_2m"] as? Double, let code = cur["weather_code"] as? Int else {
-            status = failed ? "Hava durumu alınamadı" : status
+            status = failed ? String(localized: "Hava durumu alınamadı") : status
             return
         }
         let daily = json["daily"] as? [String: Any]
@@ -159,7 +159,7 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
         if nowRain < 0.1, let idx = upcoming.firstIndex(where: { $0 >= 0.2 }), Date() > rainWarnedUntil {
             rainWarnedUntil = Date().addingTimeInterval(3 * 3600)
             let minutes = max(idx * 15, 5)
-            onActivity?(.init(icon: "cloud.rain.fill", tint: .cyan, title: "Yağmur", trailing: "~\(minutes) dk sonra"))
+            onActivity?(.init(icon: "cloud.rain.fill", tint: .cyan, title: String(localized: "Yağmur"), trailing: String(localized: "~\(minutes) dk sonra")))
         }
     }
 
@@ -179,17 +179,17 @@ final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegat
 
     nonisolated static func describe(_ code: Int) -> String {
         switch code {
-        case 0: return "Açık"
-        case 1: return "Az bulutlu"
-        case 2: return "Parçalı bulutlu"
-        case 3: return "Kapalı"
-        case 45, 48: return "Sisli"
-        case 51...57: return "Çiseleme"
-        case 61...67: return "Yağmurlu"
-        case 71...77: return "Karlı"
-        case 80...82: return "Sağanak"
-        case 85, 86: return "Kar sağanağı"
-        case 95...99: return "Gök gürültülü"
+        case 0: return String(localized: "Bulutsuz")
+        case 1: return String(localized: "Az bulutlu")
+        case 2: return String(localized: "Parçalı bulutlu")
+        case 3: return String(localized: "Çok bulutlu")
+        case 45, 48: return String(localized: "Sisli")
+        case 51...57: return String(localized: "Çiseleme")
+        case 61...67: return String(localized: "Yağmurlu")
+        case 71...77: return String(localized: "Karlı")
+        case 80...82: return String(localized: "Sağanak")
+        case 85, 86: return String(localized: "Kar sağanağı")
+        case 95...99: return String(localized: "Gök gürültülü")
         default: return "—"
         }
     }

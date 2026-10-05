@@ -20,12 +20,12 @@ enum IslandTab: String, CaseIterable, Equatable {
 
     var title: String {
         switch self {
-        case .media: return "Müzik"
-        case .calendar: return "Takvim"
-        case .shelf: return "Raf ve AirDrop"
-        case .clipboard: return "Pano"
-        case .system: return "Sistem"
-        case .battery: return "Pil"
+        case .media: return String(localized: "Müzik")
+        case .calendar: return String(localized: "Takvim")
+        case .shelf: return String(localized: "Raf ve AirDrop")
+        case .clipboard: return String(localized: "Pano")
+        case .system: return String(localized: "Sistem")
+        case .battery: return String(localized: "Pil")
         }
     }
 
@@ -141,7 +141,7 @@ final class IslandModel: ObservableObject {
             if self.settings.downloadsToShelf { self.shelf.add([url]) }
             if self.settings.showDownloads {
                 self.showActivity(.init(icon: "arrow.down.circle.fill", tint: .green,
-                                        title: url.lastPathComponent, trailing: "İndirildi"))
+                                        title: url.lastPathComponent, trailing: String(localized: "İndirildi")))
             }
         }
         downloads.start()
@@ -180,11 +180,11 @@ final class IslandModel: ObservableObject {
             let size = ByteCountFormatter.string(fromByteCount: r.saved, countStyle: .file)
             let text: String
             if r.outputs.isEmpty {
-                text = r.skipped > 0 ? "Zaten küçük" : "Dönüştürülemedi"
+                text = r.skipped > 0 ? String(localized: "Zaten küçük") : String(localized: "Dönüştürülemedi")
             } else if r.saved > 0 {
-                text = "\(r.outputs.count) dosya · \(size) kazanıldı"
+                text = String(localized: "\(r.outputs.count) dosya · \(size) kazanıldı")
             } else {
-                text = kind == .mergePDF ? "PDF hazır, rafta" : "\(r.outputs.count) dosya hazır"
+                text = kind == .mergePDF ? String(localized: "PDF hazır, rafta") : String(localized: "\(r.outputs.count) dosya hazır")
             }
             self?.showActivity(.init(icon: r.outputs.isEmpty ? "exclamationmark.triangle.fill" : "checkmark.circle.fill",
                                      tint: r.outputs.isEmpty ? .orange : .green, title: kind.title, trailing: text), duration: 3)
@@ -199,7 +199,7 @@ final class IslandModel: ObservableObject {
             if active { self.screenshots.dismiss() }
             if manual || !active {
                 self.showActivity(.init(icon: active ? "play.rectangle.fill" : "rectangle.slash", tint: active ? .purple : .gray,
-                                        title: "Sunum modu", trailing: active ? "Açık" : "Kapalı"), duration: 2, force: true)
+                                        title: String(localized: "Sunum modu"), trailing: active ? String(localized: "Açık") : String(localized: "Kapalı")), duration: 2, force: true)
             }
         }
         presentation.start()
@@ -220,7 +220,7 @@ final class IslandModel: ObservableObject {
         system.start()
 
         speedTest.onFinished = { [weak self] r in
-            self?.showActivity(.init(icon: "gauge.with.needle.fill", tint: .cyan, title: "Hız testi",
+            self?.showActivity(.init(icon: "gauge.with.needle.fill", tint: .cyan, title: String(localized: "Hız testi"),
                                      trailing: "↓ \(Int(r.downMbps)) · ↑ \(Int(r.upMbps)) Mbps"), duration: 6)
         }
 
@@ -246,8 +246,8 @@ final class IslandModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
                 MainActor.assumeIsolated {
                     guard let self, self.hud.needsPermission else { return }
-                    self.showActivity(.init(icon: "lock.fill", tint: .orange, title: "Ses göstergesi",
-                                            trailing: "İzin gerekli"), duration: 5)
+                    self.showActivity(.init(icon: "lock.fill", tint: .orange, title: String(localized: "Ses göstergesi"),
+                                            trailing: String(localized: "İzin gerekli")), duration: 5)
                 }
             }
         }
@@ -290,9 +290,9 @@ final class IslandModel: ObservableObject {
         }
         airdrop.onResult = { [weak self] ok, count in
             if ok {
-                self?.showActivity(.init(icon: "checkmark.circle.fill", tint: .blue, title: "AirDrop", trailing: "\(count) dosya gitti"))
+                self?.showActivity(.init(icon: "checkmark.circle.fill", tint: .blue, title: "AirDrop", trailing: String(localized: "\(count) dosya gitti")))
             } else {
-                self?.showActivity(.init(icon: "exclamationmark.triangle.fill", tint: .yellow, title: "AirDrop", trailing: "Gönderilemedi"))
+                self?.showActivity(.init(icon: "exclamationmark.triangle.fill", tint: .yellow, title: "AirDrop", trailing: String(localized: "Gönderilemedi")))
             }
         }
     }
@@ -339,7 +339,7 @@ final class IslandModel: ObservableObject {
         switch state {
         case .idle: return CGSize(width: notchSize.width + 2 * petEar, height: notchSize.height)
         case .call:
-            let w = textWidth(call.appName ?? "Görüşme", weight: .medium) + 34
+            let w = textWidth(call.appName ?? String(localized: "Görüşme"), weight: .medium) + 34
             return CGSize(width: notchSize.width + 2 * min(max(w, 100), 180), height: notchSize.height)
         case .playing: return CGSize(width: notchSize.width + 100 + 2 * petEar, height: notchSize.height)
         case .timer, .meeting, .privacy, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
@@ -430,7 +430,7 @@ final class IslandModel: ObservableObject {
                     t.invalidate()
                     self.timerRemaining = nil
                     NSSound(named: "Glass")?.play()
-                    self.showActivity(.init(icon: "timer", tint: .orange, title: "Zamanlayıcı", trailing: "Bitti!"))
+                    self.showActivity(.init(icon: "timer", tint: .orange, title: String(localized: "Zamanlayıcı"), trailing: String(localized: "Bitti!")))
                 } else {
                     self.timerRemaining = r - 1
                 }
@@ -496,7 +496,7 @@ final class BatteryMonitor: ObservableObject {
                 } else if !plugged, newLevel < level, let low = lowBatteryActivity(from: level, to: newLevel) {
                     onActivity?(low)
                 } else if plugged, charged, level < 100, newLevel >= 100 {
-                    onActivity?(.init(icon: "battery.100percent", tint: .green, title: "Tamamen şarj oldu", trailing: "%100", ring: 1))
+                    onActivity?(.init(icon: "battery.100percent", tint: .green, title: String(localized: "Tamamen şarj oldu"), trailing: pc(100), ring: 1))
                 }
             }
             let charging = desc[kIOPSIsChargingKey] as? Bool ?? false
@@ -515,8 +515,8 @@ final class BatteryMonitor: ObservableObject {
         }
         if let limit = chargeLimit, limit < 100, charging, old < limit, new >= limit, !limitNotified {
             limitNotified = true
-            onReminder?(.init(icon: "powerplug.fill", tint: .green, title: "Pil %\(new)",
-                              trailing: "Şarjı çıkarabilirsin", ring: Double(new) / 100))
+            onReminder?(.init(icon: "powerplug.fill", tint: .green, title: String(localized: "Pil \(pc(new))"),
+                              trailing: String(localized: "Şarjı çıkarabilirsin"), ring: Double(new) / 100))
         }
         if new >= 100 || charged {
             let since = fullSince ?? Date()
@@ -525,8 +525,8 @@ final class BatteryMonitor: ObservableObject {
                Date().timeIntervalSince(fullNotifiedAt) > 24 * 3600 {
                 fullNotifiedAt = Date()
                 let hours = Int(Date().timeIntervalSince(since) / 3600)
-                onReminder?(.init(icon: "battery.100percent", tint: .yellow, title: "\(hours) saattir %100",
-                                  trailing: "Pil için çıkarabilirsin", ring: 1))
+                onReminder?(.init(icon: "battery.100percent", tint: .yellow, title: String(localized: "\(hours) saattir \(pc(100))"),
+                                  trailing: String(localized: "Pil için çıkarabilirsin"), ring: 1))
             }
         } else {
             fullSince = nil
@@ -534,17 +534,17 @@ final class BatteryMonitor: ObservableObject {
     }
 
     private func chargingActivity(_ l: Int) -> IslandActivity {
-        .init(icon: "bolt.fill", tint: .green, title: "Şarj oluyor", trailing: "%\(l)", ring: Double(l) / 100)
+        .init(icon: "bolt.fill", tint: .green, title: String(localized: "Şarj oluyor"), trailing: pc(l), ring: Double(l) / 100)
     }
 
     private func unpluggedActivity(_ l: Int) -> IslandActivity {
         .init(icon: symbol(for: l, charging: false), tint: l <= 20 ? .orange : .white,
-              title: "Pil gücü", trailing: "%\(l)", ring: Double(l) / 100)
+              title: String(localized: "Pil gücü"), trailing: pc(l), ring: Double(l) / 100)
     }
 
     private func lowBatteryActivity(from old: Int, to new: Int) -> IslandActivity? {
         for (threshold, tint) in [(10, Color.red), (20, Color.orange)] where old > threshold && new <= threshold {
-            return .init(icon: "battery.25percent", tint: tint, title: "Düşük pil", trailing: "%\(new)", ring: Double(new) / 100)
+            return .init(icon: "battery.25percent", tint: tint, title: String(localized: "Düşük pil"), trailing: pc(new), ring: Double(new) / 100)
         }
         return nil
     }

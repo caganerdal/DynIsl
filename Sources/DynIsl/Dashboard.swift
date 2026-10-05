@@ -16,7 +16,7 @@ enum DashboardWindow {
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
-            w.title = "Sistem Paneli"
+            w.title = String(localized: "Sistem Paneli")
             w.titlebarAppearsTransparent = true
             w.toolbarStyle = .unified
             w.minSize = NSSize(width: 820, height: 560)
@@ -61,19 +61,19 @@ enum DashboardPage: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .overview: return "Genel Bakış"
-        case .cpu: return "İşlemci"
-        case .gpu: return "Grafik"
-        case .memory: return "Bellek"
-        case .storage: return "Depolama"
-        case .network: return "Ağ"
-        case .battery: return "Pil"
-        case .displays: return "Ekranlar"
+        case .overview: return String(localized: "Genel Bakış")
+        case .cpu: return String(localized: "İşlemci")
+        case .gpu: return String(localized: "Grafik")
+        case .memory: return String(localized: "Bellek")
+        case .storage: return String(localized: "Depolama")
+        case .network: return String(localized: "Ağ")
+        case .battery: return String(localized: "Pil")
+        case .displays: return String(localized: "Ekranlar")
         case .bluetooth: return "Bluetooth"
-        case .processes: return "İşlemler"
-        case .desktop: return "Masaüstü Düzenleme"
-        case .downloads: return "İndirilenler Temizliği"
-        case .convert: return "Dosya Dönüştürme"
+        case .processes: return String(localized: "İşlemler")
+        case .desktop: return String(localized: "Masaüstü Düzenleme")
+        case .downloads: return String(localized: "İndirilenler Temizliği")
+        case .convert: return String(localized: "Dosya Dönüştürme")
         }
     }
 
@@ -182,10 +182,10 @@ private func gb(_ bytes: Double, digits: Int = 1) -> String {
     String(format: "%.\(digits)f GB", bytes / GiB)
 }
 
-private func pct(_ v: Double) -> String { "%\(Int((v * 100).rounded()))" }
+private func pct(_ v: Double) -> String { pc(Int((v * 100).rounded())) }
 
 private struct Card<Content: View>: View {
-    var title: String?
+    var title: LocalizedStringKey?
     var icon: String?
     var tint: Color = .accentColor
     @ViewBuilder var content: Content
@@ -209,7 +209,7 @@ private struct Card<Content: View>: View {
 }
 
 private struct Stat: View {
-    let label: String
+    let label: LocalizedStringKey
     let value: String
     var tint: Color = .primary
 
@@ -222,7 +222,7 @@ private struct Stat: View {
 }
 
 private struct KeyValue: View {
-    let key: String
+    let key: LocalizedStringKey
     let value: String
 
     var body: some View {
@@ -346,9 +346,9 @@ private struct OverviewPage: View {
                     .resizable().frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(d.modelName).font(.title.weight(.semibold))
-                    Text("\(d.chip) · \(d.performanceCores + d.efficiencyCores) çekirdekli CPU\(d.gpuCores.map { " · \($0) çekirdekli GPU" } ?? "") · \(Int(d.memoryTotal / GiB)) GB bellek")
+                    Text(String(localized: "\(d.chip) · \(d.performanceCores + d.efficiencyCores) çekirdekli CPU\(d.gpuCores.map { String(localized: " · \($0) çekirdekli GPU") } ?? "") · \(Int(d.memoryTotal / GiB)) GB bellek"))
                         .foregroundStyle(.secondary)
-                    Text("macOS \(d.osVersion)\(d.bootDate.map { " · \(uptime(since: $0)) açık" } ?? "")")
+                    Text(String(localized: "macOS \(d.osVersion)\(d.bootDate.map { String(localized: " · \(uptime(since: $0)) açık") } ?? "")"))
                         .font(.callout).foregroundStyle(.secondary)
                 }
             }
@@ -356,16 +356,16 @@ private struct OverviewPage: View {
             IssuesBanner()
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 14)], spacing: 14) {
-                tile(.cpu, value: pct(d.cpuTotal), detail: "Yük \(String(format: "%.2f", d.loadAverage.first ?? 0))", history: d.cpuHistory)
-                tile(.gpu, value: pct(d.gpuUsage), detail: gb(d.gpuMemory, digits: 2) + " bellek", history: d.gpuHistory)
-                tile(.memory, value: gb(d.memUsed), detail: "\(Int(d.memoryTotal / GiB)) GB'ın \(pct(d.memTotalRatio))'i", history: d.memHistory)
+                tile(.cpu, value: pct(d.cpuTotal), detail: String(localized: "Yük \(String(format: "%.2f", d.loadAverage.first ?? 0))"), history: d.cpuHistory)
+                tile(.gpu, value: pct(d.gpuUsage), detail: gb(d.gpuMemory, digits: 2) + String(localized: " bellek"), history: d.gpuHistory)
+                tile(.memory, value: gb(d.memUsed), detail: String(localized: "\(Int(d.memoryTotal / GiB)) GB'ın \(pct(d.memTotalRatio))'i"), history: d.memHistory)
                 if let v = d.volumes.first(where: \.isInternal) ?? d.volumes.first {
-                    tile(.storage, value: "\(Int(v.available / 1e9)) GB boş", detail: "\(v.name) · \(Int(v.total / 1e9)) GB", history: nil)
+                    tile(.storage, value: String(localized: "\(Int(v.available / 1e9)) GB boş"), detail: "\(v.name) · \(Int(v.total / 1e9)) GB", history: nil)
                 }
                 tile(.network, value: "↓ " + SystemMonitor.formatBytes(d.netDown, perSecond: true),
                      detail: "↑ " + SystemMonitor.formatBytes(d.netUp, perSecond: true), history: d.netHistory.map(\.down))
                 if b.level > 0 {
-                    tile(.battery, value: "%\(b.level)", detail: [b.healthPercent.map { "Sağlık %\($0)" }, "\(b.cycleCount) döngü"].compactMap { $0 }.joined(separator: " · "), history: nil)
+                    tile(.battery, value: pc(b.level), detail: [b.healthPercent.map { String(localized: "Sağlık \(pc($0))") }, String(localized: "\(b.cycleCount) döngü")].compactMap { $0 }.joined(separator: " · "), history: nil)
                 }
             }
         }
@@ -373,7 +373,7 @@ private struct OverviewPage: View {
 
     private func tile(_ p: DashboardPage, value: String, detail: String, history: [Double]?) -> some View {
         Button { model.dashboardPage = p } label: {
-            Card(title: p.title, icon: p.icon, tint: p.tint) {
+            Card(title: "\(p.title)", icon: p.icon, tint: p.tint) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(value).font(.system(size: 26, weight: .semibold, design: .rounded).monospacedDigit())
                     Text(detail).font(.caption).foregroundStyle(.secondary).lineLimit(1)
@@ -388,8 +388,8 @@ private struct OverviewPage: View {
 private func uptime(since d: Date) -> String {
     let s = Int(Date().timeIntervalSince(d))
     let days = s / 86400, hours = (s % 86400) / 3600, mins = (s % 3600) / 60
-    if days > 0 { return "\(days) gün \(hours) sa" }
-    return hours > 0 ? "\(hours) sa \(mins) dk" : "\(mins) dk"
+    if days > 0 { return String(localized: "\(days) gün \(hours) sa") }
+    return hours > 0 ? String(localized: "\(hours) sa \(mins) dk") : String(localized: "\(mins) dk")
 }
 
 private struct CPUPage: View {
@@ -411,14 +411,14 @@ private struct CPUPage: View {
             }
             Card(title: "Çekirdekler", icon: "square.grid.3x3.fill", tint: .blue) {
                 if d.efficiencyCores > 0 {
-                    coreGroup("Verimlilik çekirdekleri", Array(d.cores.prefix(d.efficiencyCores)), tint: .teal, prefix: "E")
+                    coreGroup(String(localized: "Verimlilik çekirdekleri"), Array(d.cores.prefix(d.efficiencyCores)), tint: .teal, prefix: "E")
                 }
-                coreGroup(d.efficiencyCores > 0 ? "Performans çekirdekleri" : "Çekirdekler",
+                coreGroup(d.efficiencyCores > 0 ? String(localized: "Performans çekirdekleri") : String(localized: "Çekirdekler"),
                           Array(d.cores.dropFirst(d.efficiencyCores)), tint: .blue, prefix: "P")
             }
             Card(title: "Bilgi", icon: "info.circle.fill", tint: .gray) {
                 KeyValue(key: "İşlemci", value: d.chip)
-                KeyValue(key: "Çekirdekler", value: "\(d.performanceCores) performans + \(d.efficiencyCores) verimlilik")
+                KeyValue(key: "Çekirdekler", value: String(localized: "\(d.performanceCores) performans + \(d.efficiencyCores) verimlilik"))
                 KeyValue(key: "Model kimliği", value: d.modelID)
                 if let boot = d.bootDate { KeyValue(key: "Açık kalma süresi", value: uptime(since: boot)) }
             }
@@ -447,10 +447,10 @@ private struct CPUPage: View {
 
     private func thermalText(_ t: ProcessInfo.ThermalState) -> String {
         switch t {
-        case .nominal: return "Normal"
-        case .fair: return "Ilık"
-        case .serious: return "Sıcak"
-        case .critical: return "Kritik"
+        case .nominal: return String(localized: "Normal")
+        case .fair: return String(localized: "Ilık")
+        case .serious: return String(localized: "Sıcak")
+        case .critical: return String(localized: "Kritik")
         @unknown default: return "—"
         }
     }
@@ -492,8 +492,8 @@ private struct MemoryPage: View {
     var body: some View {
         let d = details
         let parts: [(String, Double, Color)] = [
-            ("Uygulama", d.memApp, .orange), ("Kablolu", d.memWired, .red),
-            ("Sıkıştırılmış", d.memCompressed, .yellow), ("Önbellek", d.memCached, .gray),
+            (String(localized: "Uygulama"), d.memApp, .orange), (String(localized: "Kablolu"), d.memWired, .red),
+            (String(localized: "Sıkıştırılmış"), d.memCompressed, .yellow), (String(localized: "Önbellek"), d.memCached, .gray),
         ]
         let free = max(d.memoryTotal - parts.reduce(0) { $0 + $1.1 }, 0)
         VStack(alignment: .leading, spacing: 16) {
@@ -516,7 +516,7 @@ private struct MemoryPage: View {
                 .frame(height: 14)
                 HStack(spacing: 16) {
                     ForEach(parts, id: \.0) { name, v, c in legend(name, gb(v), c) }
-                    legend("Boş", gb(free), Color.primary.opacity(0.18))
+                    legend(String(localized: "Boş"), gb(free), Color.primary.opacity(0.18))
                 }
                 HistoryChart(values: d.memHistory, tint: .orange)
             }
@@ -536,7 +536,7 @@ private struct MemoryPage: View {
         .font(.caption)
     }
 
-    private func pressureText(_ p: Int) -> String { p >= 4 ? "Kritik" : p >= 2 ? "Uyarı" : "Normal" }
+    private func pressureText(_ p: Int) -> String { p >= 4 ? String(localized: "Kritik") : p >= 2 ? String(localized: "Uyarı") : String(localized: "Normal") }
     private func pressureTint(_ p: Int) -> Color { p >= 4 ? .red : p >= 2 ? .yellow : .green }
 }
 
@@ -548,7 +548,7 @@ private struct StoragePage: View {
         let d = details
         VStack(alignment: .leading, spacing: 16) {
             ForEach(d.volumes) { v in
-                Card(title: v.name, icon: v.isInternal ? "internaldrive.fill" : "externaldrive.fill", tint: .teal) {
+                Card(title: "\(v.name)", icon: v.isInternal ? "internaldrive.fill" : "externaldrive.fill", tint: .teal) {
                     HStack(spacing: 32) {
                         Stat(label: "Boş", value: "\(Int(v.available / 1e9)) GB", tint: .teal)
                         Stat(label: "Kullanılan", value: "\(Int(v.used / 1e9)) GB")
@@ -559,7 +559,7 @@ private struct StoragePage: View {
                         }
                     }
                     UsageBar(value: v.used / v.total, tint: v.available / v.total < 0.1 ? .red : .teal)
-                    Text([v.format, v.isInternal ? "Dahili" : "Harici"].filter { !$0.isEmpty }.joined(separator: " · "))
+                    Text([v.format, v.isInternal ? String(localized: "Dahili") : String(localized: "Harici")].filter { !$0.isEmpty }.joined(separator: " · "))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -569,7 +569,7 @@ private struct StoragePage: View {
                     Stat(label: "Yazma", value: SystemMonitor.formatBytes(d.diskWrite, perSecond: true), tint: .pink)
                 }
                 DualChart(a: d.diskHistory.map(\.read), b: d.diskHistory.map(\.write),
-                          aName: "Okuma", bName: "Yazma", aTint: .teal, bTint: .pink)
+                          aName: String(localized: "Okuma"), bName: String(localized: "Yazma"), aTint: .teal, bTint: .pink)
             }
         }
     }
@@ -589,7 +589,7 @@ private struct NetworkPage: View {
                     Stat(label: "Yükleme", value: SystemMonitor.formatBytes(d.netUp, perSecond: true), tint: .purple)
                 }
                 DualChart(a: d.netHistory.map(\.down), b: d.netHistory.map(\.up),
-                          aName: "İndirme", bName: "Yükleme", aTint: .cyan, bTint: .purple)
+                          aName: String(localized: "İndirme"), bName: String(localized: "Yükleme"), aTint: .cyan, bTint: .purple)
             }
             if let w = d.wifi {
                 Card(title: "Wi-Fi", icon: "wifi", tint: .blue) {
@@ -629,7 +629,7 @@ private struct NetworkPage: View {
 
     private func signalQuality(_ rssi: Int) -> Double { min(max(Double(rssi + 90) / 60, 0), 1) }
     private func signalText(_ rssi: Int) -> String {
-        rssi >= -55 ? "Mükemmel" : rssi >= -67 ? "İyi" : rssi >= -75 ? "Orta" : "Zayıf"
+        rssi >= -55 ? String(localized: "Mükemmel") : rssi >= -67 ? String(localized: "İyi") : rssi >= -75 ? String(localized: "Orta") : String(localized: "Zayıf")
     }
     private func signalTint(_ rssi: Int) -> Color { rssi >= -67 ? .green : rssi >= -75 ? .yellow : .red }
 }
@@ -798,7 +798,7 @@ private struct DownloadsPage: View {
             Card(title: "İndirilenler", icon: "arrow.down.circle.fill", tint: .orange) {
                 HStack(alignment: .center, spacing: 28) {
                     Stat(label: "Klasörün tamamı", value: ByteCountFormatter.string(fromByteCount: cleaner.totalSize, countStyle: .file))
-                    Stat(label: "Seçili", value: "\(selected.count) öğe", tint: .orange)
+                    Stat(label: "Seçili", value: String(localized: "\(selected.count) öğe"), tint: .orange)
                     Stat(label: "Açılacak yer", value: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file), tint: .orange)
                     Spacer()
                     Picker("", selection: $age) {
@@ -1012,10 +1012,10 @@ private struct ConvertPage: View {
                 busy = nil
                 outputs = r.outputs
                 let saved = ByteCountFormatter.string(fromByteCount: r.saved, countStyle: .file)
-                var parts = ["\(kind.title): \(r.outputs.count) dosya hazır"]
-                if r.saved > 0 { parts.append("\(saved) yer kazanıldı") }
-                if r.skipped > 0 { parts.append("\(r.skipped) dosya zaten küçük") }
-                if r.failed > 0 { parts.append("\(r.failed) dosya dönüştürülemedi") }
+                var parts = [String(localized: "\(kind.title): \(r.outputs.count) dosya hazır")]
+                if r.saved > 0 { parts.append(String(localized: "\(saved) yer kazanıldı")) }
+                if r.skipped > 0 { parts.append(String(localized: "\(r.skipped) dosya zaten küçük")) }
+                if r.failed > 0 { parts.append(String(localized: "\(r.failed) dosya dönüştürülemedi")) }
                 message = parts.joined(separator: " · ")
             }
         }
@@ -1064,9 +1064,9 @@ private struct SpeedTestCard: View {
                 Divider()
                 Text("Geçmiş").font(.subheadline).foregroundStyle(.secondary)
                 Chart(test.history.reversed()) { r in
-                    LineMark(x: .value("Tarih", r.date), y: .value("Mbps", r.downMbps), series: .value("s", "İndirme"))
+                    LineMark(x: .value("Tarih", r.date), y: .value("Mbps", r.downMbps), series: .value("s", String(localized: "İndirme")))
                         .foregroundStyle(.cyan).symbol(.circle)
-                    LineMark(x: .value("Tarih", r.date), y: .value("Mbps", r.upMbps), series: .value("s", "Yükleme"))
+                    LineMark(x: .value("Tarih", r.date), y: .value("Mbps", r.upMbps), series: .value("s", String(localized: "Yükleme")))
                         .foregroundStyle(.purple).symbol(.circle)
                 }
                 .chartYAxisLabel("Mbps")
@@ -1115,11 +1115,11 @@ private struct BatteryPage: View {
         VStack(alignment: .leading, spacing: 16) {
             Card(title: "Durum", icon: "battery.100percent.bolt", tint: .green) {
                 HStack(spacing: 32) {
-                    Stat(label: "Şarj", value: "%\(b.level)", tint: .green)
+                    Stat(label: "Şarj", value: pc(b.level), tint: .green)
                     if b.isCharging {
                         Stat(label: "Şarj gücü", value: String(format: "%.1f W", b.watts))
                     } else if b.externalPower {
-                        Stat(label: "Güç", value: "Adaptörden")
+                        Stat(label: "Güç", value: String(localized: "Adaptörden"))
                     } else {
                         Stat(label: "Güç çekişi", value: String(format: "%.1f W", b.watts))
                     }
@@ -1133,7 +1133,7 @@ private struct BatteryPage: View {
             }
             Card(title: "Sağlık", icon: "heart.fill", tint: .pink) {
                 HStack(spacing: 32) {
-                    Stat(label: "Maksimum kapasite", value: b.healthPercent.map { "%\($0)" } ?? "—", tint: .pink)
+                    Stat(label: "Maksimum kapasite", value: b.healthPercent.map { pc($0) } ?? "—", tint: .pink)
                     Stat(label: "Durum", value: b.condition ?? "—")
                     Stat(label: "Döngü", value: "\(b.cycleCount) / \(b.designCycles)")
                 }
@@ -1160,7 +1160,7 @@ private struct BatteryPage: View {
                     Text("Veri toplanıyor — ilk birkaç saatten sonra grafik dolacak.").foregroundStyle(.secondary)
                 }
                 HStack(spacing: 24) {
-                    if let dr = b.drainPerHour { KeyValue(key: "Pilde ortalama tüketim", value: String(format: "%%%.0f / saat", dr)) }
+                    if let dr = b.drainPerHour { KeyValue(key: "Pilde ortalama tüketim", value: String(localized: "\(pc(Int(dr.rounded()))) / saat")) }
                     if b.onBatteryToday > 60 { KeyValue(key: "Bugün pilde", value: formatMinutes(Int(b.onBatteryToday / 60))) }
                 }
             }
@@ -1177,13 +1177,13 @@ private struct DisplaysPage: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ForEach(details.displays) { s in
-                Card(title: s.name, icon: s.isBuiltIn ? "laptopcomputer" : "display", tint: .indigo) {
+                Card(title: "\(s.name)", icon: s.isBuiltIn ? "laptopcomputer" : "display", tint: .indigo) {
                     HStack(spacing: 32) {
                         Stat(label: "Çözünürlük", value: "\(Int(s.pixels.width)) × \(Int(s.pixels.height))", tint: .indigo)
                         Stat(label: "Görünen boyut", value: "\(Int(s.points.width)) × \(Int(s.points.height))")
                         Stat(label: "Yenileme hızı", value: "\(s.refreshRate) Hz")
                     }
-                    Text([s.isBuiltIn ? "Dahili ekran" : "Harici ekran", s.isMain ? "Ana ekran (menü çubuğu)" : nil]
+                    Text([s.isBuiltIn ? String(localized: "Dahili ekran") : String(localized: "Harici ekran"), s.isMain ? String(localized: "Ana ekran (menü çubuğu)") : nil]
                         .compactMap { $0 }.joined(separator: " · "))
                         .font(.caption).foregroundStyle(.secondary)
                 }
@@ -1206,7 +1206,7 @@ private struct BluetoothPage: View {
         .onDisappear { details.wantsBluetooth = false }
     }
 
-    @ViewBuilder private func section(_ title: String, _ list: [BluetoothDeviceInfo]) -> some View {
+    @ViewBuilder private func section(_ title: LocalizedStringKey, _ list: [BluetoothDeviceInfo]) -> some View {
         if !list.isEmpty {
             Card(title: title, icon: "dot.radiowaves.left.and.right", tint: .blue) {
                 ForEach(list) { dev in
@@ -1220,7 +1220,7 @@ private struct BluetoothPage: View {
                         ForEach(dev.batteries, id: \.0) { name, level in
                             HStack(spacing: 3) {
                                 Text(name).foregroundStyle(.secondary)
-                                Text("%\(level)").monospacedDigit().foregroundStyle(level <= 20 ? .orange : .primary)
+                                Text(pc(level)).monospacedDigit().foregroundStyle(level <= 20 ? .orange : .primary)
                             }
                             .font(.caption)
                             .padding(.horizontal, 7).padding(.vertical, 3)
@@ -1279,7 +1279,7 @@ private struct ProcessesPage: View {
                         }
                         .frame(width: 18, height: 18)
                         Text(p.name).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                        Text(String(format: "%%%.1f", p.cpu)).monospacedDigit().foregroundStyle(p.cpu >= 80 ? .orange : .primary)
+                        Text((p.cpu / 100).formatted(.percent.precision(.fractionLength(1)))).monospacedDigit().foregroundStyle(p.cpu >= 80 ? .orange : .primary)
                         Text(p.memory >= GiB ? gb(p.memory, digits: 2) : "\(Int(p.memory / 1_048_576)) MB").monospacedDigit()
                     }
                     .font(.callout)

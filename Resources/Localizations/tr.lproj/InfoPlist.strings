@@ -1,0 +1,8 @@
+"NSCalendarsFullAccessUsageDescription" = "Yaklaşan toplantıları adada göstermek ve başlamadan önce haber vermek için.";
+"NSCalendarsUsageDescription" = "Yaklaşan toplantıları adada göstermek için.";
+"NSLocationUsageDescription" = "Bulunduğun yerin hava durumunu adada göstermek için (yaklaşık konum).";
+"NSLocationWhenInUseUsageDescription" = "Bulunduğun yerin hava durumunu adada göstermek için (yaklaşık konum).";
+"NSBluetoothAlwaysUsageDescription" = "Bluetooth cihazları (AirPods vb.) bağlandığında adada göstermek için.";
+"NSDesktopFolderUsageDescription" = "Masaüstündeki dosyaları türüne ve ayına göre klasörlere düzenlemek için.";
+"NSDownloadsFolderUsageDescription" = "İndirilenler klasöründe uzun süredir açılmamış dosyaları listelemek ve indirmeleri adada göstermek için.";
+"NSAppleEventsUsageDescription" = "Spotify ve Apple Music’te çalan şarkıyı göstermek ve kontrol etmek için.";

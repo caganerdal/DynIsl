@@ -38,7 +38,7 @@ final class DownloadMonitor: ObservableObject {
         guard active.count > 1 else { return first }
         let known = active.compactMap(\.fraction)
         let avg = known.isEmpty ? nil : known.reduce(0, +) / Double(known.count)
-        return DownloadItem(id: first.id, name: "\(active.count) indirme", fraction: avg)
+        return DownloadItem(id: first.id, name: String(localized: "\(active.count) indirme"), fraction: avg)
     }
 
     private func track(_ progress: Progress) {
@@ -91,7 +91,7 @@ final class DownloadMonitor: ObservableObject {
 
     private static func displayName(for p: Progress) -> String {
         if let url = fileURL(of: p) { return stripTempExtension(url).lastPathComponent }
-        return "İndirme"
+        return String(localized: "İndirme")
     }
 
     static func stripTempExtension(_ url: URL) -> URL {

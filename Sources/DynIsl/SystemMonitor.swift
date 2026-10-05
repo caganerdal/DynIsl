@@ -175,7 +175,7 @@ final class SystemMonitor: ObservableObject {
         for (pid, since) in hotSince where Date().timeIntervalSince(since) >= 60 && !alerted.contains(pid) {
             alerted.insert(pid)
             let pct = usages.first { $0.id == pid }?.cpu ?? 90
-            onActivity?(.init(icon: "flame.fill", tint: .orange, title: Self.name(of: pid), trailing: "%\(Int(pct)) CPU"))
+            onActivity?(.init(icon: "flame.fill", tint: .orange, title: Self.name(of: pid), trailing: "\(pc(Int(pct))) CPU"))
         }
     }
 

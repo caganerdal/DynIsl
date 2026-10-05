@@ -7,18 +7,18 @@ enum DesktopCategory: String, CaseIterable, Identifiable {
 
     var folder: String {
         switch self {
-        case .screenshots: return "Ekran Görüntüleri"
-        case .pdf: return "PDF'ler"
-        case .documents: return "Belgeler"
-        case .spreadsheets: return "Tablolar"
-        case .presentations: return "Sunumlar"
-        case .code: return "Kod"
-        case .images: return "Görseller"
-        case .design: return "Tasarımlar"
-        case .videos: return "Videolar"
-        case .audio: return "Ses"
-        case .archives: return "Arşivler"
-        case .installers: return "Kurulum Dosyaları"
+        case .screenshots: return String(localized: "Ekran Görüntüleri")
+        case .pdf: return String(localized: "PDF'ler")
+        case .documents: return String(localized: "Belgeler")
+        case .spreadsheets: return String(localized: "Tablolar")
+        case .presentations: return String(localized: "Sunumlar")
+        case .code: return String(localized: "Kod")
+        case .images: return String(localized: "Görseller")
+        case .design: return String(localized: "Tasarımlar")
+        case .videos: return String(localized: "Videolar")
+        case .audio: return String(localized: "Ses")
+        case .archives: return String(localized: "Arşivler")
+        case .installers: return String(localized: "Kurulum Dosyaları")
         }
     }
 
@@ -162,7 +162,7 @@ final class DesktopCleaner: ObservableObject {
         guard !list.isEmpty else { return }
         let fm = FileManager.default
         let month = DateFormatter()
-        month.locale = Locale(identifier: "tr_TR")
+        month.locale = appLocale
         month.dateFormat = "yyyy-MM LLLL"
         var moves: [(URL, URL)] = []
         var failed = 0
@@ -181,8 +181,8 @@ final class DesktopCleaner: ObservableObject {
         let size = ByteCountFormatter.string(fromByteCount: list.reduce(0) { $0 + $1.size }, countStyle: .file)
         let kinds = Set(list.map(\.category)).count
         message = failed == 0
-            ? "\(moves.count) dosya (\(size)) \(kinds) klasöre düzenlendi"
-            : "\(moves.count) dosya düzenlendi, \(failed) dosya taşınamadı (açık ya da kilitli olabilir)"
+            ? String(localized: "\(moves.count) dosya (\(size)) \(kinds) klasöre düzenlendi")
+            : String(localized: "\(moves.count) dosya düzenlendi, \(failed) dosya taşınamadı (açık ya da kilitli olabilir)")
         scan()
     }
 
@@ -201,7 +201,7 @@ final class DesktopCleaner: ObservableObject {
             }
         }
         lastMoves = []
-        message = "\(back) dosya masaüstüne geri taşındı"
+        message = String(localized: "\(back) dosya masaüstüne geri taşındı")
         scan()
     }
 

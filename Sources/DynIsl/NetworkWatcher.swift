@@ -50,8 +50,8 @@ final class NetworkWatcher {
             pending?.cancel()
             pending = nil
             if notifiedDown, let since = downSince {
-                onActivity?(.init(icon: "wifi", tint: .green, title: "İnternet geri geldi",
-                                  trailing: Self.duration(Date().timeIntervalSince(since)) + " kesikti"))
+                onActivity?(.init(icon: "wifi", tint: .green, title: String(localized: "İnternet geri geldi"),
+                                  trailing: Self.duration(Date().timeIntervalSince(since)) + String(localized: " kesikti")))
             }
             downSince = nil
             notifiedDown = false
@@ -74,7 +74,7 @@ final class NetworkWatcher {
                 }
                 if self.downSince == nil { self.downSince = Date() }
                 self.notifiedDown = true
-                self.onActivity?(.init(icon: "wifi.slash", tint: .red, title: "İnternet yok", trailing: "Bağlantı koptu"))
+                self.onActivity?(.init(icon: "wifi.slash", tint: .red, title: String(localized: "İnternet yok"), trailing: String(localized: "Bağlantı koptu")))
             }
         }
         pending = work
@@ -83,8 +83,8 @@ final class NetworkWatcher {
 
     private static func duration(_ t: TimeInterval) -> String {
         let s = max(Int(t), 1)
-        if s < 60 { return "\(s) sn" }
-        if s < 3600 { return s % 60 == 0 ? "\(s / 60) dk" : "\(s / 60) dk \(s % 60) sn" }
-        return "\(s / 3600) sa \(s % 3600 / 60) dk"
+        if s < 60 { return String(localized: "\(s) sn") }
+        if s < 3600 { return s % 60 == 0 ? String(localized: "\(s / 60) dk") : String(localized: "\(s / 60) dk \(s % 60) sn") }
+        return String(localized: "\(s / 3600) sa \(s % 3600 / 60) dk")
     }
 }

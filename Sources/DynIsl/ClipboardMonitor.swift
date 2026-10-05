@@ -19,7 +19,7 @@ struct ClipItem: Identifiable, Equatable {
                 .replacingOccurrences(of: "\n", with: " ⏎ ")
         case .image(_, let png, let size):
             let kb = png.count / 1024
-            return "Görsel · \(Int(size.width))×\(Int(size.height)) · " + (kb >= 1024 ? "\(kb / 1024) MB" : "\(kb) KB")
+            return String(localized: "Görsel · \(Int(size.width))×\(Int(size.height)) · ") + (kb >= 1024 ? "\(kb / 1024) MB" : "\(kb) KB")
         }
     }
 }

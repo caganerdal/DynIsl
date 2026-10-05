@@ -98,9 +98,9 @@ final class PrivacyMonitor: ObservableObject {
 
         if notify {
             if camera && !cameraOn {
-                onActivity?(.init(icon: "video.fill", tint: .green, title: "Kamera", trailing: "Kullanımda"))
+                onActivity?(.init(icon: "video.fill", tint: .green, title: String(localized: "Kamera"), trailing: String(localized: "Kullanımda")))
             } else if mic && !micOn {
-                onActivity?(.init(icon: "mic.fill", tint: .orange, title: apps.first ?? "Mikrofon", trailing: "Mikrofon açık"))
+                onActivity?(.init(icon: "mic.fill", tint: .orange, title: apps.first ?? String(localized: "Mikrofon"), trailing: String(localized: "Mikrofon açık")))
             }
         }
         if cameraOn != camera { cameraOn = camera }

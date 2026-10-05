@@ -134,9 +134,9 @@ final class BatteryAnalytics: ObservableObject {
 
     private nonisolated static func translateCondition(_ c: String) -> String {
         switch c.lowercased() {
-        case "good", "normal": return "Normal"
-        case "fair": return "İyi değil"
-        case "poor", "service recommended", "check battery": return "Servis önerilir"
+        case "good", "normal": return String(localized: "Normal")
+        case "fair": return String(localized: "İyi değil")
+        case "poor", "service recommended", "check battery": return String(localized: "Servis önerilir")
         default: return c
         }
     }
@@ -200,5 +200,5 @@ final class BatteryAnalytics: ObservableObject {
 }
 
 func formatMinutes(_ m: Int) -> String {
-    m < 60 ? "\(m) dk" : "\(m / 60) sa \(m % 60) dk"
+    m < 60 ? String(localized: "\(m) dk") : String(localized: "\(m / 60) sa \(m % 60) dk")
 }

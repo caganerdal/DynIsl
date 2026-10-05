@@ -164,7 +164,7 @@ enum SettingsWindow {
                 styleMask: [.titled, .closable],
                 backing: .buffered, defer: false
             )
-            w.title = "DynIsl Ayarları"
+            w.title = String(localized: "DynIsl Ayarları")
             w.isReleasedWhenClosed = false
             w.contentView = NSHostingView(rootView: SettingsView(settings: model.settings)
                 .environmentObject(model)
@@ -237,9 +237,9 @@ private struct SettingsView: View {
                         Button("Dene") { model.hud.preview(.brightness) }
                     }
                     Picker("Her basışta", selection: $settings.volumeStep) {
-                        Text("%2").tag(2)
-                        Text("%5").tag(5)
-                        Text("%10").tag(10)
+                        Text(pc(2)).tag(2)
+                        Text(pc(5)).tag(5)
+                        Text(pc(10)).tag(10)
                         Text("macOS gibi (16 kademe)").tag(0)
                     }
                     Text("⇧⌥ ile basınca %1 ince ayar.").font(.caption).foregroundStyle(.secondary)
@@ -248,7 +248,7 @@ private struct SettingsView: View {
             Section("Güncellemeler") {
                 Toggle("Yeni sürümleri günde bir kez denetle", isOn: $settings.checkUpdates)
                 HStack {
-                    Text(model.updates.checking ? "Denetleniyor…" : (model.updates.lastResult ?? "Henüz denetlenmedi"))
+                    Text(model.updates.checking ? String(localized: "Denetleniyor…") : (model.updates.lastResult ?? String(localized: "Henüz denetlenmedi")))
                         .foregroundStyle(model.updates.available != nil ? .blue : .secondary)
                     Spacer()
                     Button("Şimdi denetle") { model.updates.check(manual: true) }
@@ -353,9 +353,9 @@ private struct SettingsView: View {
                 Toggle("Şarj sınırına gelince hatırlat", isOn: $settings.chargeLimitAlert)
                 if settings.chargeLimitAlert {
                     Picker("Şarj sınırı", selection: $settings.chargeLimit) {
-                        Text("%80").tag(80)
-                        Text("%85").tag(85)
-                        Text("%90").tag(90)
+                        Text(pc(80)).tag(80)
+                        Text(pc(85)).tag(85)
+                        Text(pc(90)).tag(90)
                     }
                 }
                 Toggle("2 saatten uzun %100'de kalırsa hatırlat", isOn: $settings.fullPluggedAlert)
@@ -475,7 +475,7 @@ private struct SettingsView: View {
 }
 
 private struct PermissionRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let ok: Bool
     let fix: () -> Void
 

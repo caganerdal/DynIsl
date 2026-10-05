@@ -62,8 +62,8 @@ final class UpdateChecker: ObservableObject {
     private func finish(status: Int, json: [String: Any]?, manual: Bool) {
         checking = false
         guard status == 200 || status == 404 else {
-            lastResult = "Denetlenemedi, internet bağlantını kontrol et"
-            if manual { onActivity?(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: "Güncelleme", trailing: "Denetlenemedi")) }
+            lastResult = String(localized: "Denetlenemedi, internet bağlantını kontrol et")
+            if manual { onActivity?(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: String(localized: "Güncelleme"), trailing: String(localized: "Denetlenemedi"))) }
             return
         }
         d.set(Date(), forKey: "updateLastCheck")
@@ -72,16 +72,16 @@ final class UpdateChecker: ObservableObject {
               page.host == "github.com",
               Self.isNewer(tag, than: Self.current) else {
             available = nil
-            lastResult = "Güncelsin (v\(Self.current))"
-            if manual { onActivity?(.init(icon: "checkmark.seal.fill", tint: .green, title: "Güncelsin", trailing: "v\(Self.current)")) }
+            lastResult = String(localized: "Güncelsin (v\(Self.current))")
+            if manual { onActivity?(.init(icon: "checkmark.seal.fill", tint: .green, title: String(localized: "Güncelsin"), trailing: "v\(Self.current)")) }
             return
         }
         let version = Self.clean(tag)
         available = Release(version: version, url: page, notes: String((json["body"] as? String ?? "").prefix(2000)))
-        lastResult = "Yeni sürüm var: v\(version)"
+        lastResult = String(localized: "Yeni sürüm var: v\(version)")
         if manual || d.string(forKey: "updateNotifiedVersion") != version {
             d.set(version, forKey: "updateNotifiedVersion")
-            onActivity?(.init(icon: "arrow.down.app.fill", tint: .blue, title: "Yeni sürüm", trailing: "v\(version)"))
+            onActivity?(.init(icon: "arrow.down.app.fill", tint: .blue, title: String(localized: "Yeni sürüm"), trailing: "v\(version)"))
         }
     }
 

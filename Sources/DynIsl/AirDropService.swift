@@ -26,8 +26,8 @@ final class AirDropService: NSObject, NSSharingServiceDelegate {
 
     func pickAndShare() {
         let panel = NSOpenPanel()
-        panel.title = "AirDrop ile gönderilecek dosyaları seç"
-        panel.prompt = "Gönder"
+        panel.title = String(localized: "AirDrop ile gönderilecek dosyaları seç")
+        panel.prompt = String(localized: "Gönder")
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = true
         panel.canChooseFiles = true

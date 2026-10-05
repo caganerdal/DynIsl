@@ -63,7 +63,7 @@ final class SystemAlerts: ObservableObject {
         let ratio = free / Double(total)
         if ratio < 0.10 || freeGB < 15 {
             raise(SystemIssue(kind: .disk, icon: "internaldrive.fill", tint: freeGB < 5 ? .red : .orange,
-                              title: "Disk dolmak üzere", detail: "\(Int(freeGB)) GB boş"),
+                              title: String(localized: "Disk dolmak üzere"), detail: String(localized: "\(Int(freeGB)) GB boş")),
                   enabled: diskEnabled)
         } else {
             clear(.disk)
@@ -74,10 +74,10 @@ final class SystemAlerts: ObservableObject {
         memoryLevel = event
         if event.contains(.critical) {
             raise(SystemIssue(kind: .memory, icon: "memorychip.fill", tint: .red,
-                              title: "Bellek baskısı kritik", detail: "Uygulama kapat"), enabled: memoryEnabled)
+                              title: String(localized: "Bellek baskısı kritik"), detail: String(localized: "Uygulama kapat")), enabled: memoryEnabled)
         } else if event.contains(.warning) {
             raise(SystemIssue(kind: .memory, icon: "memorychip.fill", tint: .orange,
-                              title: "Bellek azalıyor", detail: "Baskı yüksek"), enabled: memoryEnabled)
+                              title: String(localized: "Bellek azalıyor"), detail: String(localized: "Baskı yüksek")), enabled: memoryEnabled)
         } else {
             clear(.memory)
         }
@@ -87,10 +87,10 @@ final class SystemAlerts: ObservableObject {
         switch ProcessInfo.processInfo.thermalState {
         case .serious:
             raise(SystemIssue(kind: .thermal, icon: "thermometer.high", tint: .orange,
-                              title: "Mac ısınıyor", detail: "Performans düşebilir"), enabled: thermalEnabled)
+                              title: String(localized: "Mac ısınıyor"), detail: String(localized: "Performans düşebilir")), enabled: thermalEnabled)
         case .critical:
             raise(SystemIssue(kind: .thermal, icon: "thermometer.high", tint: .red,
-                              title: "Mac çok sıcak", detail: "Yükü azalt"), enabled: thermalEnabled)
+                              title: String(localized: "Mac çok sıcak"), detail: String(localized: "Yükü azalt")), enabled: thermalEnabled)
         default:
             clear(.thermal)
         }
@@ -100,7 +100,7 @@ final class SystemAlerts: ObservableObject {
         guard let p = percent else { return }
         if p < 80 {
             raise(SystemIssue(kind: .batteryHealth, icon: "battery.25percent", tint: .orange,
-                              title: "Pil sağlığı %\(p)", detail: "Servis önerilir"), enabled: batteryHealthEnabled)
+                              title: String(localized: "Pil sağlığı \(pc(p))"), detail: String(localized: "Servis önerilir")), enabled: batteryHealthEnabled)
         } else {
             clear(.batteryHealth)
         }

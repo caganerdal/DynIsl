@@ -13,7 +13,8 @@ final class KeepAwake: ObservableObject {
     private var timer: Timer?
 
     static let durations: [(title: String, minutes: Int)] = [
-        ("Süresiz", 0), ("30 dakika", 30), ("1 saat", 60), ("2 saat", 120), ("4 saat", 240),
+        (String(localized: "Süresiz"), 0), (String(localized: "30 dakika"), 30), (String(localized: "1 saat"), 60),
+        (String(localized: "2 saat"), 120), (String(localized: "4 saat"), 240),
     ]
 
     func start(minutes: Int) {
@@ -40,8 +41,8 @@ final class KeepAwake: ObservableObject {
         } else {
             endDate = nil
         }
-        onChange?(.init(icon: "cup.and.saucer.fill", tint: .orange, title: "Uyanık tut",
-                        trailing: minutes > 0 ? Self.short(minutes) : "Süresiz"))
+        onChange?(.init(icon: "cup.and.saucer.fill", tint: .orange, title: String(localized: "Uyanık tut"),
+                        trailing: minutes > 0 ? Self.short(minutes) : String(localized: "Süresiz")))
     }
 
     func stop(expired: Bool = false) {
@@ -52,8 +53,8 @@ final class KeepAwake: ObservableObject {
         assertions.removeAll()
         isActive = false
         endDate = nil
-        onChange?(.init(icon: "moon.zzz.fill", tint: .indigo, title: expired ? "Süre doldu" : "Uyanık tut",
-                        trailing: "Kapalı"))
+        onChange?(.init(icon: "moon.zzz.fill", tint: .indigo, title: expired ? String(localized: "Süre doldu") : String(localized: "Uyanık tut"),
+                        trailing: String(localized: "Kapalı")))
     }
 
     func toggle() { isActive ? stop() : start(minutes: 0) }
@@ -61,10 +62,10 @@ final class KeepAwake: ObservableObject {
     var remainingText: String? {
         guard let endDate else { return nil }
         let m = max(Int(endDate.timeIntervalSinceNow / 60.0 + 0.999), 1)
-        return m >= 60 ? "\(m / 60) sa \(m % 60) dk kaldı" : "\(m) dk kaldı"
+        return m >= 60 ? String(localized: "\(m / 60) sa \(m % 60) dk kaldı") : String(localized: "\(m) dk kaldı")
     }
 
     private static func short(_ minutes: Int) -> String {
-        minutes >= 60 ? "\(minutes / 60) sa" : "\(minutes) dk"
+        minutes >= 60 ? String(localized: "\(minutes / 60) sa") : String(localized: "\(minutes) dk")
     }
 }

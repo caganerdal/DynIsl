@@ -10,7 +10,7 @@ struct SpeedResult: Codable, Equatable, Identifiable {
     let interface: String?
 
     var responsivenessText: String {
-        rpm >= 1000 ? "Yüksek" : rpm >= 300 ? "Orta" : "Düşük"
+        rpm >= 1000 ? String(localized: "Yüksek") : rpm >= 300 ? String(localized: "Orta") : String(localized: "Düşük")
     }
 }
 
@@ -59,7 +59,7 @@ final class SpeedTest: ObservableObject {
             process = p
         } catch {
             isRunning = false
-            self.error = "Hız testi başlatılamadı"
+            self.error = String(localized: "Hız testi başlatılamadı")
         }
     }
 
@@ -74,7 +74,7 @@ final class SpeedTest: ObservableObject {
         guard !cancelled else { return }
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let dl = json["dl_throughput"] as? Double, let ul = json["ul_throughput"] as? Double else {
-            error = status == 0 ? "Sonuç okunamadı" : "Bağlantı yok ya da test tamamlanamadı"
+            error = status == 0 ? String(localized: "Sonuç okunamadı") : String(localized: "Bağlantı yok ya da test tamamlanamadı")
             return
         }
         let r = SpeedResult(

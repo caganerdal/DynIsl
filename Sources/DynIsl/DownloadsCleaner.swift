@@ -6,14 +6,14 @@ enum DownloadKind: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .installers: return "Kurulum dosyaları"
-        case .archives: return "Arşivler"
-        case .videos: return "Videolar"
-        case .images: return "Görseller"
-        case .documents: return "Belgeler"
-        case .audio: return "Ses"
-        case .folders: return "Klasörler"
-        case .other: return "Diğer"
+        case .installers: return String(localized: "Kurulum dosyaları")
+        case .archives: return String(localized: "Arşivler")
+        case .videos: return String(localized: "Videolar")
+        case .images: return String(localized: "Görseller")
+        case .documents: return String(localized: "Belgeler")
+        case .audio: return String(localized: "Ses")
+        case .folders: return String(localized: "Klasörler")
+        case .other: return String(localized: "Diğer")
         }
     }
 
@@ -136,8 +136,8 @@ final class DownloadsCleaner: ObservableObject {
         lastTrashed = moved
         let size = ByteCountFormatter.string(fromByteCount: list.reduce(0) { $0 + $1.size }, countStyle: .file)
         message = failed == 0
-            ? "\(moved.count) öğe (\(size)) Çöp Sepeti'ne taşındı"
-            : "\(moved.count) öğe taşındı, \(failed) öğe taşınamadı (açık ya da kilitli olabilir)"
+            ? String(localized: "\(moved.count) öğe (\(size)) Çöp Sepeti'ne taşındı")
+            : String(localized: "\(moved.count) öğe taşındı, \(failed) öğe taşınamadı (açık ya da kilitli olabilir)")
         scan()
     }
 
@@ -148,7 +148,7 @@ final class DownloadsCleaner: ObservableObject {
             if (try? fm.moveItem(at: m.to, to: m.from)) != nil { back += 1 }
         }
         lastTrashed = []
-        message = "\(back) öğe İndirilenler'e geri taşındı"
+        message = String(localized: "\(back) öğe İndirilenler'e geri taşındı")
         scan()
     }
 

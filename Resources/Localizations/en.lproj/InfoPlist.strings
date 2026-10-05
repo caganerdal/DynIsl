@@ -1,0 +1,8 @@
+"NSCalendarsFullAccessUsageDescription" = "To show upcoming meetings on the island and let you know before they start.";
+"NSCalendarsUsageDescription" = "To show upcoming meetings on the island.";
+"NSLocationUsageDescription" = "To show the weather where you are on the island (approximate location).";
+"NSLocationWhenInUseUsageDescription" = "To show the weather where you are on the island (approximate location).";
+"NSBluetoothAlwaysUsageDescription" = "To show Bluetooth devices (AirPods etc.) on the island when they connect.";
+"NSAppleEventsUsageDescription" = "To show and control what's playing in Spotify and Apple Music.";
+"NSDesktopFolderUsageDescription" = "To organize Desktop files into folders by type and month.";
+"NSDownloadsFolderUsageDescription" = "To list files in Downloads you haven't opened for a long time and show downloads on the island.";

@@ -13,11 +13,11 @@ enum HUDStyle: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .classic: return "Klasik"
-        case .minimal: return "Minimal"
-        case .ring: return "Halka"
-        case .segments: return "Bölmeli"
-        case .liquid: return "Sıvı"
+        case .classic: return String(localized: "Klasik")
+        case .minimal: return String(localized: "Minimal")
+        case .ring: return String(localized: "Halka")
+        case .segments: return String(localized: "Bölmeli")
+        case .liquid: return String(localized: "Sıvı")
         }
     }
 

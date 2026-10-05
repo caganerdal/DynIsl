@@ -78,11 +78,11 @@ final class BluetoothMonitor: NSObject {
         startBatteryWatch()
         guard announce else { return }
         lastAnnounce[address] = Date()
-        onActivity?(.init(icon: symbol, tint: .white, title: name, trailing: "Bağlandı"))
+        onActivity?(.init(icon: symbol, tint: .white, title: name, trailing: String(localized: "Bağlandı")))
         let show: (Details?) -> Void = { [weak self] d in
             guard let self, let d, let battery = d.batteryLevel else { return }
             self.onActivity?(.init(icon: d.productSymbol ?? symbol, tint: .white, title: name,
-                                   trailing: "%\(battery)", ring: Double(battery) / 100))
+                                   trailing: pc(battery), ring: Double(battery) / 100))
             self.checkBattery(address: address, name: name, level: battery, symbol: d.productSymbol ?? symbol)
         }
         if let details, details.batteryLevel != nil { show(details) } else { fetchDetails(address: address, attempts: 3, completion: show) }
@@ -123,7 +123,7 @@ final class BluetoothMonitor: NSObject {
         for threshold in [10, 20] where level <= threshold && last > threshold {
             warnedAt[address] = threshold
             onLowBattery?(.init(icon: symbol, tint: threshold == 10 ? .red : .orange, title: name,
-                                trailing: "%\(level) · Pil azaldı", ring: Double(level) / 100))
+                                trailing: String(localized: "\(pc(level)) · Pil azaldı"), ring: Double(level) / 100))
             return
         }
     }

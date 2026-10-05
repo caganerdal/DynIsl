@@ -36,6 +36,10 @@
 - Canlı CPU ve RAM kullanımı.
 - Uyanık tut: Mac'in uykuya girmesini süresiz ya da 30 dk – 4 saat boyunca engeller.
 
+## Dil
+
+Türkçe ve İngilizce. Uygulama macOS'un diline göre açılır; sadece DynIsl'ın dilini değiştirmek için Sistem Ayarları › Genel › Dil ve Bölge › Uygulamalar.
+
 ## Gereksinimler
 
 - macOS 14 Sonoma ya da daha yeni
@@ -111,6 +115,10 @@ island run npm test
 
 - Parlaklık kontrolü için macOS'un genel olmayan `DisplayServices` çerçevesi çalışma anında yüklenir; bu nedenle uygulama App Store'a uygun değildir.
 - Uygulama sıkılaştırılmış çalışma zamanı (hardened runtime) ile imzalanır.
+
+## Çeviri
+
+Metinler `Resources/Localizable.xcstrings` dosyasındadır. Koda yeni metin ekledikten sonra `./Tools/localize.sh` çalıştırılır; bu betik metinleri toplar ve `Resources/Localizations` içindeki dil dosyalarını üretir (Xcode gerekir).
 
 ## Lisans
 

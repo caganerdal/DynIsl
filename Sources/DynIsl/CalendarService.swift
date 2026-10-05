@@ -89,7 +89,7 @@ final class CalendarService: ObservableObject {
             .map { e in
                 UpcomingEvent(
                     id: (e.eventIdentifier ?? UUID().uuidString) + "\(e.startDate.timeIntervalSince1970)",
-                    title: e.title?.isEmpty == false ? e.title! : "Adsız etkinlik",
+                    title: e.title?.isEmpty == false ? e.title! : String(localized: "Adsız etkinlik"),
                     start: e.startDate, end: e.endDate,
                     color: Color(cgColor: e.calendar.cgColor),
                     location: e.location?.isEmpty == false ? e.location : nil,
@@ -115,12 +115,12 @@ final class CalendarService: ObservableObject {
             let nowKey = e.id + ".now"
             if minutes <= leadMinutes, minutes > 1, !notified.contains(soonKey) {
                 notified.insert(soonKey)
-                onActivity?(.init(icon: "calendar", tint: e.color, title: e.title, trailing: "\(minutes) dk sonra"))
+                onActivity?(.init(icon: "calendar", tint: e.color, title: e.title, trailing: String(localized: "\(minutes) dk sonra")))
             } else if minutes <= 1, now < e.start.addingTimeInterval(120), !notified.contains(nowKey) {
                 notified.insert(nowKey)
                 notified.insert(soonKey)
                 onActivity?(.init(icon: e.meetingURL != nil ? "video.fill" : "calendar", tint: e.color,
-                                  title: e.title, trailing: "Başlıyor"))
+                                  title: e.title, trailing: String(localized: "Başlıyor")))
             }
         }
     }

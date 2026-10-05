@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key></key>
+	<string></string>
+	<key>
+Tıkla: Sistem Paneli</key>
+	<string>
+Click: System Dashboard</string>
+	<key> (küçük).jpg</key>
+	<string> (small).jpg</string>
+	<key> (küçük).pdf</key>
+	<string> (small).pdf</string>
+	<key> bellek</key>
+	<string> memory</string>
+	<key> kesikti</key>
+	<string> offline</string>
+	<key> · %@ açık</key>
+	<string> · up %@</string>
+	<key> · %lld W adaptör</key>
+	<string> · %lld W adapter</string>
+	<key> · %lld dk sonra</key>
+	<string> · in %lld min</string>
+	<key> · %lld çekirdekli GPU</key>
+	<string> · %lld-core GPU</string>
+	<key> · şu an</key>
+	<string> · now</string>
+	<key>%@</key>
+	<string>%@</string>
+	<key>%@ (%@)</key>
+	<string>%@ (%@)</string>
+	<key>%@ (%lld)</key>
+	<string>%@ (%lld)</string>
+	<key>%@ / saat</key>
+	<string>%@ / hour</string>
+	<key>%@ sunumu</key>
+	<string>%@ presentation</string>
+	<key>%@ yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.</key>
+	<string>This frees up %@. You can undo until the Trash is emptied.</string>
+	<key>%@ yer kazanıldı</key>
+	<string>%@ saved</string>
+	<key>%@ · %@</key>
+	<string>%@ · %@</string>
+	<key>%@ · %@ · Apple sunucuları</key>
+	<string>%@ · %@ · Apple servers</string>
+	<key>%@ · %lld çekirdekli CPU%@ · %lld GB bellek</key>
+	<string>%@ · %lld-core CPU%@ · %lld GB memory</string>
+	<key>%@ · Pil azaldı</key>
+	<string>%@ · Battery low</string>
+	<key>%@%lld</key>
+	<string>%@%lld</string>
+	<key>%@'da aç</key>
+	<string>Open in %@</string>
+	<key>%@: %lld dosya hazır</key>
+	<string>%@: %lld files ready</string>
+	<key>%lld</key>
+	<string>%lld</string>
+	<key>%lld GB boş</key>
+	<string>%lld GB free</string>
+	<key>%lld GB'ın %@'i</key>
+	<string>%2$@ of %1$lld GB</string>
+	<key>%lld dk</key>
+	<string>%lld min</string>
+	<key>%lld dk %lld sn</key>
+	<string>%lld min %lld s</string>
+	<key>%lld dk kaldı</key>
+	<string>%lld min left</string>
+	<key>%lld dk sonra</key>
+	<string>in %lld min</string>
+	<key>%lld dosya (%@) %lld klasöre düzenlendi</key>
+	<string>Organized %lld files (%@) into %lld folders</string>
+	<key>%lld dosya düzenlendi, %lld dosya taşınamadı (açık ya da kilitli olabilir)</key>
+	<string>Organized %lld files, %lld couldn't be moved (they may be open or locked)</string>
+	<key>%lld dosya · %@</key>
+	<string>%lld files · %@</string>
+	<key>%lld dosya · %@ kazanıldı</key>
+	<string>%lld files · %@ saved</string>
+	<key>%lld gün %lld sa</key>
+	<string>%lld d %lld h</string>
+	<key>%lld performans + %lld verimlilik</key>
+	<string>%lld performance + %lld efficiency</string>
+	<key>%lld sa</key>
+	<string>%lld h</string>
+	<key>%lld sa %lld dk</key>
+	<string>%lld h %lld min</string>
+	<key>%lld sa %lld dk kaldı</key>
+	<string>%lld h %lld min left</string>
+	<key>%lld saattir %@</key>
+	<string>%2$@ for %1$lld hours</string>
+	<key>%lld sn</key>
+	<string>%lld s</string>
+	<key>%lld öğe (%@) Çöp Sepeti'ne taşındı</key>
+	<string>Moved %lld items (%@) to the Trash</string>
+	<key>%lld öğe taşındı, %lld öğe taşınamadı (açık ya da kilitli olabilir)</key>
+	<string>Moved %lld items, %lld couldn't be moved (they may be open or locked)</string>
+	<key>%lld öğe · %@</key>
+	<string>%lld items · %@</string>
+	<key>%lld°</key>
+	<string>%lld°</string>
+	<key>**Uygulama:** açık uygulamaların kullandığı bellek. **Kablolu:** sistemin boşaltamadığı bellek. **Sıkıştırılmış:** yer açmak için sıkıştırılan bellek. **Önbellek:** gerektiğinde hemen boşaltılabilen dosya önbelleği — dolu olması sorun değildir. Önemli olan **bellek baskısı**dır.</key>
+	<string>**App:** memory used by open apps. **Wired:** memory the system can't free. **Compressed:** memory compressed to make room. **Cached:** file cache that can be freed instantly — it being full is fine. What matters is **memory pressure**.</string>
+	<key>1 ay</key>
+	<string>1 month</string>
+	<key>1 aydan eski</key>
+	<string>Older than 1 month</string>
+	<key>1 dk</key>
+	<string>1 min</string>
+	<key>1 haftadan eski</key>
+	<string>Older than 1 week</string>
+	<key>1 saat</key>
+	<string>1 hour</string>
+	<key>1 yıl</key>
+	<string>1 year</string>
+	<key>10 dk</key>
+	<string>10 min</string>
+	<key>10 sn zamanlayıcı</key>
+	<string>10 s timer</string>
+	<key>15 dk</key>
+	<string>15 min</string>
+	<key>2 saat</key>
+	<string>2 hours</string>
+	<key>2 saatten uzun %100'de kalırsa hatırlat</key>
+	<string>Remind me if it stays at 100% for over 2 hours</string>
+	<key>2,4 GHz</key>
+	<string>2.4 GHz</string>
+	<key>25 dk</key>
+	<string>25 min</string>
+	<key>3 ay</key>
+	<string>3 months</string>
+	<key>30 dakika</key>
+	<string>30 minutes</string>
+	<key>30 dk</key>
+	<string>30 min</string>
+	<key>4 saat</key>
+	<string>4 hours</string>
+	<key>5 dk</key>
+	<string>5 min</string>
+	<key>6 ay</key>
+	<string>6 months</string>
+	<key>Ada</key>
+	<string>Island</string>
+	<key>Ada açılır: müzik, takvim, raf, pano, sistem ve pil sekmeleri.</key>
+	<string>The island opens: music, calendar, shelf, clipboard, system and battery tabs.</string>
+	<key>Ada hangi ekranda</key>
+	<string>Island display</string>
+	<key>Ada kedisi</key>
+	<string>Island cat</string>
+	<key>Ada nasıl açılsın</key>
+	<string>Open the island</string>
+	<key>Adaptör</key>
+	<string>Adapter</string>
+	<key>Adaptörden</key>
+	<string>From adapter</string>
+	<key>Adaptöre bağlı
+şarj beklemede</key>
+	<string>On adapter
+charging on hold</string>
+	<key>Adsız etkinlik</key>
+	<string>Untitled event</string>
+	<key>AirDrop</key>
+	<string>AirDrop</string>
+	<key>AirDrop ile gönder</key>
+	<string>Send with AirDrop</string>
+	<key>AirDrop ile gönderilecek dosyaları seç</key>
+	<string>Choose files to send with AirDrop</string>
+	<key>AirDrop ile gönder…</key>
+	<string>Send with AirDrop…</string>
+	<key>AirDrop'la</key>
+	<string>AirDrop</string>
+	<key>AirPods</key>
+	<string>AirPods</string>
+	<key>AirPods bağlandı</key>
+	<string>AirPods connected</string>
+	<key>Ana ekran</key>
+	<string>Main display</string>
+	<key>Ana ekran (menü çubuğu)</key>
+	<string>Main display (menu bar)</string>
+	<key>Animasyon hızı</key>
+	<string>Animation speed</string>
+	<key>Apple Music</key>
+	<string>Apple Music</string>
+	<key>Apple Silicon'da GPU belleği sistem belleğiyle paylaşılır (birleşik bellek).</key>
+	<string>On Apple silicon, GPU memory is shared with system memory (unified memory).</string>
+	<key>Apple, pil 1000 döngüye ya da %80 kapasiteye ulaşana kadar normal kabul eder.</key>
+	<string>Apple considers a battery normal until it reaches 1000 cycles or 80% capacity.</string>
+	<key>Arayüzler</key>
+	<string>Interfaces</string>
+	<key>Araç Kullanma</key>
+	<string>Driving</string>
+	<key>Arşivler</key>
+	<string>Archives</string>
+	<key>Atla</key>
+	<string>Skip</string>
+	<key>Ayarlar</key>
+	<string>Settings</string>
+	<key>Ayarları aç</key>
+	<string>Open Settings</string>
+	<key>Ayarlar…</key>
+	<string>Settings…</string>
+	<key>Ayarla…</key>
+	<string>Set Up…</string>
+	<key>Ayrıntılar ›</key>
+	<string>Details ›</string>
+	<key>Az bulutlu</key>
+	<string>Mostly clear</string>
+	<key>Aç</key>
+	<string>Open</string>
+	<key>Açık</key>
+	<string>On</string>
+	<key>Açık ada genişliği</key>
+	<string>Expanded island width</string>
+	<key>Açık kalma süresi</key>
+	<string>Uptime</string>
+	<key>Açık · %@</key>
+	<string>On · %@</string>
+	<key>Açılacak yer</key>
+	<string>Space to free</string>
+	<key>AĞ</key>
+	<string>NETWORK</string>
+	<key>Ağ</key>
+	<string>Network</string>
+	<key>Ağ adını görmek için macOS konum izni gerekiyor.</key>
+	<string>macOS needs location permission to show the network name.</string>
+	<key>Baskı yüksek</key>
+	<string>High pressure</string>
+	<key>Bağlandı</key>
+	<string>Connected</string>
+	<key>Bağlantı hızı</key>
+	<string>Link speed</string>
+	<key>Bağlantı koptu</key>
+	<string>Connection lost</string>
+	<key>Bağlantı ve güç</key>
+	<string>Connectivity &amp; Power</string>
+	<key>Bağlantı yok ya da test tamamlanamadı</key>
+	<string>No connection, or the test couldn't finish</string>
+	<key>Bağlanınca</key>
+	<string>When connected</string>
+	<key>Bağlı</key>
+	<string>Connected</string>
+	<key>Başla</key>
+	<string>Get Started</string>
+	<key>Başlıyor</key>
+	<string>Starting</string>
+	<key>Belgeler</key>
+	<string>Documents</string>
+	<key>Bellek</key>
+	<string>Memory</string>
+	<key>Bellek azalıyor</key>
+	<string>Memory running low</string>
+	<key>Bellek baskısı</key>
+	<string>Memory pressure</string>
+	<key>Bellek baskısı kritik</key>
+	<string>Memory pressure critical</string>
+	<key>Bellek baskısı yükselirse</key>
+	<string>If memory pressure rises</string>
+	<key>Bildirimler</key>
+	<string>Notifications</string>
+	<key>Bildirimleri susturur. Zoom/Meet/Teams paylaşımında menüden ya da ⌥⌘P ile aç.</key>
+	<string>Silences notifications. When sharing in Zoom/Meet/Teams, turn it on from the menu or with ⌥⌘P.</string>
+	<key>Bildirimleri test et</key>
+	<string>Test Notifications</string>
+	<key>Bilgi</key>
+	<string>Info</string>
+	<key>Bir sorun mu var?</key>
+	<string>Something wrong?</string>
+	<key>Bir uygulama işlemciyi uzun süre yorarsa</key>
+	<string>If an app keeps the CPU busy for a long time</string>
+	<key>Birleştirilmiş %@.pdf</key>
+	<string>Combined %@.pdf</string>
+	<key>Biten indirmeleri rafa ekle</key>
+	<string>Add finished downloads to the shelf</string>
+	<key>Bitti · %@</key>
+	<string>Done · %@</string>
+	<key>Bitti!</key>
+	<string>Done!</string>
+	<key>Boş</key>
+	<string>Free</string>
+	<key>Boşken uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.</key>
+	<string>Sleeps when idle, dances to music, gets tired when the battery is low and sweats when your Mac is working hard.</string>
+	<key>Bu rehberi Ayarlar › Genel'den yeniden açabilirsin.</key>
+	<string>You can reopen this guide from Settings › General.</string>
+	<key>Bu süredir açılmamış öğe yok ✨</key>
+	<string>Nothing unopened for this long ✨</string>
+	<key>Bu süredir açılmamış öğeler listelenir</key>
+	<string>Lists items not opened for this long</string>
+	<key>Bugün pilde</key>
+	<string>On battery today</string>
+	<key>Bugün pilde %@</key>
+	<string>On battery today: %@</string>
+	<key>Bulutsuz</key>
+	<string>Clear</string>
+	<key>Bunların hepsini sonra Ayarlar'dan değiştirebilirsin.</key>
+	<string>You can change all of these later in Settings.</string>
+	<key>Bölmeli</key>
+	<string>Segmented</string>
+	<key>Bırak ve gönder</key>
+	<string>Drop to send</string>
+	<key>Cevabını bekliyor</key>
+	<string>Waiting for your reply</string>
+	<key>Cihazlar okunuyor…</key>
+	<string>Reading devices…</string>
+	<key>Claude bitirdi</key>
+	<string>Claude finished</string>
+	<key>Dahili</key>
+	<string>Internal</string>
+	<key>Dahili ekran</key>
+	<string>Built-in display</string>
+	<key>Dene</key>
+	<string>Try</string>
+	<key>Denetlenemedi</key>
+	<string>Couldn't check</string>
+	<key>Denetlenemedi, internet bağlantını kontrol et</key>
+	<string>Couldn't check, check your internet connection</string>
+	<key>Denetleniyor…</key>
+	<string>Checking…</string>
+	<key>Depolama</key>
+	<string>Storage</string>
+	<key>Disk dolmak üzere</key>
+	<string>Disk almost full</string>
+	<key>Disk dolmak üzereyse</key>
+	<string>If the disk is almost full</string>
+	<key>Diğer</key>
+	<string>Other</string>
+	<key>Dolmasına</key>
+	<string>Until full</string>
+	<key>Donanım</key>
+	<string>Hardware</string>
+	<key>Dosya Dönüştürme</key>
+	<string>File Conversion</string>
+	<key>Dosya ekle…</key>
+	<string>Add Files…</string>
+	<key>Dosya seç…</key>
+	<string>Choose Files…</string>
+	<key>Dosyalar</key>
+	<string>Files</string>
+	<key>Dosyaları adaya sürükle</key>
+	<string>Drag files onto the island</string>
+	<key>Dosyaları rafa sürükle</key>
+	<string>Drag files to the shelf</string>
+	<key>Durdur</key>
+	<string>Stop</string>
+	<key>Durum</key>
+	<string>Status</string>
+	<key>DynIsl</key>
+	<string>DynIsl</string>
+	<key>DynIsl Ayarları</key>
+	<string>DynIsl Settings</string>
+	<key>DynIsl'a hoş geldin</key>
+	<string>Welcome to DynIsl</string>
+	<key>DynIsl'ı Gizle</key>
+	<string>Hide DynIsl</string>
+	<key>Döngü</key>
+	<string>Cycles</string>
+	<key>Dönüştür</key>
+	<string>Convert</string>
+	<key>Dönüştürülemedi</key>
+	<string>Couldn't convert</string>
+	<key>Düzen</key>
+	<string>Edit</string>
+	<key>Düzenle</key>
+	<string>Organize</string>
+	<key>Düzenlenecek dosya</key>
+	<string>Files to organize</string>
+	<key>Düşük</key>
+	<string>Low</string>
+	<key>Düşük pil</key>
+	<string>Low battery</string>
+	<key>EN ÇOK İŞLEMCİ</key>
+	<string>TOP CPU</string>
+	<key>Ekran Görüntüleri</key>
+	<string>Screenshots</string>
+	<key>Ekran görüntülerini rafa ekle</key>
+	<string>Add screenshots to the shelf</string>
+	<key>Ekran görüntüsü</key>
+	<string>Screenshot</string>
+	<key>Ekran görüntüsü önizlemesi</key>
+	<string>Screenshot preview</string>
+	<key>Ekran paylaşımı ve kayıtlarda adayı gizle</key>
+	<string>Hide the island in screen sharing and recordings</string>
+	<key>Ekran yansıtılıyor</key>
+	<string>Screen mirroring</string>
+	<key>Ekranlar</key>
+	<string>Displays</string>
+	<key>Elle açıldı</key>
+	<string>Turned on manually</string>
+	<key>En yüksek %lld° · En düşük %lld°</key>
+	<string>High %lld° · Low %lld°</string>
+	<key>En çok kaynak kullananlar</key>
+	<string>Top resource users</string>
+	<key>Erişilebilirlik</key>
+	<string>Accessibility</string>
+	<key>Erişilebilirlik (ses ve parlaklık tuşları)</key>
+	<string>Accessibility (volume and brightness keys)</string>
+	<key>Erişilebilirlik izni gerekiyor. DynIsl listede zaten açıksa − ile kaldırıp yeniden ekle.</key>
+	<string>Accessibility permission is needed. If DynIsl is already on in the list, remove it with − and add it again.</string>
+	<key>Ethernet</key>
+	<string>Ethernet</string>
+	<key>Eşlenmiş, bağlı değil</key>
+	<string>Paired, not connected</string>
+	<key>Favorilerden çıkar</key>
+	<string>Remove from Favorites</string>
+	<key>Favorilere ekle</key>
+	<string>Add to Favorites</string>
+	<key>Finder'da göster</key>
+	<string>Show in Finder</string>
+	<key>Gecikme</key>
+	<string>Latency</string>
+	<key>Gelişmiş</key>
+	<string>Advanced</string>
+	<key>Genel</key>
+	<string>General</string>
+	<key>Genel Bakış</key>
+	<string>Overview</string>
+	<key>Geniş</key>
+	<string>Wide</string>
+	<key>Geri</key>
+	<string>Back</string>
+	<key>Geri Al</key>
+	<string>Undo</string>
+	<key>Geri al</key>
+	<string>Undo</string>
+	<key>Geçmiş</key>
+	<string>History</string>
+	<key>Gizlilik</key>
+	<string>Privacy</string>
+	<key>Grafik</key>
+	<string>Graphics</string>
+	<key>Grafik için veri toplanıyor — birkaç saat içinde dolacak</key>
+	<string>Collecting data for the chart — it fills in over a few hours</string>
+	<key>Grafik işlemcisi</key>
+	<string>Graphics processor</string>
+	<key>Gök gürültülü</key>
+	<string>Thunderstorm</string>
+	<key>Gönder</key>
+	<string>Send</string>
+	<key>Gönderilemedi</key>
+	<string>Couldn't send</string>
+	<key>Görsel ya da PDF dosyalarını buraya sürükle</key>
+	<string>Drag images or PDFs here</string>
+	<key>Görsel · %lld×%lld · </key>
+	<string>Image · %lld×%lld · </string>
+	<key>Görseller</key>
+	<string>Images</string>
+	<key>Görselleri küçült</key>
+	<string>Shrink images</string>
+	<key>Görünen boyut</key>
+	<string>Looks like</string>
+	<key>Görünüm</key>
+	<string>Appearance</string>
+	<key>Görüşme</key>
+	<string>Call</string>
+	<key>Görüşme modu (süre ve mikrofonu kapatma)</key>
+	<string>Call mode (duration and mic mute)</string>
+	<key>Göster</key>
+	<string>Show</string>
+	<key>Gösterge stili</key>
+	<string>Indicator style</string>
+	<key>Güncelle</key>
+	<string>Update</string>
+	<key>Güncelleme</key>
+	<string>Update</string>
+	<key>Güncellemeler</key>
+	<string>Updates</string>
+	<key>Güncellemeleri denetle</key>
+	<string>Check for Updates</string>
+	<key>Güncelsin</key>
+	<string>Up to date</string>
+	<key>Güncelsin (v%@)</key>
+	<string>Up to date (v%@)</string>
+	<key>Gürültü</key>
+	<string>Noise</string>
+	<key>Güvenlik</key>
+	<string>Security</string>
+	<key>Güç</key>
+	<string>Power</string>
+	<key>Güç çekişi</key>
+	<string>Power draw</string>
+	<key>Halka</key>
+	<string>Ring</string>
+	<key>Harici</key>
+	<string>External</string>
+	<key>Harici ekran</key>
+	<string>External display</string>
+	<key>Hata (%d) · %@</key>
+	<string>Error (%d) · %@</string>
+	<key>Hava durumu</key>
+	<string>Weather</string>
+	<key>Hava durumu alınamadı</key>
+	<string>Couldn't get the weather</string>
+	<key>Hava durumu için, yaklaşık 1 km'ye yuvarlanır. İstersen şehir de yazabilirsin.</key>
+	<string>For the weather, rounded to about 1 km. You can type a city instead.</string>
+	<key>Hava durumunu göster</key>
+	<string>Show weather</string>
+	<key>Hazırsın 🎉</key>
+	<string>You're all set 🎉</string>
+	<key>Henüz denetlenmedi</key>
+	<string>Not checked yet</string>
+	<key>Henüz test yapılmadı</key>
+	<string>No test yet</string>
+	<key>Hepsi isteğe bağlı. Vermediğin izin sadece ilgili özelliği kapatır.</key>
+	<string>All optional. A permission you skip only turns off that feature.</string>
+	<key>Her basışta</key>
+	<string>Per key press</string>
+	<key>Her tür masaüstündeki kendi klasörüne, onun içinde ay klasörüne gider (ör. Masaüstü › PDF'ler › 2026-09 Eylül). Klasörlere, proje klasörlerine, kısayollara ve tanınmayan dosya türlerine dokunulmaz. Hiçbir dosya silinmez; son düzenleme geri alınabilir.</key>
+	<string>Each type goes into its own folder on the Desktop, then into a month folder (e.g. Desktop › PDFs › 2026-09 September). Folders, project folders, aliases and unknown file types are left alone. Nothing is deleted; the last organize can be undone.</string>
+	<key>Hiç açılmadı · %@ indirildi</key>
+	<string>Never opened · downloaded %@</string>
+	<key>Hız testi</key>
+	<string>Speed test</string>
+	<key>Hız testi başlatılamadı</key>
+	<string>Couldn't start the speed test</string>
+	<key>Hızlı</key>
+	<string>Fast</string>
+	<key>Ilık</key>
+	<string>Warm</string>
+	<key>Isı durumu</key>
+	<string>Thermal state</string>
+	<key>JPG'ye çevir</key>
+	<string>Convert to JPG</string>
+	<key>Kablolu</key>
+	<string>Wired</string>
+	<key>Kalan süre</key>
+	<string>Time left</string>
+	<key>Kamera</key>
+	<string>Camera</string>
+	<key>Kamera kullanımda</key>
+	<string>Camera in use</string>
+	<key>Kamera ve mikrofon göstergesi</key>
+	<string>Camera and microphone indicator</string>
+	<key>Kanal</key>
+	<string>Channel</string>
+	<key>Kapalı</key>
+	<string>Off</string>
+	<key>Kapandı</key>
+	<string>Off</string>
+	<key>Kapasite</key>
+	<string>Capacity</string>
+	<key>Kapat</key>
+	<string>Turn Off</string>
+	<key>Kapat (%@)</key>
+	<string>Turn Off (%@)</string>
+	<key>Kar sağanağı</key>
+	<string>Snow showers</string>
+	<key>Karlı</key>
+	<string>Snow</string>
+	<key>Karışık çal</key>
+	<string>Shuffle</string>
+	<key>Katıl</key>
+	<string>Join</string>
+	<key>Kes</key>
+	<string>Cut</string>
+	<key>Keynote/PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç</key>
+	<string>Turn on automatically during Keynote/PowerPoint presentations and screen mirroring</string>
+	<key>Kişisel</key>
+	<string>Personal</string>
+	<key>Klasik</key>
+	<string>Classic</string>
+	<key>Klasörler</key>
+	<string>Folders</string>
+	<key>Klasörün tamamı</key>
+	<string>Whole folder</string>
+	<key>Kod</key>
+	<string>Code</string>
+	<key>Komutu kopyala</key>
+	<string>Copy Command</string>
+	<key>Konum</key>
+	<string>Location</string>
+	<key>Konum (hava durumu)</key>
+	<string>Location (weather)</string>
+	<key>Konum alınamadı</key>
+	<string>Couldn't get location</string>
+	<key>Konum ayarları</key>
+	<string>Location Settings</string>
+	<key>Konum izni yok — Ayarlar'dan şehir gir</key>
+	<string>No location permission — enter a city in Settings</string>
+	<key>Kopyala</key>
+	<string>Copy</string>
+	<key>Kopyaladıkların burada görünecek</key>
+	<string>Things you copy will show up here</string>
+	<key>Kritik</key>
+	<string>Critical</string>
+	<key>Kullanıcı</key>
+	<string>User</string>
+	<key>Kullanılan</key>
+	<string>Used</string>
+	<key>Kullanılan bellek</key>
+	<string>Memory used</string>
+	<key>Kullanım</key>
+	<string>Usage</string>
+	<key>Kullanımda</key>
+	<string>In use</string>
+	<key>Kurulum Dosyaları</key>
+	<string>Installers</string>
+	<key>Kurulum dosyaları</key>
+	<string>Installers</string>
+	<key>Kutu</key>
+	<string>Case</string>
+	<key>Köprü</key>
+	<string>Bridge</string>
+	<key>Küçült</key>
+	<string>Minimize</string>
+	<key>Link kopyalandı</key>
+	<string>Link copied</string>
+	<key>Listeyi temizle</key>
+	<string>Clear List</string>
+	<key>Mac pili ve şarj</key>
+	<string>Mac battery and charging</string>
+	<key>Mac uykuya girmesin</key>
+	<string>Keep the Mac from sleeping</string>
+	<key>Mac çok sıcak</key>
+	<string>Mac is very hot</string>
+	<key>Mac ısınırsa</key>
+	<string>If the Mac gets hot</string>
+	<key>Mac ısınıyor</key>
+	<string>Mac is heating up</string>
+	<key>Maksimum kapasite</key>
+	<string>Maximum capacity</string>
+	<key>Masaüstü</key>
+	<string>Desktop</string>
+	<key>Masaüstü Düzenleme</key>
+	<string>Desktop Organizer</string>
+	<key>Masaüstü simgelerini gizle</key>
+	<string>Hide desktop icons</string>
+	<key>Masaüstünde düzenlenecek dosya yok ✨</key>
+	<string>Nothing to organize on the Desktop ✨</string>
+	<key>Masaüstünü aç</key>
+	<string>Open Desktop</string>
+	<key>Mbps</key>
+	<string>Mbps</string>
+	<key>Menü çubuğu</key>
+	<string>Menu bar</string>
+	<key>Menü çubuğundan "Sorun bildir…" ile bana ulaşabilirsin.</key>
+	<string>Use "Report a Problem…" in the menu bar to reach me.</string>
+	<key>Menüye CPU/RAM göstergesine tıklayarak ulaşırsın.</key>
+	<string>Click the CPU/RAM indicator to open the menu.</string>
+	<key>Mikrofon</key>
+	<string>Microphone</string>
+	<key>Mikrofon açık</key>
+	<string>Microphone on</string>
+	<key>Mikrofon: </key>
+	<string>Microphone: </string>
+	<key>Mikrofonu aç</key>
+	<string>Unmute microphone</string>
+	<key>Mikrofonu kapat (tüm uygulamalar için)</key>
+	<string>Mute microphone (for all apps)</string>
+	<key>Minimal</key>
+	<string>Minimal</string>
+	<key>Model kimliği</key>
+	<string>Model identifier</string>
+	<key>Mükemmel</key>
+	<string>Excellent</string>
+	<key>Müzik</key>
+	<string>Music</string>
+	<key>Müzik uygulamalarını kontrol izni yok</key>
+	<string>No permission to control music apps</string>
+	<key>Müzik ve canlı bildirimler</key>
+	<string>Music and live notifications</string>
+	<key>Müzik çalarken kapak rengi parıltısı</key>
+	<string>Album color glow while playing</string>
+	<key>Müzik: Oynat / Duraklat</key>
+	<string>Music: Play / Pause</string>
+	<key>Ne kadar önce</key>
+	<string>How early</string>
+	<key>Neler yeni?</key>
+	<string>What's New?</string>
+	<key>Normal</key>
+	<string>Normal</string>
+	<key>Odak</key>
+	<string>Focus</string>
+	<key>Odak için Tam Disk Erişimi</key>
+	<string>Full Disk Access for Focus</string>
+	<key>Odak modu</key>
+	<string>Focus mode</string>
+	<key>Odak: %@</key>
+	<string>Focus: %@</string>
+	<key>Okuma</key>
+	<string>Read</string>
+	<key>Okuma / yazma</key>
+	<string>Read / write</string>
+	<key>Onayla…</key>
+	<string>Approve…</string>
+	<key>Orta</key>
+	<string>Medium</string>
+	<key>Oturum açınca başlat</key>
+	<string>Launch at login</string>
+	<key>PDF hazır, rafta</key>
+	<string>PDF ready, on the shelf</string>
+	<key>PDF'i sıkıştır</key>
+	<string>Compress PDF</string>
+	<key>PDF'ler</key>
+	<string>PDFs</string>
+	<key>Pano</key>
+	<string>Clipboard</string>
+	<key>Pano geçmişi</key>
+	<string>Clipboard history</string>
+	<key>Pano geçmişi kapalı</key>
+	<string>Clipboard history is off</string>
+	<key>Pano · %lld</key>
+	<string>Clipboard · %lld</string>
+	<key>Panoya kopyalandı</key>
+	<string>Copied to clipboard</string>
+	<key>Parlaklık göstergesi</key>
+	<string>Brightness indicator</string>
+	<key>Parçalı bulutlu</key>
+	<string>Partly cloudy</string>
+	<key>Pencere</key>
+	<string>Window</string>
+	<key>Pencereyi Kapat</key>
+	<string>Close Window</string>
+	<key>Performans düşebilir</key>
+	<string>Performance may drop</string>
+	<key>Performans çekirdekleri</key>
+	<string>Performance cores</string>
+	<key>Pil</key>
+	<string>Battery</string>
+	<key>Pil %@</key>
+	<string>Battery %@</string>
+	<key>Pil analizi</key>
+	<string>Battery analysis</string>
+	<key>Pil gücü</key>
+	<string>On battery</string>
+	<key>Pil için çıkarabilirsin</key>
+	<string>Unplug to spare the battery</string>
+	<key>Pil sağlığı %80'in altına inerse</key>
+	<string>If battery health drops below 80%</string>
+	<key>Pil sağlığı %@</key>
+	<string>Battery health %@</string>
+	<key>Pilde
+hesaplanıyor…</key>
+	<string>On battery
+calculating…</string>
+	<key>Pilde
+~%@ kaldı</key>
+	<string>On battery
+~%@ left</string>
+	<key>Pilde ort. %@/sa</key>
+	<string>Avg. %@/h on battery</string>
+	<key>Pilde ortalama tüketim</key>
+	<string>Average drain on battery</string>
+	<key>Pili azalınca (%20 ve %10)</key>
+	<string>When battery is low (20% and 10%)</string>
+	<key>Raf</key>
+	<string>Shelf</string>
+	<key>Raf ve AirDrop</key>
+	<string>Shelf &amp; AirDrop</string>
+	<key>Raf · %lld</key>
+	<string>Shelf · %lld</string>
+	<key>Rafa bırak</key>
+	<string>Drop on shelf</string>
+	<key>Rafa bırak, AirDrop'la ya da JPG'ye çevir, küçült, PDF yap.</key>
+	<string>Drop on the shelf, AirDrop, or convert to JPG, shrink, make a PDF.</string>
+	<key>Rafa koy</key>
+	<string>Add to Shelf</string>
+	<key>Raftan kaldır</key>
+	<string>Remove from Shelf</string>
+	<key>Rahatsız Etme</key>
+	<string>Do Not Disturb</string>
+	<key>Rehber</key>
+	<string>Guide</string>
+	<key>SON 24 SAAT</key>
+	<string>LAST 24 HOURS</string>
+	<key>Saat</key>
+	<string>Time</string>
+	<key>Sadece CPU/RAM</key>
+	<string>CPU/RAM only</string>
+	<key>Sadece bellekte tutulur, şifre yöneticisi kopyaları kaydedilmez.</key>
+	<string>Kept in memory only; copies from password managers aren't saved.</string>
+	<key>Sadece bunu düzenle</key>
+	<string>Organize Only This</string>
+	<key>Sadece etkin Odak modunu okumak için. İstemezsen atlayabilirsin.</key>
+	<string>Only to read the active Focus mode. Skip it if you like.</string>
+	<key>Sadece simge</key>
+	<string>Icon only</string>
+	<key>Sana göre ayarla</key>
+	<string>Make it yours</string>
+	<key>Sağ</key>
+	<string>Right</string>
+	<key>Sağanak</key>
+	<string>Showers</string>
+	<key>Sağlık</key>
+	<string>Health</string>
+	<key>Sağlık %@</key>
+	<string>Health %@</string>
+	<key>Sekmeler</key>
+	<string>Tabs</string>
+	<key>Seni bekliyor</key>
+	<string>Waiting for you</string>
+	<key>Servis önerilir</key>
+	<string>Service recommended</string>
+	<key>Ses</key>
+	<string>Audio</string>
+	<key>Ses göstergesi</key>
+	<string>Volume indicator</string>
+	<key>Ses ve parlaklık</key>
+	<string>Volume and brightness</string>
+	<key>Ses ve parlaklık göstergesi</key>
+	<string>Volume and brightness indicator</string>
+	<key>Ses ve parlaklık tuşlarını yakalayıp adada göstermek için. Sadece bu tuşlar dinlenir.</key>
+	<string>To catch the volume and brightness keys and show them on the island. Only these keys are monitored.</string>
+	<key>Ses ve parlaklığı adada göster</key>
+	<string>Show volume and brightness on the island</string>
+	<key>Sesi aç</key>
+	<string>Unmute</string>
+	<key>Sessiz</key>
+	<string>Muted</string>
+	<key>Sessize al</key>
+	<string>Mute</string>
+	<key>Seviye</key>
+	<string>Level</string>
+	<key>Sevmedim (daha az öner)</key>
+	<string>Dislike (suggest less)</string>
+	<key>Seçili</key>
+	<string>Selected</string>
+	<key>Seçtiğin süredir açılmamış dosya ve klasörler en büyükten küçüğe listelenir. Varsayılan olarak sadece kurulum dosyaları ve arşivler seçilidir. Hiçbir şey kalıcı olarak silinmez: öğeler Çöp Sepeti'ne gider ve son işlem geri alınabilir.</key>
+	<string>Files and folders not opened for the chosen time are listed from largest to smallest. Only installers and archives are selected by default. Nothing is permanently deleted: items go to the Trash and the last action can be undone.</string>
+	<key>Sil</key>
+	<string>Delete</string>
+	<key>Simge ve CPU/RAM</key>
+	<string>Icon and CPU/RAM</string>
+	<key>Sinyal</key>
+	<string>Signal</string>
+	<key>Sinyal kalitesi</key>
+	<string>Signal quality</string>
+	<key>Sisli</key>
+	<string>Foggy</string>
+	<key>Sistem</key>
+	<string>System</string>
+	<key>Sistem Ayarları'nda onay bekliyor</key>
+	<string>Waiting for approval in System Settings</string>
+	<key>Sistem Paneli</key>
+	<string>System Dashboard</string>
+	<key>Sistem Paneli'ni aç</key>
+	<string>Open System Dashboard</string>
+	<key>Sistem Paneli, Uyanık tut, Sunum modu (⌥⌘P) ve Ayarlar burada.</key>
+	<string>System Dashboard, Keep Awake, Presentation Mode (⌥⌘P) and Settings live here.</string>
+	<key>Sistem Paneli…</key>
+	<string>System Dashboard…</string>
+	<key>Sistem uyarıları</key>
+	<string>System alerts</string>
+	<key>Sol</key>
+	<string>Left</string>
+	<key>Son 48 saat</key>
+	<string>Last 48 hours</string>
+	<key>Son açılış %@</key>
+	<string>Last opened %@</string>
+	<key>Sonra buradan istediğin yere sürükle</key>
+	<string>Then drag them anywhere from here</string>
+	<key>Sonuç</key>
+	<string>Result</string>
+	<key>Sonuç okunamadı</key>
+	<string>Couldn't read the result</string>
+	<key>Sorun bildir…</key>
+	<string>Report a Problem…</string>
+	<key>Spotify</key>
+	<string>Spotify</string>
+	<key>Spotify / Apple Music kontrolü</key>
+	<string>Spotify / Apple Music control</string>
+	<key>Spotify ve Apple Music kontrolü için izin, ilk şarkı çaldığında macOS tarafından sorulur.</key>
+	<string>macOS asks for Spotify and Apple Music control the first time a song plays.</string>
+	<key>Sunum</key>
+	<string>Presentation</string>
+	<key>Sunum modu</key>
+	<string>Presentation Mode</string>
+	<key>Sunum modu (%@)</key>
+	<string>Presentation Mode (%@)</string>
+	<key>Sunumlar</key>
+	<string>Presentations</string>
+	<key>Swap</key>
+	<string>Swap</string>
+	<key>Süre doldu</key>
+	<string>Time's up</string>
+	<key>Süresiz</key>
+	<string>Indefinitely</string>
+	<key>Sürükle ya da bir işlem seç</key>
+	<string>Drag, or pick an action</string>
+	<key>Sürükle ya da tıkla</key>
+	<string>Drag or click</string>
+	<key>Sürükleyip istediğin yere bırak</key>
+	<string>Drag and drop it anywhere</string>
+	<key>Sürüm %@</key>
+	<string>Version %@</string>
+	<key>Sıcak</key>
+	<string>Hot</string>
+	<key>Sıkıştırılmış</key>
+	<string>Compressed</string>
+	<key>Sırala</key>
+	<string>Sort</string>
+	<key>Sıvı</key>
+	<string>Liquid</string>
+	<key>Tablolar</key>
+	<string>Spreadsheets</string>
+	<key>Takvim</key>
+	<string>Calendar</string>
+	<key>Tam Disk Erişimi</key>
+	<string>Full Disk Access</string>
+	<key>Tamamen dolu</key>
+	<string>Fully charged</string>
+	<key>Tamamen şarj oldu</key>
+	<string>Fully charged</string>
+	<key>Taranıyor…</key>
+	<string>Scanning…</string>
+	<key>Tarih</key>
+	<string>Date</string>
+	<key>Tasarım kapasitesi</key>
+	<string>Design capacity</string>
+	<key>Tasarımlar</key>
+	<string>Designs</string>
+	<key>Taşı</key>
+	<string>Move</string>
+	<key>Tek PDF yap</key>
+	<string>Combine into PDF</string>
+	<key>Tekrar: bu şarkı</key>
+	<string>Repeat: this song</string>
+	<key>Tekrar: kapalı</key>
+	<string>Repeat: off</string>
+	<key>Tekrar: tümü</key>
+	<string>Repeat: all</string>
+	<key>Temizle</key>
+	<string>Clear</string>
+	<key>Tepkisellik</key>
+	<string>Responsiveness</string>
+	<key>Terimler</key>
+	<string>Terms</string>
+	<key>Terminal komutu</key>
+	<string>Terminal command</string>
+	<key>Test ~20 sn sürer ve bu sürede bağlantını yoğun kullanır.</key>
+	<string>The test takes ~20 s and uses your connection heavily meanwhile.</string>
+	<key>Testi başlat</key>
+	<string>Start Test</string>
+	<key>Toplam</key>
+	<string>Total</string>
+	<key>Toplamlar bilgisayar açıldığından beri</key>
+	<string>Totals since startup</string>
+	<key>Toplantılardan önce haber ver</key>
+	<string>Notify before meetings</string>
+	<key>Trafik</key>
+	<string>Traffic</string>
+	<key>Tüm dosyalar (%lld)</key>
+	<string>All files (%lld)</string>
+	<key>Tümü</key>
+	<string>All</string>
+	<key>Tümünü Seç</key>
+	<string>Select All</string>
+	<key>Tümünü göster</key>
+	<string>Show All</string>
+	<key>Tıkla: tekrar kopyala</key>
+	<string>Click to copy again</string>
+	<key>Tıklayınca</key>
+	<string>On click</string>
+	<key>Uyanık tut</key>
+	<string>Keep Awake</string>
+	<key>Uyarı</key>
+	<string>Warning</string>
+	<key>Uygulama</key>
+	<string>App</string>
+	<key>Uygulama kapat</key>
+	<string>Quit an app</string>
+	<key>Uyku</key>
+	<string>Sleep</string>
+	<key>Vazgeç</key>
+	<string>Cancel</string>
+	<key>Veri toplanıyor — ilk birkaç saatten sonra grafik dolacak.</key>
+	<string>Collecting data — the chart fills in after the first few hours.</string>
+	<key>Verildi</key>
+	<string>Granted</string>
+	<key>Verimlilik çekirdekleri</key>
+	<string>Efficiency cores</string>
+	<key>Videolar</key>
+	<string>Videos</string>
+	<key>Voltaj</key>
+	<string>Voltage</string>
+	<key>Wi-Fi</key>
+	<string>Wi-Fi</string>
+	<key>Yaklaşan etkinlik yok</key>
+	<string>No upcoming events</string>
+	<key>Yaklaşan toplantıları görmek için takvim izni gerekli</key>
+	<string>Calendar access is needed to see upcoming meetings</string>
+	<key>Yaklaşan toplantıları haber vermek için.</key>
+	<string>To let you know about upcoming meetings.</string>
+	<key>Yapıştır</key>
+	<string>Paste</string>
+	<key>Yarın </key>
+	<string>Tomorrow </string>
+	<key>Yavaş</key>
+	<string>Slow</string>
+	<key>Yazma</key>
+	<string>Write</string>
+	<key>Yazılım</key>
+	<string>Software</string>
+	<key>Yağmur</key>
+	<string>Rain</string>
+	<key>Yağmur uyarısı</key>
+	<string>Rain alert</string>
+	<key>Yağmurlu</key>
+	<string>Rain</string>
+	<key>Yeni dosyalar asıl dosyaların yanına kaydedilir; asıl dosyalara dokunulmaz. Küçültme görsellerin en uzun kenarını 1600 piksele indirir. Her şey bilgisayarda yapılır, hiçbir dosya internete yüklenmez.</key>
+	<string>New files are saved next to the originals; the originals aren't touched. Shrinking scales the longest side of images to 1600 pixels. Everything happens on your Mac; nothing is uploaded.</string>
+	<key>Yeni sürüm</key>
+	<string>New version</string>
+	<key>Yeni sürüm var: v%@</key>
+	<string>New version available: v%@</string>
+	<key>Yeni sürüm var: v%@…</key>
+	<string>New version available: v%@…</string>
+	<key>Yeni sürümleri günde bir kez denetle</key>
+	<string>Check for new versions once a day</string>
+	<key>Yeniden tara</key>
+	<string>Rescan</string>
+	<key>Yenileme hızı</key>
+	<string>Refresh rate</string>
+	<key>Yonga</key>
+	<string>Chip</string>
+	<key>Yük %@</key>
+	<string>Load %@</string>
+	<key>Yük (1 · 5 · 15 dk)</key>
+	<string>Load (1 · 5 · 15 min)</string>
+	<key>Yükleme</key>
+	<string>Upload</string>
+	<key>Yüksek</key>
+	<string>High</string>
+	<key>Yükü azalt</key>
+	<string>Reduce the load</string>
+	<key>ZAMANLAYICI</key>
+	<string>TIMER</string>
+	<key>Zamanlayıcı</key>
+	<string>Timer</string>
+	<key>Zaten küçük</key>
+	<string>Already small</string>
+	<key>Zayıf</key>
+	<string>Weak</string>
+	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
+	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
+	<key>island: %@ çalıştırılamadı: %@
+</key>
+	<string>island: couldn't run %@: %@
+</string>
+	<key>kullanım: island run &lt;komut&gt; [argümanlar]
+</key>
+	<string>usage: island run &lt;command&gt; [arguments]
+</string>
+	<key>macOS %@%@</key>
+	<string>macOS %@%@</string>
+	<key>macOS gibi (16 kademe)</key>
+	<string>Like macOS (16 steps)</string>
+	<key>macOS göstergesi yerine adada göster</key>
+	<string>Show on the island instead of the macOS indicator</string>
+	<key>macOS'unkinin yerine adada, istediğin stilde.</key>
+	<string>On the island instead of macOS's, in the style you like.</string>
+	<key>otomatik</key>
+	<string>automatic</string>
+	<key>s</key>
+	<string>s</string>
+	<key>son bilinen</key>
+	<string>last known</string>
+	<key>t</key>
+	<string>t</string>
+	<key>v</key>
+	<string>v</string>
+	<key>~%lld dk sonra</key>
+	<string>in ~%lld min</string>
+	<key>Çalan şarkı, AirPods, şarj, toplantılar ve daha fazlası çentikte.</key>
+	<string>Now playing, AirPods, charging, meetings and more, right in the notch.</string>
+	<key>Çekirdek</key>
+	<string>Core</string>
+	<key>Çekirdekler</key>
+	<string>Cores</string>
+	<key>Çentikli ekran (otomatik)</key>
+	<string>Display with notch (automatic)</string>
+	<key>Çentiğe gel ya da tıkla</key>
+	<string>Hover over or click the notch</string>
+	<key>Çentiğin artık işe yarıyor. Birkaç adımda kuralım.</key>
+	<string>Your notch is finally useful. Let's set it up in a few steps.</string>
+	<key>Çift tıkla aç · sağ tıkla seçenekler</key>
+	<string>Double-click to open · right-click for options</string>
+	<key>Çiseleme</key>
+	<string>Drizzle</string>
+	<key>Çok bulutlu</key>
+	<string>Overcast</string>
+	<key>Çöp Sepeti'ne taşı</key>
+	<string>Move to Trash</string>
+	<key>Çöp Sepeti'ne taşır</key>
+	<string>Moves to the Trash</string>
+	<key>Çözünürlük</key>
+	<string>Resolution</string>
+	<key>Çıkar</key>
+	<string>Remove</string>
+	<key>Çıkış</key>
+	<string>Quit</string>
+	<key>Ölçülüyor…</key>
+	<string>Measuring…</string>
+	<key>Ölçülüyor… %lld sn</key>
+	<string>Measuring… %lld s</string>
+	<key>Önbellek</key>
+	<string>Cached</string>
+	<key>Özellikler</key>
+	<string>Features</string>
+	<key>Üzerine gelince</key>
+	<string>On hover</string>
+	<key>İleri</key>
+	<string>Next</string>
+	<key>İndirildi</key>
+	<string>Downloaded</string>
+	<key>İndirilenler</key>
+	<string>Downloads</string>
+	<key>İndirilenler Temizliği</key>
+	<string>Downloads Cleanup</string>
+	<key>İndirilenler'i aç</key>
+	<string>Open Downloads</string>
+	<key>İndirme</key>
+	<string>Download</string>
+	<key>İndirme ilerlemesi</key>
+	<string>Download progress</string>
+	<key>İnternet geri geldi</key>
+	<string>Internet is back</string>
+	<key>İnternet hız testi</key>
+	<string>Internet Speed Test</string>
+	<key>İnternet hız testi sürüyor</key>
+	<string>Internet speed test running</string>
+	<key>İnternet koptu / geri geldi</key>
+	<string>Internet lost / restored</string>
+	<key>İnternet yok</key>
+	<string>No internet</string>
+	<key>İptal</key>
+	<string>Cancel</string>
+	<key>İyi</key>
+	<string>Good</string>
+	<key>İyi değil</key>
+	<string>Fair</string>
+	<key>İzin bekliyor</key>
+	<string>Waiting for permission</string>
+	<key>İzin gerekli</key>
+	<string>Permission needed</string>
+	<key>İzin ver</key>
+	<string>Allow</string>
+	<key>İzin ver…</key>
+	<string>Allow…</string>
+	<key>İzinler</key>
+	<string>Permissions</string>
+	<key>İş</key>
+	<string>Work</string>
+	<key>İşlemci</key>
+	<string>Processor</string>
+	<key>İşlemci kullanımı %@ · Bellek (RAM) kullanımı %@</key>
+	<string>CPU usage %@ · Memory (RAM) usage %@</string>
+	<key>İşlemci yüzdesi tek çekirdeğe göredir (2 çekirdeği tam kullanan = %200).</key>
+	<string>CPU percentage is per core (an app fully using 2 cores = 200%).</string>
+	<key>İşlemci, bellek, pil, dosya dönüştürme ve masaüstü düzenleme.</key>
+	<string>CPU, memory, battery, file conversion and desktop organizing.</string>
+	<key>İşlemler</key>
+	<string>Processes</string>
+	<key>Şarj</key>
+	<string>Charge</string>
+	<key>Şarj gücü</key>
+	<string>Charging power</string>
+	<key>Şarj oluyor</key>
+	<string>Charging</string>
+	<key>Şarj oluyor
+%@'da dolar</key>
+	<string>Charging
+full in %@</string>
+	<key>Şarj sınırı</key>
+	<string>Charge limit</string>
+	<key>Şarj sınırına gelince hatırlat</key>
+	<string>Remind me at the charge limit</string>
+	<key>Şarj takılınca/çıkarılınca, düşük pil, tam dolu</key>
+	<string>Plugged in/unplugged, low battery, fully charged</string>
+	<key>Şarjı çıkarabilirsin</key>
+	<string>You can unplug now</string>
+	<key>Şarkı linkini kopyala</key>
+	<string>Copy song link</string>
+	<key>Şehir (boşsa konumun kullanılır)</key>
+	<string>City (uses your location if empty)</string>
+	<key>Şifresiz</key>
+	<string>Open</string>
+	<key>Şimdi</key>
+	<string>Now</string>
+	<key>Şimdi aç</key>
+	<string>Turn On Now</string>
+	<key>Şimdi denetle</key>
+	<string>Check Now</string>
+	<key>Şu an bir şey çalmıyor</key>
+	<string>Nothing is playing</string>
+	<key>Şu anki tam kapasite</key>
+	<string>Current full capacity</string>
+	<key>–</key>
+	<string>–</string>
+	<key>“%@” bulunamadı</key>
+	<string>Couldn't find “%@”</string>
+	<key>↓ %@  ↑ %@</key>
+	<string>↓ %@  ↑ %@</string>
+	<key>⇧⌥ ile basınca %1 ince ayar.</key>
+	<string>Hold ⇧⌥ for 1% fine steps.</string>
+	<key>☕ Uyanık</key>
+	<string>☕ Awake</string>
+</dict>
+</plist>

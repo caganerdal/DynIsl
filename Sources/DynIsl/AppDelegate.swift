@@ -207,8 +207,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.image = NSImage.menuBarIcon
 
         let menu = NSMenu()
-        menu.addItem(item("Sistem Paneli…", #selector(openDashboard), key: "0"))
-        menu.addItem(item("İnternet hız testi", #selector(runSpeedTest)))
+        menu.addItem(item(String(localized: "Sistem Paneli…"), #selector(openDashboard), key: "0"))
+        menu.addItem(item(String(localized: "İnternet hız testi"), #selector(runSpeedTest)))
         let awake = NSMenu()
         awake.delegate = self
         awake.autoenablesItems = false
@@ -218,36 +218,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             awake.addItem(it)
         }
         awake.addItem(.separator())
-        awake.addItem(item("Kapat", #selector(keepAwakeOff)))
-        let awakeItem = NSMenuItem(title: "Uyanık tut", action: nil, keyEquivalent: "")
+        awake.addItem(item(String(localized: "Kapat"), #selector(keepAwakeOff)))
+        let awakeItem = NSMenuItem(title: String(localized: "Uyanık tut"), action: nil, keyEquivalent: "")
         awakeItem.submenu = awake
         menu.addItem(awakeItem)
         keepAwakeMenu = awake
-        let pres = item("Sunum modu", #selector(togglePresentation), key: "p")
+        let pres = item(String(localized: "Sunum modu"), #selector(togglePresentation), key: "p")
         pres.keyEquivalentModifierMask = [.command, .option]
         menu.addItem(pres)
         presentationItem = pres
         menu.addItem(.separator())
         let test = NSMenu()
-        test.addItem(item("Şarj oluyor", #selector(demoCharging)))
-        test.addItem(item("Düşük pil", #selector(demoLowBattery)))
-        test.addItem(item("AirPods bağlandı", #selector(demoAirPods)))
-        test.addItem(item("10 sn zamanlayıcı", #selector(demoTimer)))
-        let testItem = NSMenuItem(title: "Bildirimleri test et", action: nil, keyEquivalent: "")
+        test.addItem(item(String(localized: "Şarj oluyor"), #selector(demoCharging)))
+        test.addItem(item(String(localized: "Düşük pil"), #selector(demoLowBattery)))
+        test.addItem(item(String(localized: "AirPods bağlandı"), #selector(demoAirPods)))
+        test.addItem(item(String(localized: "10 sn zamanlayıcı"), #selector(demoTimer)))
+        let testItem = NSMenuItem(title: String(localized: "Bildirimleri test et"), action: nil, keyEquivalent: "")
         testItem.submenu = test
         menu.addItem(testItem)
         menu.addItem(.separator())
-        menu.addItem(item("Müzik: Oynat / Duraklat", #selector(togglePlay)))
-        menu.addItem(item("AirDrop ile gönder…", #selector(airDrop)))
+        menu.addItem(item(String(localized: "Müzik: Oynat / Duraklat"), #selector(togglePlay)))
+        menu.addItem(item(String(localized: "AirDrop ile gönder…"), #selector(airDrop)))
         menu.addItem(.separator())
-        let upd = item("Güncellemeleri denetle", #selector(updateMenuAction))
+        let upd = item(String(localized: "Güncellemeleri denetle"), #selector(updateMenuAction))
         menu.addItem(upd)
-        menu.addItem(item("Sorun bildir…", #selector(reportProblem)))
+        menu.addItem(item(String(localized: "Sorun bildir…"), #selector(reportProblem)))
         updateItem = upd
         menu.delegate = self
         menu.addItem(.separator())
-        menu.addItem(item("Ayarlar…", #selector(openSettings), key: ","))
-        menu.addItem(item("Çıkış", #selector(quit), key: "q"))
+        menu.addItem(item(String(localized: "Ayarlar…"), #selector(openSettings), key: ","))
+        menu.addItem(item(String(localized: "Çıkış"), #selector(quit), key: "q"))
         statusItem.menu = menu
         statusMenu = menu
     }
@@ -272,10 +272,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         if menu === statusMenu {
-            updateItem?.title = model.updates.available.map { "Yeni sürüm var: v\($0.version)…" } ?? "Güncellemeleri denetle"
+            updateItem?.title = model.updates.available.map { String(localized: "Yeni sürüm var: v\($0.version)…") } ?? String(localized: "Güncellemeleri denetle")
             presentationItem?.state = model.presentation.isActive ? .on : .off
             presentationItem?.title = model.presentation.isActive && !model.presentation.manual
-                ? "Sunum modu (\(model.presentation.reason ?? "otomatik"))" : "Sunum modu"
+                ? String(localized: "Sunum modu (\(model.presentation.reason ?? String(localized: "otomatik")))") : String(localized: "Sunum modu")
             return
         }
         guard menu === keepAwakeMenu else { return }
@@ -284,7 +284,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             it.state = k.isActive && KeepAwake.durations[it.tag].minutes == k.minutes ? .on : .off
         }
         if let off = menu.items.last {
-            off.title = k.remainingText.map { "Kapat (\($0))" } ?? (k.isActive ? "Kapat" : "Kapalı")
+            off.title = k.remainingText.map { String(localized: "Kapat (\($0))") } ?? (k.isActive ? String(localized: "Kapat") : String(localized: "Kapalı"))
             off.isEnabled = k.isActive
             off.state = k.isActive ? .off : .on
         }
@@ -292,13 +292,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func demoCharging() {
         let l = model.battery.level
-        model.showActivity(.init(icon: "bolt.fill", tint: .green, title: "Şarj oluyor", trailing: "%\(l)", ring: Double(l) / 100))
+        model.showActivity(.init(icon: "bolt.fill", tint: .green, title: String(localized: "Şarj oluyor"), trailing: pc(l), ring: Double(l) / 100))
     }
     @objc private func demoLowBattery() {
-        model.showActivity(.init(icon: "battery.25percent", tint: .orange, title: "Düşük pil", trailing: "%18", ring: 0.18))
+        model.showActivity(.init(icon: "battery.25percent", tint: .orange, title: String(localized: "Düşük pil"), trailing: pc(18), ring: 0.18))
     }
     @objc private func demoAirPods() {
-        model.showActivity(.init(icon: "airpodspro", tint: .white, title: "AirPods Pro", trailing: "%92", ring: 0.92))
+        model.showActivity(.init(icon: "airpodspro", tint: .white, title: "AirPods Pro", trailing: pc(92), ring: 0.92))
     }
     @objc private func demoTimer() { model.startTimer(seconds: 10) }
     @objc private func togglePlay() { model.media.playPause() }
@@ -329,7 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if settings.showsIconItem {
             stats.menu = nil
             stats.button?.action = #selector(openDashboard)
-            stats.button?.toolTip = "Sistem Paneli'ni aç"
+            stats.button?.toolTip = String(localized: "Sistem Paneli'ni aç")
         } else {
             statusItem.menu = nil
             stats.menu = statusMenu
@@ -357,8 +357,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         s.append(NSAttributedString(string: "RAM ", attributes: label))
         s.append(NSAttributedString(string: String(format: "%2d%%", ram), attributes: value))
         button.attributedTitle = s
-        let tip = "İşlemci kullanımı %\(cpu) · Bellek (RAM) kullanımı %\(ram)"
-        button.toolTip = model.settings.showsIconItem ? tip + "\nTıkla: Sistem Paneli" : tip
+        let tip = String(localized: "İşlemci kullanımı \(pc(cpu)) · Bellek (RAM) kullanımı \(pc(ram))")
+        button.toolTip = model.settings.showsIconItem ? tip + String(localized: "\nTıkla: Sistem Paneli") : tip
     }
 
     private func setupMainMenu() {
@@ -366,30 +366,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         let appItem = NSMenuItem()
         let app = NSMenu()
-        app.addItem(item("Sistem Paneli", #selector(openDashboard), key: "0"))
-        app.addItem(item("Ayarlar…", #selector(openSettings), key: ","))
+        app.addItem(item(String(localized: "Sistem Paneli"), #selector(openDashboard), key: "0"))
+        app.addItem(item(String(localized: "Ayarlar…"), #selector(openSettings), key: ","))
         app.addItem(.separator())
-        app.addItem(NSMenuItem(title: "DynIsl'ı Gizle", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+        app.addItem(NSMenuItem(title: String(localized: "DynIsl'ı Gizle"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
         app.addItem(.separator())
-        app.addItem(item("Çıkış", #selector(quit), key: "q"))
+        app.addItem(item(String(localized: "Çıkış"), #selector(quit), key: "q"))
         appItem.submenu = app
         main.addItem(appItem)
 
         let editItem = NSMenuItem()
-        let edit = NSMenu(title: "Düzen")
-        edit.addItem(NSMenuItem(title: "Geri Al", action: Selector(("undo:")), keyEquivalent: "z"))
+        let edit = NSMenu(title: String(localized: "Düzen"))
+        edit.addItem(NSMenuItem(title: String(localized: "Geri Al"), action: Selector(("undo:")), keyEquivalent: "z"))
         edit.addItem(.separator())
-        edit.addItem(NSMenuItem(title: "Kes", action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
-        edit.addItem(NSMenuItem(title: "Kopyala", action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
-        edit.addItem(NSMenuItem(title: "Yapıştır", action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
-        edit.addItem(NSMenuItem(title: "Tümünü Seç", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+        edit.addItem(NSMenuItem(title: String(localized: "Kes"), action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
+        edit.addItem(NSMenuItem(title: String(localized: "Kopyala"), action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
+        edit.addItem(NSMenuItem(title: String(localized: "Yapıştır"), action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
+        edit.addItem(NSMenuItem(title: String(localized: "Tümünü Seç"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
         editItem.submenu = edit
         main.addItem(editItem)
 
         let windowItem = NSMenuItem()
-        let window = NSMenu(title: "Pencere")
-        window.addItem(NSMenuItem(title: "Küçült", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m"))
-        window.addItem(NSMenuItem(title: "Kapat", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+        let window = NSMenu(title: String(localized: "Pencere"))
+        window.addItem(NSMenuItem(title: String(localized: "Küçült"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m"))
+        window.addItem(NSMenuItem(title: String(localized: "Pencereyi Kapat"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
         windowItem.submenu = window
         main.addItem(windowItem)
         NSApp.windowsMenu = window

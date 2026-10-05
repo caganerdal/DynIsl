@@ -205,8 +205,8 @@ private struct OnboardingView: View {
 private struct Feature: View {
     let icon: String
     let tint: Color
-    let title: String
-    let text: String
+    let title: LocalizedStringKey
+    let text: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
@@ -226,8 +226,8 @@ private struct Feature: View {
 private struct Permission: View {
     let icon: String
     let tint: Color
-    let title: String
-    let why: String
+    let title: LocalizedStringKey
+    let why: LocalizedStringKey
     let ok: Bool
     let fix: () -> Void
 

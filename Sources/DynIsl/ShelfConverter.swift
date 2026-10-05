@@ -10,10 +10,10 @@ enum ShelfConversion: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .toJPEG: return "JPG'ye çevir"
-        case .shrink: return "Görselleri küçült"
-        case .mergePDF: return "Tek PDF yap"
-        case .compressPDF: return "PDF'i sıkıştır"
+        case .toJPEG: return String(localized: "JPG'ye çevir")
+        case .shrink: return String(localized: "Görselleri küçült")
+        case .mergePDF: return String(localized: "Tek PDF yap")
+        case .compressPDF: return String(localized: "PDF'i sıkıştır")
         }
     }
 
@@ -62,7 +62,7 @@ enum ShelfConverter {
             }
         case .shrink:
             for u in urls {
-                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + " (küçük).jpg"))
+                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).jpg")))
                 guard writeJPEG(from: u, to: out, maxPixel: 1600, quality: 0.75) else { r.failed += 1; continue }
                 let delta = size(u) - size(out)
                 if delta <= 0 { try? FileManager.default.removeItem(at: out); r.skipped += 1; continue }
@@ -82,12 +82,12 @@ enum ShelfConverter {
             }
             let f = DateFormatter()
             f.dateFormat = "yyyy-MM-dd HH.mm"
-            let out = unique(folder(for: urls[0]).appendingPathComponent("Birleştirilmiş \(f.string(from: Date())).pdf"))
+            let out = unique(folder(for: urls[0]).appendingPathComponent(String(localized: "Birleştirilmiş \(f.string(from: Date())).pdf")))
             if doc.pageCount > 0, doc.write(to: out) { r.outputs.append(out) } else { r.failed += 1 }
         case .compressPDF:
             for u in urls {
                 guard let doc = PDFDocument(url: u) else { r.failed += 1; continue }
-                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + " (küçük).pdf"))
+                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).pdf")))
                 guard let filter = reduceFilter,
                       doc.write(to: out, withOptions: [PDFDocumentWriteOption(rawValue: "QuartzFilter"): filter]) else {
                     r.failed += 1; continue

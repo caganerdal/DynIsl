@@ -59,12 +59,12 @@ final class PresentationMode: ObservableObject {
 
         var why: String?
         if manual {
-            why = "Elle açıldı"
+            why = String(localized: "Elle açıldı")
         } else if autoDetect {
             if presenterRunning, let name = Self.slideshowApp() {
-                why = "\(name) sunumu"
+                why = String(localized: "\(name) sunumu")
             } else if Self.isMirroring() {
-                why = "Ekran yansıtılıyor"
+                why = String(localized: "Ekran yansıtılıyor")
             }
         }
         if reason != why { reason = why }
@@ -85,7 +85,7 @@ final class PresentationMode: ObservableObject {
             guard let b = w[kCGWindowBounds as String] as? [String: CGFloat],
                   let width = b["Width"], let height = b["Height"] else { continue }
             if screens.contains(where: { abs($0.width - width) < 2 && abs($0.height - height) < 2 }) {
-                return app.localizedName ?? "Sunum"
+                return app.localizedName ?? String(localized: "Sunum")
             }
         }
         return nil

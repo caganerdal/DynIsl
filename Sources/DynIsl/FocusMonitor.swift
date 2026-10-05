@@ -80,9 +80,9 @@ final class FocusMonitor: ObservableObject {
 
         guard notify else { return }
         if let m = newMode {
-            onActivity?(.init(icon: m.symbol, tint: m.tint, title: m.name, trailing: "Açık"))
+            onActivity?(.init(icon: m.symbol, tint: m.tint, title: m.name, trailing: String(localized: "Açık")))
         } else if let o = old {
-            onActivity?(.init(icon: o.symbol, tint: .gray, title: o.name, trailing: "Kapandı"))
+            onActivity?(.init(icon: o.symbol, tint: .gray, title: o.name, trailing: String(localized: "Kapandı")))
         }
     }
 
@@ -111,12 +111,12 @@ final class FocusMonitor: ObservableObject {
     }
 
     private static func defaultName(for id: String) -> String {
-        if id.hasSuffix(".default") { return "Rahatsız Etme" }
-        if id.contains("sleep") { return "Uyku" }
-        if id.contains("work") { return "İş" }
-        if id.contains("personal") { return "Kişisel" }
-        if id.contains("driving") { return "Araç Kullanma" }
-        return "Odak"
+        if id.hasSuffix(".default") { return String(localized: "Rahatsız Etme") }
+        if id.contains("sleep") { return String(localized: "Uyku") }
+        if id.contains("work") { return String(localized: "İş") }
+        if id.contains("personal") { return String(localized: "Kişisel") }
+        if id.contains("driving") { return String(localized: "Araç Kullanma") }
+        return String(localized: "Odak")
     }
 
     private static func findMode(id: String, in json: Any) -> [String: Any]? {

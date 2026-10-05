@@ -58,7 +58,7 @@ enum CLI {
 
     private static func run(_ command: [String]) -> Int32 {
         guard !command.isEmpty else {
-            FileHandle.standardError.write(Data("kullanım: island run <komut> [argümanlar]\n".utf8))
+            FileHandle.standardError.write(Data(String(localized: "kullanım: island run <komut> [argümanlar]\n").utf8))
             return 64
         }
         let p = Process()
@@ -69,7 +69,7 @@ enum CLI {
         p.standardError = FileHandle.standardError
         let start = Date()
         do { try p.run() } catch {
-            FileHandle.standardError.write(Data("island: \(command[0]) çalıştırılamadı: \(error.localizedDescription)\n".utf8))
+            FileHandle.standardError.write(Data(String(localized: "island: \(command[0]) çalıştırılamadı: \(error.localizedDescription)\n").utf8))
             return 127
         }
         signal(SIGINT, SIG_IGN)
@@ -78,14 +78,14 @@ enum CLI {
         let name = command.prefix(2).joined(separator: " ")
         let ok = p.terminationStatus == 0
         post(title: name,
-             message: ok ? "Bitti · \(format(elapsed))" : "Hata (\(p.terminationStatus)) · \(format(elapsed))",
+             message: ok ? String(localized: "Bitti · \(format(elapsed))") : String(localized: "Hata (\(p.terminationStatus)) · \(format(elapsed))"),
              icon: ok ? "checkmark.circle.fill" : "xmark.octagon.fill",
              tint: ok ? "green" : "red", duration: 5, sound: elapsed > 30)
         return p.terminationStatus
     }
 
     private static func format(_ t: TimeInterval) -> String {
-        t < 60 ? "\(Int(t.rounded())) sn" : "\(Int(t) / 60) dk \(Int(t) % 60) sn"
+        t < 60 ? String(localized: "\(Int(t.rounded())) sn") : String(localized: "\(Int(t) / 60) dk \(Int(t) % 60) sn")
     }
 
     private static func claudeHook() -> Int32 {
@@ -94,9 +94,9 @@ enum CLI {
         let project = (json["cwd"] as? String).map { ($0 as NSString).lastPathComponent } ?? "Claude"
         switch json["hook_event_name"] as? String ?? "" {
         case "Stop":
-            post(title: project, message: "Claude bitirdi", icon: "sparkle", tint: "orange", duration: 4, sound: false)
+            post(title: project, message: String(localized: "Claude bitirdi"), icon: "sparkle", tint: "orange", duration: 4, sound: false)
         case "Notification":
-            post(title: project, message: shorten(json["message"] as? String ?? "Seni bekliyor"),
+            post(title: project, message: shorten(json["message"] as? String ?? String(localized: "Seni bekliyor")),
                  icon: "hand.raised.fill", tint: "orange", duration: 6, sound: true)
         default:
             break
@@ -106,8 +106,8 @@ enum CLI {
 
     private static func shorten(_ msg: String) -> String {
         let m = msg.lowercased()
-        if m.contains("permission") { return "İzin bekliyor" }
-        if m.contains("waiting for your input") || m.contains("idle") { return "Cevabını bekliyor" }
+        if m.contains("permission") { return String(localized: "İzin bekliyor") }
+        if m.contains("waiting for your input") || m.contains("idle") { return String(localized: "Cevabını bekliyor") }
         return msg.count > 40 ? String(msg.prefix(38)) + "…" : msg
     }
 
