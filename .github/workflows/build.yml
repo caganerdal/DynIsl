@@ -1,0 +1,29 @@
+name: Derleme
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: En yeni Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          swift --version
+      - name: Derle
+        run: swift build -c release
+      - name: Uygulama paketi
+        run: |
+          mkdir -p build/DynIsl.app/Contents/MacOS
+          cp .build/release/DynIsl build/DynIsl.app/Contents/MacOS/
+          ./build/DynIsl.app/Contents/MacOS/DynIsl --help

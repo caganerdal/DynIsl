@@ -4,6 +4,8 @@
 
 <h1 align="center">DynIsl</h1>
 
+<p align="center"><a href="https://github.com/caganerdal/DynIsl/actions/workflows/build.yml"><img src="https://github.com/caganerdal/DynIsl/actions/workflows/build.yml/badge.svg" alt="Derleme"></a></p>
+
 <p align="center">MacBook çentiği için Dynamic Island tarzı bir ada ve bir sistem paneli.</p>
 
 <p align="center"><em>A Dynamic Island–style companion for the MacBook notch, plus a system dashboard. Native Swift / SwiftUI, runs fully on-device.</em></p>
