@@ -66,6 +66,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         setupStatusItem()
         setupMainMenu()
         handleTerminationSignal()
+        OnboardingWindow.showIfNeeded(model: model)
         updateStatsItem()
         statsBag = [
             model.settings.$menuBarMode.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in

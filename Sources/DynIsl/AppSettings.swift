@@ -321,6 +321,7 @@ private struct SettingsView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
+                    Button("Hoş geldin rehberi") { OnboardingWindow.show(model: model) }
                     Button("Çıkış") { NSApp.terminate(nil) }
                 }
             }
