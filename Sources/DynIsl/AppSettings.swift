@@ -11,6 +11,9 @@ final class AppSettings: ObservableObject {
     @Published var hideFromCapture: Bool { didSet { d.set(hideFromCapture, forKey: "hideFromCapture") } }
     @Published var replaceHUD: Bool { didSet { d.set(replaceHUD, forKey: "replaceHUD") } }
     @Published var volumeStep: Int { didSet { d.set(volumeStep, forKey: "volumeStep") } }
+    @Published var volumeHUDStyle: HUDStyle { didSet { d.set(volumeHUDStyle.rawValue, forKey: "volumeHUDStyle") } }
+    @Published var brightnessHUDStyle: HUDStyle { didSet { d.set(brightnessHUDStyle.rawValue, forKey: "brightnessHUDStyle") } }
+    func hudStyle(for kind: HUDInfo.Kind) -> HUDStyle { kind == .volume ? volumeHUDStyle : brightnessHUDStyle }
     @Published var menuBarMode: String { didSet { d.set(menuBarMode, forKey: "menuBarMode") } }
     var showsIconItem: Bool { menuBarMode != "stats" }
     var showsStatsItem: Bool { menuBarMode != "icon" }
@@ -46,6 +49,9 @@ final class AppSettings: ObservableObject {
     @Published var islandWidth: Int { didSet { d.set(islandWidth, forKey: "islandWidth") } }
     @Published var animationSpeed: Double { didSet { d.set(animationSpeed, forKey: "animationSpeed") } }
     @Published var albumGlow: Bool { didSet { d.set(albumGlow, forKey: "albumGlow") } }
+    @Published var showPet: Bool { didSet { d.set(showPet, forKey: "showPet") } }
+    @Published var presentationAuto: Bool { didSet { d.set(presentationAuto, forKey: "presentationAuto") } }
+    @Published var presentationHideIcons: Bool { didSet { d.set(presentationHideIcons, forKey: "presentationHideIcons") } }
     @Published var screenChoice: String { didSet { d.set(screenChoice, forKey: "screenChoice") } }
     @Published var tabOrder: [IslandTab] { didSet { d.set(tabOrder.map(\.rawValue), forKey: "tabOrder") } }
     @Published var hiddenTabs: Set<IslandTab> { didSet { d.set(hiddenTabs.map(\.rawValue), forKey: "hiddenTabs") } }
@@ -62,7 +68,7 @@ final class AppSettings: ObservableObject {
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
             "alertDisk": true, "alertMemory": true, "alertThermal": true, "alertBatteryHealth": true, "showWeather": true, "weatherCity": "",
-            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "screenChoice": "auto",
+            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
         ])
         openOnHover = d.bool(forKey: "openOnHover")
         if d.object(forKey: "menuBarMode") == nil, !d.bool(forKey: "menuBarStats") {
@@ -71,6 +77,8 @@ final class AppSettings: ObservableObject {
         menuBarMode = d.string(forKey: "menuBarMode") ?? "both"
         replaceHUD = d.bool(forKey: "replaceHUD")
         volumeStep = d.integer(forKey: "volumeStep")
+        volumeHUDStyle = HUDStyle(rawValue: d.string(forKey: "volumeHUDStyle") ?? "") ?? .classic
+        brightnessHUDStyle = HUDStyle(rawValue: d.string(forKey: "brightnessHUDStyle") ?? "") ?? .classic
         hideFromCapture = d.bool(forKey: "hideFromCapture")
         callMode = d.bool(forKey: "callMode")
         notifyBattery = d.bool(forKey: "notifyBattery")
@@ -102,6 +110,9 @@ final class AppSettings: ObservableObject {
         islandWidth = d.integer(forKey: "islandWidth")
         animationSpeed = d.double(forKey: "animationSpeed")
         albumGlow = d.bool(forKey: "albumGlow")
+        showPet = d.bool(forKey: "showPet")
+        presentationAuto = d.bool(forKey: "presentationAuto")
+        presentationHideIcons = d.bool(forKey: "presentationHideIcons")
         screenChoice = d.string(forKey: "screenChoice") ?? "auto"
         let saved = (d.stringArray(forKey: "tabOrder") ?? []).compactMap(IslandTab.init(rawValue:))
         tabOrder = saved + IslandTab.allCases.filter { !saved.contains($0) }
@@ -212,6 +223,20 @@ private struct SettingsView: View {
                         Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }
                     }
                 }
+                HStack {
+                    Picker("Ses göstergesi", selection: $settings.volumeHUDStyle) {
+                        ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                    }
+                    Button("Dene") { model.hud.preview(.volume) }
+                }
+                .disabled(!settings.replaceHUD)
+                HStack {
+                    Picker("Parlaklık göstergesi", selection: $settings.brightnessHUDStyle) {
+                        ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                    }
+                    Button("Dene") { model.hud.preview(.brightness) }
+                }
+                .disabled(!settings.replaceHUD)
                 Picker("Her basışta", selection: $settings.volumeStep) {
                     Text("%2").tag(2)
                     Text("%5").tag(5)
@@ -220,6 +245,18 @@ private struct SettingsView: View {
                 }
                 .disabled(!settings.replaceHUD)
                 Text("⇧⌥ ile birlikte basınca %1 ince ayar yapılır. Göstergedeki çubuğu fareyle de sürükleyebilirsin.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Section("Sunum modu") {
+                Toggle("Keynote ya da PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç", isOn: $settings.presentationAuto)
+                Toggle("Masaüstü simgelerini gizle", isOn: $settings.presentationHideIcons)
+                HStack {
+                    Text(model.presentation.isActive ? "Açık · \(model.presentation.reason ?? "")" : "Kapalı")
+                        .foregroundStyle(model.presentation.isActive ? .purple : .secondary)
+                    Spacer()
+                    Button(model.presentation.manual ? "Kapat" : "Şimdi aç") { model.presentation.toggleManual() }
+                }
+                Text("Açıkken adada bildirim ve ekran görüntüsü önizlemesi çıkmaz. Zoom, Meet ya da Teams'te ekran paylaşırken menü çubuğundan elle aç; uygulamalar paylaşımı dışarıya bildirmiyor.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Section("Gizlilik") {
@@ -251,6 +288,7 @@ private struct SettingsView: View {
                     Text(model.updates.checking ? "Denetleniyor…" : (model.updates.lastResult ?? "Henüz denetlenmedi"))
                         .foregroundStyle(model.updates.available != nil ? .blue : .secondary)
                     Spacer()
+                    Button("Sorun bildir…") { UpdateChecker.reportProblem() }
                     Button("Şimdi denetle") { model.updates.check(manual: true) }
                         .disabled(model.updates.checking)
                 }
@@ -303,6 +341,9 @@ private struct SettingsView: View {
                     Text("Yavaş").tag(1.35)
                 }
                 Toggle("Müzik çalarken kapak rengi parıltısı", isOn: $settings.albumGlow)
+                Toggle("Ada kedisi", isOn: $settings.showPet)
+                Text("Ada boşken çentiğin yanında uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac çok zorlanınca terler.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section("Ekran") {
                 Picker("Ada hangi ekranda", selection: $settings.screenChoice) {

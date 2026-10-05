@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusMenu: NSMenu!
     private var keepAwakeMenu: NSMenu?
     private var updateItem: NSMenuItem?
+    private var presentationItem: NSMenuItem?
     private var monitors: [Any] = []
     private var settingsBag: Any?
     private var statsBag: [Any] = []
@@ -221,6 +222,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         awakeItem.submenu = awake
         menu.addItem(awakeItem)
         keepAwakeMenu = awake
+        let pres = item("Sunum modu", #selector(togglePresentation), key: "p")
+        pres.keyEquivalentModifierMask = [.command, .option]
+        menu.addItem(pres)
+        presentationItem = pres
         menu.addItem(.separator())
         let test = NSMenu()
         test.addItem(item("Şarj oluyor", #selector(demoCharging)))
@@ -236,8 +241,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(.separator())
         let upd = item("Güncellemeleri denetle", #selector(updateMenuAction))
         menu.addItem(upd)
+        menu.addItem(item("Sorun bildir…", #selector(reportProblem)))
         updateItem = upd
         menu.delegate = self
+        menu.addItem(.separator())
         menu.addItem(item("Ayarlar…", #selector(openSettings), key: ","))
         menu.addItem(item("Çıkış", #selector(quit), key: "q"))
         statusItem.menu = menu
@@ -255,6 +262,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
     @objc private func keepAwakeOff() { model.keepAwake.stop() }
 
+    @objc private func togglePresentation() { model.presentation.toggleManual() }
+    @objc private func reportProblem() { UpdateChecker.reportProblem() }
+
     @objc private func updateMenuAction() {
         if model.updates.available != nil { model.updates.openReleasePage() } else { model.updates.check(manual: true) }
     }
@@ -262,6 +272,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         if menu === statusMenu {
             updateItem?.title = model.updates.available.map { "Yeni sürüm var: v\($0.version)…" } ?? "Güncellemeleri denetle"
+            presentationItem?.state = model.presentation.isActive ? .on : .off
+            presentationItem?.title = model.presentation.isActive && !model.presentation.manual
+                ? "Sunum modu (\(model.presentation.reason ?? "otomatik"))" : "Sunum modu"
             return
         }
         guard menu === keepAwakeMenu else { return }

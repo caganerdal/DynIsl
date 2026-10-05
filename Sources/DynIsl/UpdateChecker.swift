@@ -85,6 +85,31 @@ final class UpdateChecker: ObservableObject {
         }
     }
 
+    static func reportProblem() {
+        var size = 0
+        sysctlbyname("hw.model", nil, &size, nil, 0)
+        var model = [CChar](repeating: 0, count: max(size, 1))
+        sysctlbyname("hw.model", &model, &size, nil, 0)
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        let os = ProcessInfo.processInfo.operatingSystemVersion
+        let body = """
+        **Ne oldu?**
+
+
+        **Ne bekliyordun?**
+
+
+        **Nasıl tekrar edilir?** (biliyorsan)
+
+
+        ---
+        DynIsl \(current) (yapı \(build)) · macOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion) · \(String(cString: model))
+        """
+        var c = URLComponents(string: "https://github.com/caganerdal/DynIsl/issues/new")!
+        c.queryItems = [URLQueryItem(name: "body", value: body)]
+        if let url = c.url { NSWorkspace.shared.open(url) }
+    }
+
     func openReleasePage() {
         if let url = available?.url { NSWorkspace.shared.open(url) }
     }

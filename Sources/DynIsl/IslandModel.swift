@@ -48,6 +48,7 @@ final class IslandModel: ObservableObject {
     @Published private(set) var timerRemaining: Int?
     @Published private(set) var notchSize = CGSize(width: 200, height: 32)
     @Published private(set) var hasNotch = false
+    @Published private(set) var petMood: PetMood = .sleeping
     @Published var tab: IslandTab = .media
     @Published var isFileDragging = false
 
@@ -74,6 +75,7 @@ final class IslandModel: ObservableObject {
     let keepAwake = KeepAwake()
     let network = NetworkWatcher()
     let updates = UpdateChecker()
+    let presentation = PresentationMode()
     let downloadsCleaner = DownloadsCleaner()
     @Published var dashboardPage: DashboardPage? = .overview
     let settings = AppSettings()
@@ -88,7 +90,7 @@ final class IslandModel: ObservableObject {
         for publisher in [battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
                           calendar.objectWillChange, shelf.objectWillChange, downloads.objectWillChange,
                           settings.objectWillChange, screenshots.objectWillChange, speedTest.objectWillChange,
-                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange, updates.objectWillChange] {
+                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange, updates.objectWillChange, presentation.objectWillChange] {
             bag.append(publisher.sink { [weak self] _ in self?.objectWillChange.send() })
         }
 
@@ -152,7 +154,7 @@ final class IslandModel: ObservableObject {
         screenshots.onNew = { [weak self] shot in
             guard let self else { return }
             if self.settings.screenshotsToShelf { self.shelf.add([shot.url]) }
-            if !self.settings.screenshotPreview { self.screenshots.dismiss() }
+            if !self.settings.screenshotPreview || self.presentation.isActive { self.screenshots.dismiss() }
         }
         screenshots.start()
 
@@ -173,6 +175,39 @@ final class IslandModel: ObservableObject {
             self.showActivity(a, duration: 5)
         }
         network.start()
+
+        shelf.onConverted = { [weak self] kind, r in
+            let size = ByteCountFormatter.string(fromByteCount: r.saved, countStyle: .file)
+            let text: String
+            if r.outputs.isEmpty {
+                text = r.skipped > 0 ? "Zaten küçük" : "Dönüştürülemedi"
+            } else if r.saved > 0 {
+                text = "\(r.outputs.count) dosya · \(size) kazanıldı"
+            } else {
+                text = kind == .mergePDF ? "PDF hazır, rafta" : "\(r.outputs.count) dosya hazır"
+            }
+            self?.showActivity(.init(icon: r.outputs.isEmpty ? "exclamationmark.triangle.fill" : "checkmark.circle.fill",
+                                     tint: r.outputs.isEmpty ? .orange : .green, title: kind.title, trailing: text), duration: 3)
+        }
+
+        presentation.autoDetect = settings.presentationAuto
+        presentation.hideIcons = settings.presentationHideIcons
+        bag.append(settings.$presentationAuto.dropFirst().sink { [weak self] in self?.presentation.autoDetect = $0 })
+        bag.append(settings.$presentationHideIcons.dropFirst().sink { [weak self] in self?.presentation.hideIcons = $0 })
+        presentation.onChange = { [weak self] active, manual in
+            guard let self else { return }
+            if active { self.screenshots.dismiss() }
+            if manual || !active {
+                self.showActivity(.init(icon: active ? "play.rectangle.fill" : "rectangle.slash", tint: active ? .purple : .gray,
+                                        title: "Sunum modu", trailing: active ? "Açık" : "Kapalı"), duration: 2, force: true)
+            }
+        }
+        presentation.start()
+
+        for publisher in [battery.objectWillChange, media.objectWillChange] {
+            bag.append(publisher.sink { [weak self] _ in DispatchQueue.main.async { self?.updatePetMood() } })
+        }
+        bag.append(system.$cpu.sink { [weak self] _ in DispatchQueue.main.async { self?.updatePetMood() } })
 
         updates.onActivity = { [weak self] in self?.showActivity($0, duration: 5) }
         updates.enabled = settings.checkUpdates
@@ -302,13 +337,17 @@ final class IslandModel: ObservableObject {
 
     var currentSize: CGSize {
         switch state {
-        case .idle: return notchSize
+        case .idle: return CGSize(width: notchSize.width + 2 * petEar, height: notchSize.height)
         case .call:
             let w = textWidth(call.appName ?? "Görüşme", weight: .medium) + 34
             return CGSize(width: notchSize.width + 2 * min(max(w, 100), 180), height: notchSize.height)
-        case .playing, .timer, .meeting, .privacy, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
+        case .playing: return CGSize(width: notchSize.width + 100 + 2 * petEar, height: notchSize.height)
+        case .timer, .meeting, .privacy, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
         case .activity: return CGSize(width: notchSize.width + 2 * activityEarWidth, height: notchSize.height)
-        case .hud: return CGSize(width: max(400, notchSize.width + 190), height: notchSize.height + 34)
+        case .hud:
+            let style = hud.current.map { settings.hudStyle(for: $0.kind) } ?? .classic
+            if style.isCompact { return CGSize(width: notchSize.width + 2 * style.earWidth, height: notchSize.height) }
+            return CGSize(width: max(400, notchSize.width + 190), height: notchSize.height + 34)
         case .peek: return CGSize(width: max(500, notchSize.width + 240), height: notchSize.height + 118)
         case .expanded: return expandedSize
         }
@@ -331,6 +370,17 @@ final class IslandModel: ObservableObject {
             + (a.ring != nil ? 22 : 0)
         return min(max(max(left, right) + 22, 110), 230)
     }
+
+    private func updatePetMood() {
+        let m: PetMood
+        if system.cpu >= 0.85 { m = .hot }
+        else if battery.hasBattery, !battery.isPluggedIn, battery.level <= 20 { m = .tired }
+        else if media.isPlaying { m = .dancing }
+        else { m = .sleeping }
+        if m != petMood { petMood = m }
+    }
+
+    var petEar: CGFloat { settings.showPet ? 30 : 0 }
 
     func setExpanded(_ value: Bool) {
         isExpanded = value
@@ -358,7 +408,8 @@ final class IslandModel: ObservableObject {
         }
     }
 
-    func showActivity(_ a: IslandActivity, duration: TimeInterval = 3) {
+    func showActivity(_ a: IslandActivity, duration: TimeInterval = 3, force: Bool = false) {
+        guard force || !presentation.isActive else { return }
         activityWork?.cancel()
         activityEarWidth = Self.earWidth(for: a)
         activity = a

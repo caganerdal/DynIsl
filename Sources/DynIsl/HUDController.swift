@@ -7,6 +7,31 @@ struct HUDInfo: Equatable {
     var muted: Bool
 }
 
+enum HUDStyle: String, CaseIterable, Identifiable {
+    case classic, minimal, ring, segments, liquid
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .classic: return "Klasik"
+        case .minimal: return "Minimal"
+        case .ring: return "Halka"
+        case .segments: return "Bölmeli"
+        case .liquid: return "Sıvı"
+        }
+    }
+
+    var isCompact: Bool { self == .minimal || self == .ring || self == .segments }
+
+    var earWidth: CGFloat {
+        switch self {
+        case .ring: return 92
+        case .minimal, .segments: return 128
+        default: return 0
+        }
+    }
+}
+
 @MainActor
 final class HUDController: ObservableObject {
     @Published private(set) var current: HUDInfo?
@@ -156,6 +181,15 @@ final class HUDController: ObservableObject {
         guard held else { return }
         held = false
         scheduleHide()
+    }
+
+    func preview(_ kind: HUDInfo.Kind) {
+        switch kind {
+        case .volume:
+            show(HUDInfo(kind: .volume, level: Double(VolumeControl.volume), muted: VolumeControl.isMuted))
+        case .brightness:
+            show(HUDInfo(kind: .brightness, level: Double(BrightnessControl.isAvailable ? BrightnessControl.brightness : 0.6), muted: false))
+        }
     }
 
     func setLevel(_ level: Double) {

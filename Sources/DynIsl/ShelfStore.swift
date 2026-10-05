@@ -41,6 +41,25 @@ final class ShelfStore: ObservableObject {
         }
     }
 
+    @Published private(set) var converting = false
+    var onConverted: ((ShelfConversion, ShelfConverter.Result) -> Void)?
+
+    func convert(_ kind: ShelfConversion) {
+        let inputs = kind.inputs(from: items)
+        guard !inputs.isEmpty, !converting else { return }
+        converting = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = ShelfConverter.run(kind, on: inputs)
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self.converting = false
+                    self.add(result.outputs)
+                    self.onConverted?(kind, result)
+                }
+            }
+        }
+    }
+
     func open(_ url: URL) { NSWorkspace.shared.open(url) }
 
     func reveal(_ url: URL) { NSWorkspace.shared.activateFileViewerSelecting([url]) }

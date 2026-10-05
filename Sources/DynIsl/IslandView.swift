@@ -9,7 +9,8 @@ struct IslandView: View {
         let size = model.currentSize
         let expanded = model.state == .expanded
         let top: CGFloat = expanded ? 14 : 6
-        let bottom: CGFloat = expanded || model.state == .peek ? 28 : model.state == .hud ? 18 : 10
+        let compactHUD = model.hud.current.map { model.settings.hudStyle(for: $0.kind).isCompact } ?? false
+        let bottom: CGFloat = expanded || model.state == .peek ? 28 : model.state == .hud && !compactHUD ? 18 : 10
         let glowing = model.settings.albumGlow && model.media.isPlaying
             && (model.state == .playing || (expanded && model.tab == .media))
 
@@ -20,7 +21,7 @@ struct IslandView: View {
             }
             NotchShape(topRadius: top, bottomRadius: bottom)
                 .fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
-                .opacity(model.state == .idle && model.hasNotch ? 0 : 1)
+                .opacity(model.state == .idle && model.hasNotch && !model.settings.showPet ? 0 : 1)
                 .shadow(color: .black.opacity(expanded ? 0.5 : 0), radius: 16, y: 6)
 
             content
@@ -44,7 +45,14 @@ struct IslandView: View {
     @ViewBuilder private var content: some View {
         switch model.state {
         case .idle:
-            Color.clear
+            if model.settings.showPet {
+                CompactRow(height: model.notchSize.height) {
+                    Color.clear.frame(width: 1)
+                } trailing: {
+                    IslandPet(mood: model.petMood).offset(x: 4)
+                }
+                .help("Ada kedisi")
+            }
         case .playing:
             CompactRow(height: model.notchSize.height) {
                 Artwork(image: model.media.artwork, id: model.media.artworkID, size: 20, corner: 5)
@@ -52,6 +60,7 @@ struct IslandView: View {
                 HStack(spacing: 5) {
                     PrivacyDots()
                     CAEqualizer(color: model.media.accent)
+                    if model.settings.showPet { IslandPet(mood: model.petMood).padding(.leading, 4) }
                 }
             }
         case .meeting:
@@ -158,8 +167,32 @@ struct IslandView: View {
             }
         case .hud:
             if let info = model.hud.current {
-                LevelHUD(info: info, notchHeight: model.notchSize.height)
-                    .padding(.bottom, 10)
+                switch model.settings.hudStyle(for: info.kind) {
+                case .classic:
+                    LevelHUD(info: info, notchHeight: model.notchSize.height)
+                        .padding(.bottom, 10)
+                case .liquid:
+                    LiquidHUD(info: info, notchHeight: model.notchSize.height)
+                        .padding(.horizontal, -14)
+                case .minimal:
+                    CompactRow(height: model.notchSize.height) {
+                        HUDSymbol(info: info)
+                    } trailing: {
+                        MinimalBar(info: info)
+                    }
+                case .ring:
+                    CompactRow(height: model.notchSize.height) {
+                        HUDSymbol(info: info)
+                    } trailing: {
+                        HUDRing(info: info)
+                    }
+                case .segments:
+                    CompactRow(height: model.notchSize.height) {
+                        HUDSymbol(info: info)
+                    } trailing: {
+                        SegmentBar(info: info)
+                    }
+                }
             }
         case .peek:
             if let shot = model.screenshots.current {
@@ -740,10 +773,7 @@ private struct LevelHUD: View {
         let shown = info.muted ? 0 : info.level
         VStack(spacing: 6) {
             HStack {
-                symbol
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 24, alignment: .leading)
-                    .contentTransition(.symbolEffect(.replace))
+                HUDSymbol(info: info)
                 Spacer()
                 Text(info.muted ? "Sessiz" : "\(Int((shown * 100).rounded()))")
                     .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
@@ -758,19 +788,6 @@ private struct LevelHUD: View {
         }
         .foregroundStyle(.white)
         .animation(.snappy(duration: 0.2), value: shown)
-    }
-
-    @ViewBuilder private var symbol: some View {
-        switch info.kind {
-        case .volume:
-            if info.muted || info.level == 0 {
-                Image(systemName: "speaker.slash.fill").foregroundStyle(.white.opacity(0.7))
-            } else {
-                Image(systemName: "speaker.wave.3.fill", variableValue: info.level)
-            }
-        case .brightness:
-            Image(systemName: info.level < 0.5 ? "sun.min.fill" : "sun.max.fill").foregroundStyle(.yellow)
-        }
     }
 }
 
@@ -1227,6 +1244,23 @@ private struct ShelfCard: View {
                         HStack {
                             Text("Raf · \(shelf.items.count)").font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                             Spacer()
+                            let options = ShelfConversion.allCases.filter { !$0.inputs(from: shelf.items).isEmpty }
+                            if shelf.converting {
+                                ProgressView().controlSize(.mini)
+                            } else if !options.isEmpty {
+                                Menu {
+                                    ForEach(options) { c in
+                                        Button { shelf.convert(c) } label: {
+                                            Label("\(c.title) (\(c.inputs(from: shelf.items).count))", systemImage: c.icon)
+                                        }
+                                    }
+                                } label: {
+                                    Text("Dönüştür").font(.system(size: 10, weight: .semibold)).foregroundStyle(.orange)
+                                }
+                                .menuStyle(.borderlessButton)
+                                .menuIndicator(.hidden)
+                                .fixedSize()
+                            }
                             Button("AirDrop'la") { model.airdrop.share(shelf.items) }
                                 .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.blue)
                             Button("Temizle") { withAnimation(.snappy) { shelf.clear() } }
