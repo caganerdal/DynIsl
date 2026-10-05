@@ -215,72 +215,35 @@ private struct SettingsView: View {
             }
             Section("Ses ve parlaklık") {
                 Toggle("macOS göstergesi yerine adada göster", isOn: $settings.replaceHUD)
-                if settings.replaceHUD && model.hud.needsPermission {
+                if settings.replaceHUD {
+                    if model.hud.needsPermission {
+                        HStack {
+                            Text("Erişilebilirlik izni gerekiyor. DynIsl listede zaten açıksa − ile kaldırıp yeniden ekle.")
+                                .font(.caption).foregroundStyle(.orange)
+                            Spacer()
+                            Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }
+                        }
+                    }
                     HStack {
-                        Text("Ses ve parlaklık tuşlarını yakalamak için Erişilebilirlik izni gerekiyor. Listede DynIsl zaten açık görünüyorsa onu − ile kaldırıp yeniden ekle; güncellemeden sonra macOS eski izni tanımayabilir.")
-                            .font(.caption).foregroundStyle(.orange)
-                        Spacer()
-                        Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }
+                        Picker("Ses göstergesi", selection: $settings.volumeHUDStyle) {
+                            ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                        }
+                        Button("Dene") { model.hud.preview(.volume) }
                     }
-                }
-                HStack {
-                    Picker("Ses göstergesi", selection: $settings.volumeHUDStyle) {
-                        ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                    HStack {
+                        Picker("Parlaklık göstergesi", selection: $settings.brightnessHUDStyle) {
+                            ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                        }
+                        Button("Dene") { model.hud.preview(.brightness) }
                     }
-                    Button("Dene") { model.hud.preview(.volume) }
-                }
-                .disabled(!settings.replaceHUD)
-                HStack {
-                    Picker("Parlaklık göstergesi", selection: $settings.brightnessHUDStyle) {
-                        ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
+                    Picker("Her basışta", selection: $settings.volumeStep) {
+                        Text("%2").tag(2)
+                        Text("%5").tag(5)
+                        Text("%10").tag(10)
+                        Text("macOS gibi (16 kademe)").tag(0)
                     }
-                    Button("Dene") { model.hud.preview(.brightness) }
+                    Text("⇧⌥ ile basınca %1 ince ayar.").font(.caption).foregroundStyle(.secondary)
                 }
-                .disabled(!settings.replaceHUD)
-                Picker("Her basışta", selection: $settings.volumeStep) {
-                    Text("%2").tag(2)
-                    Text("%5").tag(5)
-                    Text("%10").tag(10)
-                    Text("macOS gibi (16 kademe)").tag(0)
-                }
-                .disabled(!settings.replaceHUD)
-                Text("⇧⌥ ile birlikte basınca %1 ince ayar yapılır. Göstergedeki çubuğu fareyle de sürükleyebilirsin.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section("Sunum modu") {
-                Toggle("Keynote ya da PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç", isOn: $settings.presentationAuto)
-                Toggle("Masaüstü simgelerini gizle", isOn: $settings.presentationHideIcons)
-                HStack {
-                    Text(model.presentation.isActive ? "Açık · \(model.presentation.reason ?? "")" : "Kapalı")
-                        .foregroundStyle(model.presentation.isActive ? .purple : .secondary)
-                    Spacer()
-                    Button(model.presentation.manual ? "Kapat" : "Şimdi aç") { model.presentation.toggleManual() }
-                }
-                Text("Açıkken adada bildirim ve ekran görüntüsü önizlemesi çıkmaz. Zoom, Meet ya da Teams'te ekran paylaşırken menü çubuğundan elle aç; uygulamalar paylaşımı dışarıya bildirmiyor.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section("Gizlilik") {
-                Toggle("Ekran paylaşımı ve kayıtlarda adayı gizle", isOn: $settings.hideFromCapture)
-                Text("Zoom/Meet'te ekran paylaşırken pano, toplantı ve bildirim içerikleri karşı tarafa görünmez. Adanın ekran görüntüsünü almak istersen kapat.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section("Sistem Paneli") {
-                Picker("Menü çubuğunda göster", selection: $settings.menuBarMode) {
-                    Text("Simge ve CPU/RAM").tag("both")
-                    Text("Sadece simge").tag("icon")
-                    Text("Sadece CPU/RAM").tag("stats")
-                }
-                if settings.menuBarMode == "stats" {
-                    Text("Menüye (Ayarlar, Sistem Paneli…) CPU/RAM göstergesine tıklayarak ulaşırsın.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                Button("Sistem Paneli'ni aç") { DashboardWindow.show(model: model) }
-            }
-            Section("Terminal komutu") {
-                Text("island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test")
-                    .font(.system(.caption, design: .monospaced))
-                    .textSelection(.enabled)
-                    .foregroundStyle(.secondary)
             }
             Section("Güncellemeler") {
                 Toggle("Yeni sürümleri günde bir kez denetle", isOn: $settings.checkUpdates)
@@ -288,7 +251,6 @@ private struct SettingsView: View {
                     Text(model.updates.checking ? "Denetleniyor…" : (model.updates.lastResult ?? "Henüz denetlenmedi"))
                         .foregroundStyle(model.updates.available != nil ? .blue : .secondary)
                     Spacer()
-                    Button("Sorun bildir…") { UpdateChecker.reportProblem() }
                     Button("Şimdi denetle") { model.updates.check(manual: true) }
                         .disabled(model.updates.checking)
                 }
@@ -304,13 +266,7 @@ private struct SettingsView: View {
                             Button("Güncelle") { model.updates.runUpdate() }.buttonStyle(.borderedProminent)
                         }
                     }
-                    Text(model.updates.canRunUpdate
-                         ? "Güncelle, Terminal'de kaynak klasöründe git pull ve ./build-app.sh install komutlarını çalıştırır."
-                         : "Terminal'de DynIsl klasörüne gidip git pull ve ./build-app.sh install komutlarını çalıştır.")
-                        .font(.caption).foregroundStyle(.secondary)
                 }
-                Text("Denetleme sadece GitHub'daki son sürüm numarasını okur, bilgisayarından hiçbir bilgi göndermez.")
-                    .font(.caption).foregroundStyle(.secondary)
             }
             Section {
                 HStack {
@@ -321,7 +277,8 @@ private struct SettingsView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button("Hoş geldin rehberi") { OnboardingWindow.show(model: model) }
+                    Button("Rehber") { OnboardingWindow.show(model: model) }
+                    Button("Sorun bildir…") { UpdateChecker.reportProblem() }
                     Button("Çıkış") { NSApp.terminate(nil) }
                 }
             }
@@ -332,27 +289,20 @@ private struct SettingsView: View {
     private var appearance: some View {
         Form {
             Section("Ada") {
-                Picker("Açık ada genişliği", selection: $settings.islandWidth) {
-                    Text("Normal").tag(660)
-                    Text("Geniş").tag(740)
-                }
-                Picker("Animasyon hızı", selection: $settings.animationSpeed) {
-                    Text("Hızlı").tag(0.75)
-                    Text("Normal").tag(1.0)
-                    Text("Yavaş").tag(1.35)
-                }
-                Toggle("Müzik çalarken kapak rengi parıltısı", isOn: $settings.albumGlow)
                 Toggle("Ada kedisi", isOn: $settings.showPet)
-                Text("Ada boşken çentiğin yanında uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac çok zorlanınca terler.")
+                Text("Boşken uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.")
                     .font(.caption).foregroundStyle(.secondary)
+                Toggle("Müzik çalarken kapak rengi parıltısı", isOn: $settings.albumGlow)
             }
-            Section("Ekran") {
-                Picker("Ada hangi ekranda", selection: $settings.screenChoice) {
-                    Text("Çentikli ekran (otomatik)").tag("auto")
-                    Text("Ana ekran").tag("main")
-                    ForEach(NSScreen.screens, id: \.localizedName) { s in
-                        Text(s.localizedName).tag(s.localizedName)
-                    }
+            Section("Menü çubuğu") {
+                Picker("Göster", selection: $settings.menuBarMode) {
+                    Text("Simge ve CPU/RAM").tag("both")
+                    Text("Sadece simge").tag("icon")
+                    Text("Sadece CPU/RAM").tag("stats")
+                }
+                if settings.menuBarMode == "stats" {
+                    Text("Menüye CPU/RAM göstergesine tıklayarak ulaşırsın.")
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
             Section("Sekmeler") {
@@ -372,6 +322,26 @@ private struct SettingsView: View {
                     }
                 }
             }
+            Section {
+                DisclosureGroup("Gelişmiş") {
+                    Picker("Ada hangi ekranda", selection: $settings.screenChoice) {
+                        Text("Çentikli ekran (otomatik)").tag("auto")
+                        Text("Ana ekran").tag("main")
+                        ForEach(NSScreen.screens, id: \.localizedName) { s in
+                            Text(s.localizedName).tag(s.localizedName)
+                        }
+                    }
+                    Picker("Açık ada genişliği", selection: $settings.islandWidth) {
+                        Text("Normal").tag(660)
+                        Text("Geniş").tag(740)
+                    }
+                    Picker("Animasyon hızı", selection: $settings.animationSpeed) {
+                        Text("Hızlı").tag(0.75)
+                        Text("Normal").tag(1.0)
+                        Text("Yavaş").tag(1.35)
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
     }
@@ -388,39 +358,39 @@ private struct SettingsView: View {
                         Text("%90").tag(90)
                     }
                 }
-                Toggle("2 saatten uzun %100'de takılı kalırsa hatırlat", isOn: $settings.fullPluggedAlert)
-                Text("Pili sürekli %100'de tutmamak ve %20-80 arasında kullanmak pil ömrünü uzatır.")
-                    .font(.caption).foregroundStyle(.secondary)
+                Toggle("2 saatten uzun %100'de kalırsa hatırlat", isOn: $settings.fullPluggedAlert)
             }
             Section("AirPods") {
-                Toggle("AirPods bağlanınca", isOn: $settings.notifyBluetooth)
-                Toggle("AirPods pili azalınca (%20 ve %10)", isOn: $settings.airPodsBatteryAlert)
+                Toggle("Bağlanınca", isOn: $settings.notifyBluetooth)
+                Toggle("Pili azalınca (%20 ve %10)", isOn: $settings.airPodsBatteryAlert)
             }
-            Section("Diğer") {
-                Toggle("Takvim toplantıları", isOn: $settings.notifyCalendar)
+            Section("Takvim") {
+                Toggle("Toplantılardan önce haber ver", isOn: $settings.notifyCalendar)
                 if settings.notifyCalendar {
-                    Picker("Ne kadar önce haber verilsin", selection: $settings.calendarLeadMinutes) {
+                    Picker("Ne kadar önce", selection: $settings.calendarLeadMinutes) {
                         Text("5 dk").tag(5)
                         Text("10 dk").tag(10)
                         Text("15 dk").tag(15)
                         Text("30 dk").tag(30)
                     }
                 }
-                Toggle("Odak modu", isOn: $settings.notifyFocus)
-                Toggle("İnternet koptu / geri geldi", isOn: $settings.notifyNetwork)
+            }
+            Section("Diğer") {
+                Toggle("Görüşme modu (süre ve mikrofonu kapatma)", isOn: $settings.callMode)
                 Toggle("Kamera ve mikrofon göstergesi", isOn: $settings.showPrivacy)
                 Toggle("İndirme ilerlemesi", isOn: $settings.showDownloads)
+                Toggle("İnternet koptu / geri geldi", isOn: $settings.notifyNetwork)
+                Toggle("Odak modu", isOn: $settings.notifyFocus)
                 Toggle("Yağmur uyarısı", isOn: $settings.rainAlerts)
             }
-            Section("Canlı etkinlikler") {
-                Toggle("Görüşme modu (süre ve mikrofonu kapatma)", isOn: $settings.callMode)
-            }
-            Section("Sistem uyarıları") {
-                Toggle("Bir uygulama işlemciyi uzun süre yorarsa", isOn: $settings.systemAlerts)
-                Toggle("Disk dolmak üzereyse (%10 ya da 15 GB altı)", isOn: $settings.alertDisk)
-                Toggle("Bellek baskısı yükselirse", isOn: $settings.alertMemory)
-                Toggle("Mac ısınırsa", isOn: $settings.alertThermal)
-                Toggle("Pil sağlığı %80'in altına inerse", isOn: $settings.alertBatteryHealth)
+            Section {
+                DisclosureGroup("Sistem uyarıları") {
+                    Toggle("Bir uygulama işlemciyi uzun süre yorarsa", isOn: $settings.systemAlerts)
+                    Toggle("Disk dolmak üzereyse", isOn: $settings.alertDisk)
+                    Toggle("Bellek baskısı yükselirse", isOn: $settings.alertMemory)
+                    Toggle("Mac ısınırsa", isOn: $settings.alertThermal)
+                    Toggle("Pil sağlığı %80'in altına inerse", isOn: $settings.alertBatteryHealth)
+                }
             }
         }
         .formStyle(.grouped)
@@ -428,12 +398,26 @@ private struct SettingsView: View {
 
     private var features: some View {
         Form {
+            Section("Sunum modu") {
+                HStack {
+                    Text(model.presentation.isActive ? "Açık · \(model.presentation.reason ?? "")" : "Kapalı")
+                        .foregroundStyle(model.presentation.isActive ? .purple : .secondary)
+                    Spacer()
+                    Button(model.presentation.manual ? "Kapat" : "Şimdi aç") { model.presentation.toggleManual() }
+                }
+                Toggle("Keynote/PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç", isOn: $settings.presentationAuto)
+                Toggle("Masaüstü simgelerini gizle", isOn: $settings.presentationHideIcons)
+                Text("Bildirimleri susturur. Zoom/Meet/Teams paylaşımında menüden ya da ⌥⌘P ile aç.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("Hava durumu") {
                 Toggle("Hava durumunu göster", isOn: $settings.showWeather)
-                TextField("Şehir (boş bırakılırsa konumun kullanılır)", text: $settings.weatherCity)
-                    .onSubmit { model.weather.manualCity = settings.weatherCity }
-                if let status = weather.status {
-                    Text(status).font(.caption).foregroundStyle(.orange)
+                if settings.showWeather {
+                    TextField("Şehir (boşsa konumun kullanılır)", text: $settings.weatherCity)
+                        .onSubmit { model.weather.manualCity = settings.weatherCity }
+                    if let status = weather.status {
+                        Text(status).font(.caption).foregroundStyle(.orange)
+                    }
                 }
             }
             Section("Raf") {
@@ -445,12 +429,21 @@ private struct SettingsView: View {
                 Toggle("Pano geçmişi", isOn: $settings.clipboardHistory)
                 if settings.clipboardHistory {
                     HStack {
-                        Text("Geçmiş sadece bellekte tutulur; şifre yöneticisi kopyaları kaydedilmez.")
+                        Text("Sadece bellekte tutulur, şifre yöneticisi kopyaları kaydedilmez.")
                             .font(.caption).foregroundStyle(.secondary)
                         Spacer()
                         Button("Temizle") { model.clipboard.clear() }
                     }
                 }
+            }
+            Section("Gizlilik") {
+                Toggle("Ekran paylaşımı ve kayıtlarda adayı gizle", isOn: $settings.hideFromCapture)
+            }
+            Section("Terminal komutu") {
+                Text("island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test")
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
