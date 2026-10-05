@@ -77,7 +77,10 @@ final class SystemDetails: ObservableObject {
     @Published private(set) var performanceCores = 0
     @Published private(set) var efficiencyCores = 0
     @Published private(set) var gpuCores: Int?
-    let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+    let osVersion: String = {
+        let v = ProcessInfo.processInfo.operatingSystemVersion
+        return v.patchVersion > 0 ? "\(v.majorVersion).\(v.minorVersion).\(v.patchVersion)" : "\(v.majorVersion).\(v.minorVersion)"
+    }()
     let memoryTotal = Double(ProcessInfo.processInfo.physicalMemory)
 
     @Published private(set) var cpuTotal: Double = 0
