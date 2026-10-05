@@ -56,7 +56,7 @@ enum DashboardWindow {
 }
 
 enum DashboardPage: String, CaseIterable, Identifiable {
-    case overview, cpu, gpu, memory, storage, network, battery, displays, bluetooth, processes, desktop, downloads
+    case overview, cpu, gpu, memory, storage, network, battery, displays, bluetooth, processes, desktop, downloads, convert
     var id: String { rawValue }
 
     var title: String {
@@ -73,6 +73,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .processes: return "İşlemler"
         case .desktop: return "Masaüstü Düzenleme"
         case .downloads: return "İndirilenler Temizliği"
+        case .convert: return "Dosya Dönüştürme"
         }
     }
 
@@ -90,6 +91,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .processes: return "list.bullet.rectangle.fill"
         case .desktop: return "wand.and.stars"
         case .downloads: return "arrow.down.circle.fill"
+        case .convert: return "arrow.triangle.2.circlepath"
         }
     }
 
@@ -107,6 +109,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .processes: return .pink
         case .desktop: return .mint
         case .downloads: return .orange
+        case .convert: return .indigo
         }
     }
 }
@@ -127,6 +130,7 @@ struct DashboardView: View {
                     row(.processes)
                     row(.desktop)
                     row(.downloads)
+                    row(.convert)
                 }
             }
             .navigationSplitViewColumnWidth(min: 190, ideal: 210)
@@ -167,6 +171,7 @@ struct DashboardView: View {
         case .processes: ProcessesPage()
         case .desktop: DesktopPage()
         case .downloads: DownloadsPage()
+        case .convert: ConvertPage()
         }
     }
 }
@@ -896,6 +901,128 @@ private struct DownloadsPage: View {
         } message: {
             Text("\(ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file)) yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.")
         }
+    }
+}
+
+private struct ConvertPage: View {
+    @State private var files: [URL] = []
+    @State private var targeted = false
+    @State private var busy: ShelfConversion?
+    @State private var outputs: [URL] = []
+    @State private var message: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Card(title: "Dosyalar", icon: "arrow.triangle.2.circlepath", tint: .indigo) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.indigo.opacity(targeted ? 0.16 : 0.05))
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(style: StrokeStyle(lineWidth: 1.2, dash: files.isEmpty ? [6, 5] : []))
+                            .foregroundStyle(Color.indigo.opacity(targeted ? 0.9 : 0.35)))
+                    if files.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.down.on.square").font(.system(size: 28)).foregroundStyle(.indigo)
+                            Text("Görsel ya da PDF dosyalarını buraya sürükle").font(.callout.weight(.medium))
+                            Button("Dosya seç…") { pick() }
+                        }
+                        .padding(28)
+                    } else {
+                        VStack(spacing: 0) {
+                            ForEach(files, id: \.self) { url in
+                                HStack(spacing: 10) {
+                                    Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable().frame(width: 20, height: 20)
+                                    Text(url.lastPathComponent).lineLimit(1).truncationMode(.middle)
+                                    Spacer()
+                                    Text(fileSize(url)).font(.callout.monospacedDigit()).foregroundStyle(.secondary)
+                                    Button { files.removeAll { $0 == url } } label: { Image(systemName: "xmark.circle.fill") }
+                                        .buttonStyle(.borderless).foregroundStyle(.secondary)
+                                }
+                                .padding(.vertical, 5)
+                            }
+                            HStack {
+                                Button("Dosya ekle…") { pick() }
+                                Spacer()
+                                Button("Listeyi temizle") { files.removeAll(); outputs.removeAll(); message = nil }
+                            }
+                            .padding(.top, 8)
+                        }
+                        .padding(12)
+                    }
+                }
+                .dropDestination(for: URL.self) { urls, _ in
+                    add(urls)
+                    return true
+                } isTargeted: { targeted = $0 }
+
+                Divider()
+                HStack(spacing: 10) {
+                    ForEach(ShelfConversion.allCases) { c in
+                        let count = c.inputs(from: files).count
+                        Button { run(c) } label: {
+                            Label(count > 0 ? "\(c.title) (\(count))" : c.title, systemImage: c.icon)
+                        }
+                        .disabled(count == 0 || busy != nil)
+                    }
+                    Spacer()
+                    if busy != nil { ProgressView().controlSize(.small) }
+                }
+            }
+
+            if let message {
+                Card(title: "Sonuç", icon: "checkmark.circle.fill", tint: .green) {
+                    Text(message)
+                    ForEach(outputs, id: \.self) { url in
+                        HStack(spacing: 10) {
+                            Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable().frame(width: 20, height: 20)
+                            Text(url.lastPathComponent).lineLimit(1).truncationMode(.middle)
+                            Spacer()
+                            Text(fileSize(url)).font(.callout.monospacedDigit()).foregroundStyle(.secondary)
+                            Button("Finder'da göster") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                        }
+                    }
+                }
+            }
+
+            Text("Yeni dosyalar asıl dosyaların yanına kaydedilir; asıl dosyalara dokunulmaz. Küçültme görsellerin en uzun kenarını 1600 piksele indirir. Her şey bilgisayarda yapılır, hiçbir dosya internete yüklenmez.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private func add(_ urls: [URL]) {
+        for u in urls where u.isFileURL && !files.contains(u)
+            && (ShelfConverter.isImage(u) || ShelfConverter.isPDF(u)) { files.append(u) }
+    }
+
+    private func pick() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        panel.allowedContentTypes = [.image, .pdf]
+        if panel.runModal() == .OK { add(panel.urls) }
+    }
+
+    private func run(_ kind: ShelfConversion) {
+        let inputs = kind.inputs(from: files)
+        guard !inputs.isEmpty else { return }
+        busy = kind
+        DispatchQueue.global(qos: .userInitiated).async {
+            let r = ShelfConverter.run(kind, on: inputs)
+            DispatchQueue.main.async {
+                busy = nil
+                outputs = r.outputs
+                let saved = ByteCountFormatter.string(fromByteCount: r.saved, countStyle: .file)
+                var parts = ["\(kind.title): \(r.outputs.count) dosya hazır"]
+                if r.saved > 0 { parts.append("\(saved) yer kazanıldı") }
+                if r.skipped > 0 { parts.append("\(r.skipped) dosya zaten küçük") }
+                if r.failed > 0 { parts.append("\(r.failed) dosya dönüştürülemedi") }
+                message = parts.joined(separator: " · ")
+            }
+        }
+    }
+
+    private func fileSize(_ url: URL) -> String {
+        ByteCountFormatter.string(fromByteCount: Int64((try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0), countStyle: .file)
     }
 }
 

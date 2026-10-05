@@ -27,6 +27,7 @@
 - İşlemci (çekirdek bazında), grafik işlemcisi, bellek, depolama, ağ ve Wi-Fi, pil sağlığı, ekranlar, Bluetooth cihazları, işlemler.
 - İnternet hız testi (macOS'un yerleşik `networkQuality` aracıyla).
 - Masaüstü düzenleme: masaüstündeki dosyaları türüne ve ayına göre klasörlere taşır, geri alınabilir.
+- Dosya dönüştürme: görselleri JPG'ye çevirme ve küçültme, tek PDF yapma, PDF sıkıştırma (adadaki raftan da yapılabilir).
 - İndirilenler temizliği: uzun süredir açılmamış kurulum dosyalarını, arşivleri ve diğer indirmeleri boyutuyla listeler; seçtiklerini Çöp Sepeti'ne taşır, geri alınabilir.
 
 ### Menü çubuğu
