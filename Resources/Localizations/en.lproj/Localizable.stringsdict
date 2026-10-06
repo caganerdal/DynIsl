@@ -66,6 +66,22 @@
 			<string>%lld files moved back to the Desktop</string>
 		</dict>
 	</dict>
+	<key>%lld dosya seçildi</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld file selected</string>
+			<key>other</key>
+			<string>%lld files selected</string>
+		</dict>
+	</dict>
 	<key>%lld dosya zaten küçük</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -128,6 +144,22 @@
 			<string>%lld item</string>
 			<key>other</key>
 			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>%lld öğe seçildi</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item selected</string>
+			<key>other</key>
+			<string>%lld items selected</string>
 		</dict>
 	</dict>
 	<key>%lld öğe Çöp Sepeti'ne taşınsın mı?</key>

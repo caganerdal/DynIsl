@@ -90,3 +90,53 @@ struct PressableStyle: ButtonStyle {
 extension ButtonStyle where Self == PressableStyle {
     static var pressable: PressableStyle { PressableStyle() }
 }
+
+struct PageScroll<Content: View, Bar: View>: View {
+    let content: Content
+    let bar: Bar
+
+    init(@ViewBuilder content: () -> Content, @ViewBuilder bar: () -> Bar) {
+        self.content = content()
+        self.bar = bar()
+    }
+
+    var body: some View {
+        ScrollView {
+            content
+                .padding(24)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { bar }
+    }
+}
+
+extension PageScroll where Bar == EmptyView {
+    init(@ViewBuilder content: () -> Content) {
+        self.init(content: content, bar: { EmptyView() })
+    }
+}
+
+extension View {
+    @ViewBuilder func floatingGlassBar() -> some View {
+        let shaped = padding(.leading, 18).padding(.trailing, 8).padding(.vertical, 8)
+        Group {
+            if #available(macOS 26.0, *) {
+                shaped.glassEffect(.regular, in: Capsule())
+            } else {
+                shaped
+                    .background(.regularMaterial, in: Capsule())
+                    .overlay(Capsule().stroke(.separator.opacity(0.6)))
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
+    }
+
+    @ViewBuilder func glassButton(prominent: Bool = false) -> some View {
+        if #available(macOS 26.0, *) {
+            if prominent { buttonStyle(.glassProminent) } else { buttonStyle(.glass) }
+        } else {
+            if prominent { buttonStyle(.borderedProminent) } else { buttonStyle(.bordered) }
+        }
+    }
+}

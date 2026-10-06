@@ -429,6 +429,28 @@
         }
       }
     },
+    "%lld dosya seçildi": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld file selected"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld files selected"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld dosya zaten küçük": {
       "localizations": {
         "en": {
@@ -613,6 +635,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Moved %lld items (%@) to the Trash"
+          }
+        }
+      }
+    },
+    "%lld öğe seçildi": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item selected"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items selected"
+                }
+              }
+            }
           }
         }
       }
@@ -1311,6 +1355,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Space to free"
+          }
+        }
+      }
+    },
+    "Açılacak yer %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frees up %@"
           }
         }
       }
@@ -4991,6 +5045,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Total"
+          }
+        }
+      }
+    },
+    "Toplam %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total %@"
           }
         }
       }

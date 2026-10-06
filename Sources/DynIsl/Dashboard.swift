@@ -154,12 +154,16 @@ struct DashboardView: View {
             }
             .navigationSplitViewColumnWidth(min: 190, ideal: 210)
         } detail: {
-            ScrollView {
-                page(model.dashboardPage ?? .overview)
-                    .padding(24)
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
+            let p = model.dashboardPage ?? .overview
+            Group {
+                switch p {
+                case .desktop: DesktopPage()
+                case .downloads: DownloadsPage()
+                case .convert: ConvertPage()
+                default: PageScroll { page(p) }
+                }
             }
-            .navigationTitle((model.dashboardPage ?? .overview).title)
+            .navigationTitle(p.title)
         }
     }
 
@@ -666,6 +670,7 @@ private struct DesktopPage: View {
         let byCategory = Dictionary(grouping: candidates, by: \.category)
         let shown = focus.map { c in candidates.filter { $0.category == c } } ?? candidates
 
+        PageScroll {
         VStack(alignment: .leading, spacing: 16) {
             if let msg = cleaner.message {
                 HStack(spacing: 10) {
@@ -681,22 +686,6 @@ private struct DesktopPage: View {
             }
 
             Card(title: "Masaüstü", icon: "wand.and.stars", tint: .mint) {
-                HStack(alignment: .center, spacing: 28) {
-                    Stat(label: "Düzenlenecek dosya", value: "\(selected.count)", tint: .mint)
-                    Stat(label: "Toplam", value: ByteCountFormatter.string(fromByteCount: selected.reduce(0) { $0 + $1.size }, countStyle: .file))
-                    Spacer()
-                    Picker("", selection: $age) {
-                        Text("Tümü").tag(0)
-                        Text("1 haftadan eski").tag(7)
-                        Text("1 aydan eski").tag(30)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 290)
-                    Button { cleaner.organize(selected) } label: { Label("Düzenle", systemImage: "wand.and.stars") }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(selected.isEmpty)
-                }
-
                 if candidates.isEmpty {
                     Text(cleaner.scanning ? "Taranıyor…" : "Masaüstünde düzenlenecek dosya yok ✨")
                         .foregroundStyle(.secondary)
@@ -747,6 +736,43 @@ private struct DesktopPage: View {
 
             Text("Her tür masaüstündeki kendi klasörüne, onun içinde ay klasörüne gider (ör. Masaüstü › PDF'ler › 2026-09 Eylül). Klasörlere, proje klasörlerine, kısayollara ve tanınmayan dosya türlerine dokunulmaz. Hiçbir dosya silinmez; son düzenleme geri alınabilir.")
                 .font(.caption).foregroundStyle(.secondary)
+        }
+        } bar: {
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("\(selected.count) dosya seçildi").font(.callout.weight(.medium))
+                    Text("Toplam \(ByteCountFormatter.string(fromByteCount: selected.reduce(0) { $0 + $1.size }, countStyle: .file))")
+                        .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                Divider().frame(height: 22)
+                Picker("", selection: $age) {
+                    Text("Tümü").tag(0)
+                    Text("1 haftadan eski").tag(7)
+                    Text("1 aydan eski").tag(30)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
+                Spacer(minLength: 16)
+                Button { cleaner.organize(selected) } label: {
+                    Label("Düzenle", systemImage: "wand.and.stars").padding(.horizontal, 4)
+                }
+                .glassButton(prominent: true)
+                .tint(.mint)
+                .controlSize(.large)
+                .disabled(selected.isEmpty)
+            }
+            .floatingGlassBar()
+            .animation(.easeOut(duration: 0.15), value: selected.count)
+        }
+        .toolbar {
+            ToolbarItemGroup {
+                Button { NSWorkspace.shared.open(cleaner.desktop) } label: { Label("Masaüstünü aç", systemImage: "folder") }
+                    .help("Masaüstünü aç")
+                Button { cleaner.scan() } label: { Label("Yeniden tara", systemImage: "arrow.clockwise") }
+                    .help("Yeniden tara")
+            }
         }
         .onAppear { cleaner.scan() }
     }
@@ -801,6 +827,7 @@ private struct DownloadsPage: View {
         let selected = shown.filter { !unchecked.contains($0.url) }
         let selectedSize = selected.reduce(0) { $0 + $1.size }
 
+        PageScroll {
         VStack(alignment: .leading, spacing: 16) {
             if let msg = cleaner.message {
                 HStack(spacing: 10) {
@@ -815,25 +842,7 @@ private struct DownloadsPage: View {
             }
 
             Card(title: "İndirilenler", icon: "arrow.down.circle.fill", tint: .orange) {
-                HStack(alignment: .center, spacing: 28) {
-                    Stat(label: "Klasörün tamamı", value: ByteCountFormatter.string(fromByteCount: cleaner.totalSize, countStyle: .file))
-                    Stat(label: "Seçili", value: String(localized: "\(selected.count) öğe"), tint: .orange)
-                    Stat(label: "Açılacak yer", value: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file), tint: .orange)
-                    Spacer()
-                    Picker("", selection: $age) {
-                        Text("1 ay").tag(30)
-                        Text("3 ay").tag(90)
-                        Text("6 ay").tag(180)
-                        Text("1 yıl").tag(365)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 220)
-                    .help("Bu süredir açılmamış öğeler listelenir")
-                    Button(role: .destructive) { confirm = true } label: { Label("Çöp Sepeti'ne taşı", systemImage: "trash") }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
-                        .disabled(selected.isEmpty)
-                }
+                Stat(label: "Klasörün tamamı", value: ByteCountFormatter.string(fromByteCount: cleaner.totalSize, countStyle: .file))
 
                 if candidates.isEmpty {
                     Text(cleaner.scanning ? "Taranıyor…" : "Bu süredir açılmamış öğe yok ✨")
@@ -901,12 +910,45 @@ private struct DownloadsPage: View {
                 }
             }
 
-            HStack(alignment: .top) {
-                Text("Seçtiğin süredir açılmamış dosya ve klasörler en büyükten küçüğe listelenir. Varsayılan olarak sadece kurulum dosyaları ve arşivler seçilidir. Hiçbir şey kalıcı olarak silinmez: öğeler Çöp Sepeti'ne gider ve son işlem geri alınabilir.")
-                    .font(.caption).foregroundStyle(.secondary)
-                Spacer()
-                Button("İndirilenler'i aç") { cleaner.openFolder() }
-                Button { cleaner.scan() } label: { Image(systemName: "arrow.clockwise") }
+            Text("Seçtiğin süredir açılmamış dosya ve klasörler en büyükten küçüğe listelenir. Varsayılan olarak sadece kurulum dosyaları ve arşivler seçilidir. Hiçbir şey kalıcı olarak silinmez: öğeler Çöp Sepeti'ne gider ve son işlem geri alınabilir.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        } bar: {
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(String(localized: "\(selected.count) öğe seçildi")).font(.callout.weight(.medium))
+                    Text("Açılacak yer \(ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file))")
+                        .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                Divider().frame(height: 22)
+                Picker("", selection: $age) {
+                    Text("1 ay").tag(30)
+                    Text("3 ay").tag(90)
+                    Text("6 ay").tag(180)
+                    Text("1 yıl").tag(365)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
+                .help("Bu süredir açılmamış öğeler listelenir")
+                Spacer(minLength: 16)
+                Button(role: .destructive) { confirm = true } label: {
+                    Label("Çöp Sepeti'ne taşı", systemImage: "trash.fill").padding(.horizontal, 4)
+                }
+                .glassButton(prominent: true)
+                .tint(.orange)
+                .controlSize(.large)
+                .disabled(selected.isEmpty)
+            }
+            .floatingGlassBar()
+            .animation(.easeOut(duration: 0.15), value: selectedSize)
+        }
+        .toolbar {
+            ToolbarItemGroup {
+                Button { cleaner.openFolder() } label: { Label("İndirilenler'i aç", systemImage: "folder") }
+                    .help("İndirilenler'i aç")
+                Button { cleaner.scan() } label: { Label("Yeniden tara", systemImage: "arrow.clockwise") }
                     .help("Yeniden tara")
             }
         }
@@ -931,6 +973,7 @@ private struct ConvertPage: View {
     @State private var message: String?
 
     var body: some View {
+        PageScroll {
         VStack(alignment: .leading, spacing: 16) {
             Card(title: "Dosyalar", icon: "arrow.triangle.2.circlepath", tint: .indigo) {
                 ZStack {
@@ -973,19 +1016,6 @@ private struct ConvertPage: View {
                     add(urls)
                     return true
                 } isTargeted: { targeted = $0 }
-
-                Divider()
-                HStack(spacing: 10) {
-                    ForEach(ShelfConversion.allCases) { c in
-                        let count = c.inputs(from: files).count
-                        Button { run(c) } label: {
-                            Label(count > 0 ? "\(c.title) (\(count))" : c.title, systemImage: c.icon)
-                        }
-                        .disabled(count == 0 || busy != nil)
-                    }
-                    Spacer()
-                    if busy != nil { ProgressView().controlSize(.small) }
-                }
             }
 
             if let message {
@@ -1005,6 +1035,28 @@ private struct ConvertPage: View {
 
             Text("Yeni dosyalar asıl dosyaların yanına kaydedilir; asıl dosyalara dokunulmaz. Küçültme görsellerin en uzun kenarını 1600 piksele indirir. Her şey bilgisayarda yapılır, hiçbir dosya internete yüklenmez.")
                 .font(.caption).foregroundStyle(.secondary)
+        }
+        } bar: {
+            HStack(spacing: 8) {
+                ForEach(ShelfConversion.allCases) { c in
+                    let count = c.inputs(from: files).count
+                    Button { run(c) } label: {
+                        Label(count > 0 ? "\(c.title) (\(count))" : c.title, systemImage: c.icon)
+                    }
+                    .glassButton(prominent: count > 0)
+                    .tint(.indigo)
+                    .disabled(count == 0 || busy != nil)
+                }
+                Spacer(minLength: 8)
+                if busy != nil { ProgressView().controlSize(.small).padding(.trailing, 8) }
+            }
+            .floatingGlassBar()
+        }
+        .toolbar {
+            ToolbarItem {
+                Button { pick() } label: { Label("Dosya seç…", systemImage: "plus") }
+                    .help("Dosya seç…")
+            }
         }
     }
 
@@ -1071,7 +1123,7 @@ private struct SpeedTestCard: View {
                     Button("Durdur") { test.cancel() }
                 } else {
                     Button { test.start() } label: { Label("Testi başlat", systemImage: "play.fill") }
-                        .buttonStyle(.borderedProminent)
+                        .glassButton(prominent: true)
                 }
             }
             if let e = test.error { Text(e).font(.caption).foregroundStyle(.orange) }

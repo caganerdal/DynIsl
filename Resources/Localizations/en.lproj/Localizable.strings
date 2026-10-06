@@ -216,6 +216,8 @@ charging on hold</string>
 	<string>On · %@</string>
 	<key>Açılacak yer</key>
 	<string>Space to free</string>
+	<key>Açılacak yer %@</key>
+	<string>Frees up %@</string>
 	<key>Açılış animasyonu</key>
 	<string>Opening animation</string>
 	<key>AĞ</key>
@@ -956,6 +958,8 @@ calculating…</string>
 	<string>Start Test</string>
 	<key>Toplam</key>
 	<string>Total</string>
+	<key>Toplam %@</key>
+	<string>Total %@</string>
 	<key>Toplamlar bilgisayar açıldığından beri</key>
 	<string>Totals since startup</string>
 	<key>Toplantılardan önce haber ver</key>
