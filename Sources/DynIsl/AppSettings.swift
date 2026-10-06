@@ -190,6 +190,7 @@ enum SettingsWindow {
                 DispatchQueue.main.async {
                     old?.delegate = nil
                     old?.contentView = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { malloc_zone_pressure_relief(nil, 0) }
                 }
             }
             w.delegate = c

@@ -152,6 +152,11 @@ final class DownloadsCleaner: ObservableObject {
         scan()
     }
 
+    func purge() {
+        items = []
+        totalSize = 0
+    }
+
     func dismissMessage() {
         message = nil
         lastTrashed = []

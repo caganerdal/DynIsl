@@ -33,6 +33,8 @@ enum DashboardWindow {
             let d = CloseDelegate {
                 model.details.end()
                 NSApp.setActivationPolicy(.accessory)
+                model.desktopCleaner.purge()
+                model.downloadsCleaner.purge()
                 release()
             }
             w.delegate = d
@@ -61,6 +63,7 @@ enum DashboardWindow {
         DispatchQueue.main.async {
             w?.delegate = nil
             w?.contentView = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { malloc_zone_pressure_relief(nil, 0) }
         }
     }
 

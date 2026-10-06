@@ -213,6 +213,11 @@ final class DesktopCleaner: ObservableObject {
     func reveal(_ f: DesktopFile) { NSWorkspace.shared.activateFileViewerSelecting([f.url]) }
     func open(_ f: DesktopFile) { NSWorkspace.shared.open(f.url) }
 
+    func purge() {
+        files = []
+        thumbnails = [:]
+    }
+
     func dismissMessage() {
         message = nil
         lastMoves = []
