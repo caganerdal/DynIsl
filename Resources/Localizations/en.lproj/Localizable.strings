@@ -148,6 +148,8 @@ Click: System Dashboard</string>
 	<string>Island cat</string>
 	<key>Ada nasıl açılsın</key>
 	<string>Open the island</string>
+	<key>Ada tamamen camdan, arkadaki masaüstü görünür.</key>
+	<string>The whole island is glass; the desktop shows through.</string>
 	<key>Adaptör</key>
 	<string>Adapter</string>
 	<key>Adaptörden</key>
@@ -296,6 +298,8 @@ charging on hold</string>
 	<string>Segmented</string>
 	<key>Bırak ve gönder</key>
 	<string>Drop to send</string>
+	<key>Cam</key>
+	<string>Glass</string>
 	<key>Cevabını bekliyor</key>
 	<string>Waiting for your reply</string>
 	<key>Cihazlar okunuyor…</key>
@@ -388,6 +392,8 @@ charging on hold</string>
 	<string>High %lld° · Low %lld°</string>
 	<key>En çok kaynak kullananlar</key>
 	<string>Top resource users</string>
+	<key>Erime</key>
+	<string>Melt</string>
 	<key>Erişilebilirlik</key>
 	<string>Accessibility</string>
 	<key>Erişilebilirlik (ses ve parlaklık tuşları)</key>
@@ -706,6 +712,8 @@ charging on hold</string>
 	<string>Partly cloudy</string>
 	<key>Pencere</key>
 	<string>Window</string>
+	<key>Pencerelerde cam görünüm (Liquid Glass)</key>
+	<string>Glass look in windows (Liquid Glass)</string>
 	<key>Pencereyi Kapat</key>
 	<string>Close Window</string>
 	<key>Performans düşebilir</key>
@@ -758,6 +766,8 @@ calculating…</string>
 	<string>Do Not Disturb</string>
 	<key>Rehber</key>
 	<string>Guide</string>
+	<key>Renk</key>
+	<string>Color</string>
 	<key>SON 24 SAAT</key>
 	<string>LAST 24 HOURS</string>
 	<key>Saat</key>
@@ -838,6 +848,8 @@ calculating…</string>
 	<string>System Dashboard…</string>
 	<key>Sistem uyarıları</key>
 	<string>System alerts</string>
+	<key>Siyah</key>
+	<string>Black</string>
 	<key>Sol</key>
 	<string>Left</string>
 	<key>Son 48 saat</key>
@@ -894,6 +906,8 @@ calculating…</string>
 	<string>Calendar</string>
 	<key>Tam Disk Erişimi</key>
 	<string>Full Disk Access</string>
+	<key>Tamamen cam sadece çentiksiz ekranlarda; bu ekranda Erime gibi görünür.</key>
+	<string>Full glass only works on displays without a notch; here it looks like Melt.</string>
 	<key>Tamamen dolu</key>
 	<string>Fully charged</string>
 	<key>Tamamen şarj oldu</key>
@@ -916,6 +930,8 @@ calculating…</string>
 	<string>Repeat: off</string>
 	<key>Tekrar: tümü</key>
 	<string>Repeat: all</string>
+	<key>Tema</key>
+	<string>Theme</string>
 	<key>Temizle</key>
 	<string>Clear</string>
 	<key>Tepkisellik</key>
@@ -970,6 +986,8 @@ calculating…</string>
 	<string>Videos</string>
 	<key>Voltaj</key>
 	<string>Voltage</string>
+	<key>Vurgu rengi</key>
+	<string>Accent color</string>
 	<key>Wi-Fi</key>
 	<string>Wi-Fi</string>
 	<key>Yaklaşan etkinlik yok</key>
@@ -1044,6 +1062,8 @@ calculating…</string>
 	<string>Like macOS (16 steps)</string>
 	<key>macOS göstergesi yerine adada göster</key>
 	<string>Show on the island instead of the macOS indicator</string>
+	<key>macOS vurgu rengi</key>
+	<string>macOS accent color</string>
 	<key>macOS'unkinin yerine adada, istediğin stilde.</key>
 	<string>On the island instead of macOS's, in the style you like.</string>
 	<key>otomatik</key>
@@ -1060,10 +1080,16 @@ calculating…</string>
 	<string>in ~%lld min</string>
 	<key>Çalan şarkı, AirPods, şarj, toplantılar ve daha fazlası çentikte.</key>
 	<string>Now playing, AirPods, charging, meetings and more, right in the notch.</string>
+	<key>Çalan şarkının rengi</key>
+	<string>Now playing color</string>
 	<key>Çekirdek</key>
 	<string>Core</string>
 	<key>Çekirdekler</key>
 	<string>Cores</string>
+	<key>Çentik hizası siyah kalır, ada aşağı doğru buzlu cama dönüşür.</key>
+	<string>Stays black at the notch and melts into frosted glass below.</string>
+	<key>Çentikle kusursuz kaynaşan klasik siyah.</key>
+	<string>Classic black that blends perfectly with the notch.</string>
 	<key>Çentikli ekran (otomatik)</key>
 	<string>Display with notch (automatic)</string>
 	<key>Çentiğe gel ya da tıkla</key>
@@ -1092,6 +1118,8 @@ calculating…</string>
 	<string>Measuring… %lld s</string>
 	<key>Önbellek</key>
 	<string>Cached</string>
+	<key>Özel</key>
+	<string>Custom</string>
 	<key>Özellikler</key>
 	<string>Features</string>
 	<key>Üzerine gelince</key>

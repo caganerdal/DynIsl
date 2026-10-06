@@ -19,8 +19,8 @@ struct IslandView: View {
                 CAGlow(color: model.media.accent, top: top, bottom: bottom)
                     .transition(.opacity)
             }
-            NotchShape(topRadius: top, bottomRadius: bottom)
-                .fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
+            IslandBackground(theme: model.settings.islandTheme, hasNotch: model.hasNotch,
+                             notchHeight: model.notchSize.height, top: top, bottom: bottom)
                 .opacity(model.state == .idle && model.hasNotch && !model.settings.showPet ? 0 : 1)
                 .shadow(color: .black.opacity(expanded ? 0.5 : 0), radius: 16, y: 6)
 
@@ -40,6 +40,7 @@ struct IslandView: View {
         .animation(model.settings.spring(0.42, 0.78), value: model.state)
         .animation(.easeInOut(duration: 0.5), value: glowing)
         .preferredColorScheme(.dark)
+        .environment(\.islandAccent, model.accent)
     }
 
     @ViewBuilder private var content: some View {
@@ -130,13 +131,13 @@ struct IslandView: View {
             }
         case .timer:
             CompactRow(height: model.notchSize.height) {
-                Image(systemName: "timer").foregroundStyle(.orange)
+                Image(systemName: "timer").foregroundStyle(model.accent ?? .orange)
             } trailing: {
                 HStack(spacing: 5) {
                     PrivacyDots()
                     Text(formatSeconds(model.timerRemaining ?? 0))
                         .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(model.accent ?? .orange)
                 }
             }
         case .activity:
@@ -286,7 +287,7 @@ private struct ExpandedView: View {
                                     Text("\(model.shelf.items.count)")
                                         .font(.system(size: 8, weight: .bold))
                                         .padding(.horizontal, 3.5).padding(.vertical, 1)
-                                        .background(Capsule().fill(.blue))
+                                        .background(Capsule().fill(model.accent ?? .blue))
                                         .offset(x: 2, y: -2)
                                 }
                             }
@@ -338,12 +339,13 @@ private struct TabButton: View {
     let icon: String
     let selected: Bool
     let action: () -> Void
+    @Environment(\.islandAccent) private var accent
 
     var body: some View {
         Button(action: action) {
             Image(systemName: icon).font(.system(size: 12, weight: .semibold))
                 .frame(width: 26, height: 22)
-                .background(Capsule().fill(.white.opacity(selected ? 0.18 : 0)))
+                .background(Capsule().fill(selected ? (accent?.opacity(0.4) ?? .white.opacity(0.18)) : .clear))
                 .foregroundStyle(selected ? .white : .white.opacity(0.5))
                 .contentShape(Capsule())
         }
@@ -635,15 +637,15 @@ private struct StatusCard: View {
                     if let r = model.timerRemaining {
                         Text(formatSeconds(r))
                             .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(model.accent ?? .orange)
                             .contentTransition(.numericText(countsDown: true))
                             .animation(.snappy, value: r)
                         Spacer(minLength: 0)
                         Pill("İptal", tint: .red) { model.cancelTimer() }
                     } else {
-                        Pill("1 dk", tint: .orange) { model.startTimer(seconds: 60) }
-                        Pill("5 dk", tint: .orange) { model.startTimer(seconds: 300) }
-                        Pill("25 dk", tint: .orange) { model.startTimer(seconds: 1500) }
+                        Pill("1 dk", tint: model.accent ?? .orange) { model.startTimer(seconds: 60) }
+                        Pill("5 dk", tint: model.accent ?? .orange) { model.startTimer(seconds: 300) }
+                        Pill("25 dk", tint: model.accent ?? .orange) { model.startTimer(seconds: 1500) }
                     }
                 }
                 .frame(height: 24)
@@ -782,7 +784,7 @@ private struct LevelHUD: View {
             }
             .frame(height: notchHeight)
 
-            HUDSlider(value: shown, tint: info.kind == .brightness ? .yellow : .white, dimmed: info.muted) {
+            HUDSlider(value: shown, tint: info.kind == .brightness ? .yellow : (model.accent ?? .white), dimmed: info.muted) {
                 model.hud.setLevel($0)
             }
         }
@@ -892,7 +894,7 @@ private struct SystemCard: View {
                     Text("EN ÇOK İŞLEMCİ").font(.system(size: 9, weight: .bold)).tracking(0.6).foregroundStyle(.secondary)
                     Spacer()
                     Button("Ayrıntılar ›") { DashboardWindow.show(model: model, page: .overview) }
-                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.blue)
+                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                 }
                 if sys.topProcesses.isEmpty {
                     Text("Ölçülüyor…").font(.system(size: 11)).foregroundStyle(.secondary)
@@ -979,7 +981,7 @@ private struct BatteryCard: View {
                     Text("SON 24 SAAT").font(.system(size: 9, weight: .bold)).tracking(0.6).foregroundStyle(.secondary)
                     Spacer()
                     Button("Ayrıntılar ›") { DashboardWindow.show(model: model, page: .battery) }
-                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.blue)
+                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                 }
                 let data = b.last24h
                 if data.count >= 2 {
@@ -1262,7 +1264,7 @@ private struct ShelfCard: View {
                                 .fixedSize()
                             }
                             Button("AirDrop'la") { model.airdrop.share(shelf.items) }
-                                .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.blue)
+                                .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                             Button("Temizle") { withAnimation(.snappy) { shelf.clear() } }
                                 .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                         }

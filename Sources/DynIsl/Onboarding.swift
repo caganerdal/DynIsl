@@ -95,6 +95,7 @@ private struct OnboardingView: View {
             .padding(20)
         }
         .frame(width: 600, height: 470)
+        .glassWindowBackground()
     }
 
     private var welcome: some View {
@@ -251,6 +252,6 @@ private struct Permission: View {
             }
         }
         .padding(10)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.04)))
+        .glassCard(radius: 10)
     }
 }

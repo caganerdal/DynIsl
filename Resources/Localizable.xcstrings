@@ -985,6 +985,16 @@
         }
       }
     },
+    "Ada tamamen camdan, arkadaki masaüstü görünür.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The whole island is glass; the desktop shows through."
+          }
+        }
+      }
+    },
     "Adaptör": {
       "localizations": {
         "en": {
@@ -1715,6 +1725,16 @@
         }
       }
     },
+    "Cam": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glass"
+          }
+        }
+      }
+    },
     "Cevabını bekliyor": {
       "localizations": {
         "en": {
@@ -2171,6 +2191,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Top resource users"
+          }
+        }
+      }
+    },
+    "Erime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melt"
           }
         }
       }
@@ -3765,6 +3795,16 @@
         }
       }
     },
+    "Pencerelerde cam görünüm (Liquid Glass)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glass look in windows (Liquid Glass)"
+          }
+        }
+      }
+    },
     "Pencereyi Kapat": {
       "localizations": {
         "en": {
@@ -4001,6 +4041,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Guide"
+          }
+        }
+      }
+    },
+    "Renk": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color"
           }
         }
       }
@@ -4405,6 +4455,16 @@
         }
       }
     },
+    "Siyah": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black"
+          }
+        }
+      }
+    },
     "Sol": {
       "localizations": {
         "en": {
@@ -4685,6 +4745,16 @@
         }
       }
     },
+    "Tamamen cam sadece çentiksiz ekranlarda; bu ekranda Erime gibi görünür.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full glass only works on displays without a notch; here it looks like Melt."
+          }
+        }
+      }
+    },
     "Tamamen dolu": {
       "localizations": {
         "en": {
@@ -4791,6 +4861,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Repeat: all"
+          }
+        }
+      }
+    },
+    "Tema": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
           }
         }
       }
@@ -5061,6 +5141,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Voltage"
+          }
+        }
+      }
+    },
+    "Vurgu rengi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accent color"
           }
         }
       }
@@ -5415,6 +5505,16 @@
         }
       }
     },
+    "macOS vurgu rengi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS accent color"
+          }
+        }
+      }
+    },
     "macOS'unkinin yerine adada, istediğin stilde.": {
       "localizations": {
         "en": {
@@ -5495,6 +5595,16 @@
         }
       }
     },
+    "Çalan şarkının rengi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now playing color"
+          }
+        }
+      }
+    },
     "Çekirdek": {
       "localizations": {
         "en": {
@@ -5511,6 +5621,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cores"
+          }
+        }
+      }
+    },
+    "Çentik hizası siyah kalır, ada aşağı doğru buzlu cama dönüşür.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays black at the notch and melts into frosted glass below."
+          }
+        }
+      }
+    },
+    "Çentikle kusursuz kaynaşan klasik siyah.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic black that blends perfectly with the notch."
           }
         }
       }
@@ -5651,6 +5781,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cached"
+          }
+        }
+      }
+    },
+    "Özel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
           }
         }
       }

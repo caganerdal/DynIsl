@@ -2,7 +2,7 @@ import SwiftUI
 
 extension HUDInfo {
     var shown: Double { muted ? 0 : level }
-    var tint: Color { kind == .brightness ? .yellow : .white }
+    func tint(_ accent: Color?) -> Color { kind == .brightness ? .yellow : (accent ?? .white) }
     var percentText: String { muted ? String(localized: "Sessiz") : "\(Int((shown * 100).rounded()))" }
 }
 
@@ -34,14 +34,15 @@ struct HUDSymbol: View {
 
 struct MinimalBar: View {
     let info: HUDInfo
+    @Environment(\.islandAccent) private var accent
 
     var body: some View {
         HStack(spacing: 8) {
             ZStack(alignment: .leading) {
                 Capsule().fill(.white.opacity(0.18))
-                Capsule().fill(info.tint.opacity(info.muted ? 0.35 : 1))
+                Capsule().fill(info.tint(accent).opacity(info.muted ? 0.35 : 1))
                     .frame(width: max(64 * info.shown, info.shown > 0 ? 5 : 0))
-                    .shadow(color: info.tint.opacity(0.6), radius: 3)
+                    .shadow(color: info.tint(accent).opacity(0.6), radius: 3)
             }
             .frame(width: 64, height: 5)
             Text(info.muted ? "–" : "\(Int((info.shown * 100).rounded()))")
@@ -55,6 +56,7 @@ struct MinimalBar: View {
 
 struct HUDRing: View {
     let info: HUDInfo
+    @Environment(\.islandAccent) private var accent
 
     var body: some View {
         HStack(spacing: 6) {
@@ -62,10 +64,10 @@ struct HUDRing: View {
                 .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
                 .contentTransition(.numericText(value: info.shown))
             ZStack {
-                Circle().stroke(info.tint.opacity(0.2), lineWidth: 3)
+                Circle().stroke(info.tint(accent).opacity(0.2), lineWidth: 3)
                 Circle()
                     .trim(from: 0, to: info.shown)
-                    .stroke(info.tint, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .stroke(info.tint(accent), style: StrokeStyle(lineWidth: 3, lineCap: .round))
                     .rotationEffect(.degrees(-90))
             }
             .frame(width: 17, height: 17)
@@ -76,6 +78,7 @@ struct HUDRing: View {
 
 struct SegmentBar: View {
     let info: HUDInfo
+    @Environment(\.islandAccent) private var accent
     private let count = 16
 
     var body: some View {
@@ -96,6 +99,7 @@ struct SegmentBar: View {
     private func segmentColor(_ i: Int) -> Color {
         let t = Double(i) / Double(count - 1)
         if info.kind == .brightness { return Color(hue: 0.15 - 0.06 * t, saturation: 0.55 + 0.4 * t, brightness: 1) }
+        if let accent { return accent.opacity(0.45 + 0.55 * t) }
         return Color(hue: 0.55 - 0.08 * t, saturation: 0.15 + 0.5 * t, brightness: 1)
     }
 }
@@ -141,9 +145,9 @@ struct LiquidHUD: View {
     }
 
     private var colors: [Color] {
-        info.kind == .brightness
-            ? [Color(red: 1, green: 0.62, blue: 0.1), Color(red: 1, green: 0.86, blue: 0.3)]
-            : [Color(red: 0.1, green: 0.45, blue: 1), Color(red: 0.3, green: 0.85, blue: 1)]
+        if info.kind == .brightness { return [Color(red: 1, green: 0.62, blue: 0.1), Color(red: 1, green: 0.86, blue: 0.3)] }
+        if let accent = model.accent { return [accent.opacity(0.75), accent] }
+        return [Color(red: 0.1, green: 0.45, blue: 1), Color(red: 0.3, green: 0.85, blue: 1)]
     }
 }
 

@@ -382,6 +382,15 @@ final class IslandModel: ObservableObject {
 
     var petEar: CGFloat { settings.showPet ? 30 : 0 }
 
+    var accent: Color? {
+        switch settings.accentMode {
+        case .classic: return nil
+        case .system: return Color(nsColor: .controlAccentColor)
+        case .album: return media.isPlaying && media.artwork != nil ? media.accent : Color(nsColor: .controlAccentColor)
+        case .custom: return Color(hex: settings.accentHex) ?? .blue
+        }
+    }
+
     func setExpanded(_ value: Bool) {
         isExpanded = value
         if value, isFileDragging { tab = .shelf }
