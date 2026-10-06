@@ -83,40 +83,32 @@ struct IslandBackground: View {
 
     var body: some View {
         let shape = NotchShape(topRadius: top, bottomRadius: bottom)
-        switch effective {
-        case .black:
-            shape.fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
-        case .melt:
-            GeometryReader { g in
-                let h = max(g.size.height, 1)
-                if h <= notchHeight + 2 {
-                    Color.black
-                } else {
-                    let solid = min(notchHeight / h, 1)
-                    let fade = min((notchHeight + 46) / h, 1)
-                    ZStack {
-                        VisualEffect(material: .hudWindow)
-                        Color.black.mask(LinearGradient(stops: [
-                            .init(color: .black, location: 0),
-                            .init(color: .black, location: solid),
-                            .init(color: .black.opacity(0.62), location: fade),
-                            .init(color: .black.opacity(0.42), location: 1),
-                        ], startPoint: .top, endPoint: .bottom))
-                    }
+        GeometryReader { g in
+            let h = max(g.size.height, 1)
+            if effective == .black || h <= notchHeight + 2 {
+                shape.fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
+            } else if #available(macOS 26.0, *) {
+                ZStack {
+                    Color.clear.glassEffect(.regular.tint(.black.opacity(effective == .glass ? 0.12 : 0.2)), in: shape)
+                    if effective == .melt { notchBand(height: h).clipShape(shape) }
                 }
-            }
-            .clipShape(shape)
-        case .glass:
-            if #available(macOS 26.0, *) {
-                Color.clear.glassEffect(.regular.tint(.black.opacity(0.45)), in: shape)
             } else {
                 ZStack {
                     VisualEffect(material: .hudWindow)
-                    Color.black.opacity(0.35)
+                    Color.black.opacity(0.3)
+                    if effective == .melt { notchBand(height: h) }
                 }
                 .clipShape(shape)
             }
         }
+    }
+
+    private func notchBand(height h: CGFloat) -> some View {
+        Color.black.mask(LinearGradient(stops: [
+            .init(color: .black, location: 0),
+            .init(color: .black, location: min(notchHeight / h, 1)),
+            .init(color: .clear, location: min((notchHeight + 28) / h, 1)),
+        ], startPoint: .top, endPoint: .bottom))
     }
 
     private var effective: IslandTheme {
@@ -142,10 +134,43 @@ struct GlassCardBackground: ViewModifier {
 
 struct GlassWindowBackground: ViewModifier {
     @AppStorage("glassWindows") private var glass = true
+    @Environment(\.colorScheme) private var scheme
 
     func body(content: Content) -> some View {
         if #available(macOS 26.0, *), glass {
-            content.background(VisualEffect(material: .underWindowBackground).ignoresSafeArea())
+            content.background(backdrop.ignoresSafeArea())
+        } else {
+            content
+        }
+    }
+
+    @available(macOS 26.0, *)
+    private var backdrop: some View {
+        let dark: [Color] = [
+            .init(hex: "0A0E24")!, .init(hex: "3A1F9E")!, .init(hex: "07304F")!,
+            .init(hex: "5B2196")!, .init(hex: "101638")!, .init(hex: "0E6A8A")!,
+            .init(hex: "080C1E")!, .init(hex: "8A1F6E")!, .init(hex: "0B2A4A")!,
+        ]
+        let light: [Color] = [
+            .init(hex: "DCE3FF")!, .init(hex: "EAD9FF")!, .init(hex: "CFEAFF")!,
+            .init(hex: "F1D9F5")!, .init(hex: "F6F7FF")!, .init(hex: "C9F0F2")!,
+            .init(hex: "DFE6FF")!, .init(hex: "FFDCEB")!, .init(hex: "D6E8FF")!,
+        ]
+        return MeshGradient(width: 3, height: 3, points: [
+            [0, 0], [0.5, 0], [1, 0],
+            [0, 0.5], [0.55, 0.45], [1, 0.5],
+            [0, 1], [0.5, 1], [1, 1],
+        ], colors: scheme == .dark ? dark : light)
+    }
+}
+
+struct GlassButtonStyle: ViewModifier {
+    let prominent: Bool
+    @AppStorage("glassWindows") private var glass = true
+
+    func body(content: Content) -> some View {
+        if #available(macOS 26.0, *), glass {
+            if prominent { content.buttonStyle(.glassProminent) } else { content.buttonStyle(.glass) }
         } else {
             content
         }
@@ -155,6 +180,7 @@ struct GlassWindowBackground: ViewModifier {
 extension View {
     func glassCard(radius: CGFloat = 14) -> some View { modifier(GlassCardBackground(radius: radius)) }
     func glassWindowBackground() -> some View { modifier(GlassWindowBackground()) }
+    func glassButton(prominent: Bool = false) -> some View { modifier(GlassButtonStyle(prominent: prominent)) }
 }
 
 var supportsLiquidGlass: Bool {
