@@ -80,7 +80,6 @@ struct CAGlow: NSViewRepresentable {
 
 final class GlowView: NSView {
     private let shape = CAShapeLayer()
-    private let outside = CAShapeLayer()
     private var top: CGFloat = 6
     private var bottom: CGFloat = 10
 
@@ -103,8 +102,6 @@ final class GlowView: NSView {
         a.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         a.isRemovedOnCompletion = false
         shape.add(a, forKey: "breathe")
-        outside.fillRule = .evenOdd
-        shape.mask = outside
         layer?.addSublayer(shape)
     }
 
@@ -135,11 +132,6 @@ final class GlowView: NSView {
         let path = NotchShape(topRadius: top, bottomRadius: bottom).path(in: bounds).cgPath
         shape.path = path
         shape.shadowPath = path
-        let around = CGMutablePath()
-        around.addRect(bounds.insetBy(dx: -60, dy: -60))
-        around.addPath(path)
-        outside.frame = shape.bounds
-        outside.path = around
         CATransaction.commit()
     }
 }

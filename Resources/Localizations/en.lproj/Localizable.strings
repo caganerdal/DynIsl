@@ -148,8 +148,6 @@ Click: System Dashboard</string>
 	<string>Island cat</string>
 	<key>Ada nasıl açılsın</key>
 	<string>Open the island</string>
-	<key>Ada tamamen camdan, arkadaki masaüstü görünür.</key>
-	<string>The whole island is glass; the desktop shows through.</string>
 	<key>Adaptör</key>
 	<string>Adapter</string>
 	<key>Adaptörden</key>
@@ -298,10 +296,6 @@ charging on hold</string>
 	<string>Segmented</string>
 	<key>Bırak ve gönder</key>
 	<string>Drop to send</string>
-	<key>Cam</key>
-	<string>Glass</string>
-	<key>Cam şeffaflığı</key>
-	<string>Glass clarity</string>
 	<key>Cevabını bekliyor</key>
 	<string>Waiting for your reply</string>
 	<key>Cihazlar okunuyor…</key>
@@ -396,8 +390,6 @@ charging on hold</string>
 	<string>High %lld° · Low %lld°</string>
 	<key>En çok kaynak kullananlar</key>
 	<string>Top resource users</string>
-	<key>Erime</key>
-	<string>Melt</string>
 	<key>Erişilebilirlik</key>
 	<string>Accessibility</string>
 	<key>Erişilebilirlik (ses ve parlaklık tuşları)</key>
@@ -716,8 +708,6 @@ charging on hold</string>
 	<string>Partly cloudy</string>
 	<key>Pencere</key>
 	<string>Window</string>
-	<key>Pencerelerde cam görünüm (Liquid Glass)</key>
-	<string>Glass look in windows (Liquid Glass)</string>
 	<key>Pencereyi Kapat</key>
 	<string>Close Window</string>
 	<key>Performans düşebilir</key>
@@ -852,12 +842,8 @@ calculating…</string>
 	<string>System Dashboard…</string>
 	<key>Sistem uyarıları</key>
 	<string>System alerts</string>
-	<key>Siyah</key>
-	<string>Black</string>
 	<key>Sol</key>
 	<string>Left</string>
-	<key>Sola: daha koyu ve okunaklı. Sağa: daha şeffaf, arkası daha çok görünür.</key>
-	<string>Left: darker and easier to read. Right: clearer, more of the background shows through.</string>
 	<key>Son 48 saat</key>
 	<string>Last 48 hours</string>
 	<key>Son açılış %@</key>
@@ -912,8 +898,6 @@ calculating…</string>
 	<string>Calendar</string>
 	<key>Tam Disk Erişimi</key>
 	<string>Full Disk Access</string>
-	<key>Tamamen cam sadece çentiksiz ekranlarda; bu ekranda Erime gibi görünür.</key>
-	<string>Full glass only works on displays without a notch; here it looks like Melt.</string>
 	<key>Tamamen dolu</key>
 	<string>Fully charged</string>
 	<key>Tamamen şarj oldu</key>
@@ -1092,10 +1076,6 @@ calculating…</string>
 	<string>Core</string>
 	<key>Çekirdekler</key>
 	<string>Cores</string>
-	<key>Çentik hizası siyah kalır, ada aşağı doğru buzlu cama dönüşür.</key>
-	<string>Stays black at the notch and melts into frosted glass below.</string>
-	<key>Çentikle kusursuz kaynaşan klasik siyah.</key>
-	<string>Classic black that blends perfectly with the notch.</string>
 	<key>Çentikli ekran (otomatik)</key>
 	<string>Display with notch (automatic)</string>
 	<key>Çentiğe gel ya da tıkla</key>

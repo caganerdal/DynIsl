@@ -50,11 +50,8 @@ final class AppSettings: ObservableObject {
     @Published var animationSpeed: Double { didSet { d.set(animationSpeed, forKey: "animationSpeed") } }
     @Published var albumGlow: Bool { didSet { d.set(albumGlow, forKey: "albumGlow") } }
     @Published var showPet: Bool { didSet { d.set(showPet, forKey: "showPet") } }
-    @Published var islandTheme: IslandTheme { didSet { d.set(islandTheme.rawValue, forKey: "islandTheme") } }
     @Published var accentMode: AccentMode { didSet { d.set(accentMode.rawValue, forKey: "accentMode") } }
     @Published var accentHex: String { didSet { d.set(accentHex, forKey: "accentHex") } }
-    @Published var glassWindows: Bool { didSet { d.set(glassWindows, forKey: "glassWindows") } }
-    @Published var glassClarity: Double { didSet { d.set(glassClarity, forKey: "glassClarity") } }
     @Published var presentationAuto: Bool { didSet { d.set(presentationAuto, forKey: "presentationAuto") } }
     @Published var presentationHideIcons: Bool { didSet { d.set(presentationHideIcons, forKey: "presentationHideIcons") } }
     @Published var screenChoice: String { didSet { d.set(screenChoice, forKey: "screenChoice") } }
@@ -73,7 +70,7 @@ final class AppSettings: ObservableObject {
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
             "alertDisk": true, "alertMemory": true, "alertThermal": true, "alertBatteryHealth": true, "showWeather": true, "weatherCity": "",
-            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "glassWindows": true, "glassClarity": 0.7, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
+            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
         ])
         openOnHover = d.bool(forKey: "openOnHover")
         if d.object(forKey: "menuBarMode") == nil, !d.bool(forKey: "menuBarStats") {
@@ -116,11 +113,8 @@ final class AppSettings: ObservableObject {
         animationSpeed = d.double(forKey: "animationSpeed")
         albumGlow = d.bool(forKey: "albumGlow")
         showPet = d.bool(forKey: "showPet")
-        islandTheme = IslandTheme(rawValue: d.string(forKey: "islandTheme") ?? "") ?? .black
         accentMode = AccentMode(rawValue: d.string(forKey: "accentMode") ?? "") ?? .classic
         accentHex = d.string(forKey: "accentHex") ?? "0A84FF"
-        glassWindows = d.bool(forKey: "glassWindows")
-        glassClarity = d.double(forKey: "glassClarity")
         presentationAuto = d.bool(forKey: "presentationAuto")
         presentationHideIcons = d.bool(forKey: "presentationHideIcons")
         screenChoice = d.string(forKey: "screenChoice") ?? "auto"
@@ -300,22 +294,6 @@ private struct SettingsView: View {
         Form {
             Section("Tema") {
                 Text("Değiştirdiğin anda ada birkaç saniye açılıp önizleme gösterir.").font(.caption).foregroundStyle(.secondary)
-                Picker("Ada", selection: $settings.islandTheme) {
-                    ForEach(IslandTheme.allCases) { Text($0.title).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                Text(themeNote).font(.caption).foregroundStyle(.secondary)
-                if settings.islandTheme != .black {
-                    LabeledContent("Cam şeffaflığı") {
-                        HStack {
-                            Image(systemName: "circle.fill").foregroundStyle(.secondary)
-                            Slider(value: $settings.glassClarity, in: 0...1)
-                            Image(systemName: "circle.dashed").foregroundStyle(.secondary)
-                        }
-                    }
-                    Text("Sola: daha koyu ve okunaklı. Sağa: daha şeffaf, arkası daha çok görünür.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
                 Picker("Vurgu rengi", selection: $settings.accentMode) {
                     ForEach(AccentMode.allCases) { Text($0.title).tag($0) }
                 }
@@ -324,9 +302,6 @@ private struct SettingsView: View {
                         get: { Color(hex: settings.accentHex) ?? .blue },
                         set: { settings.accentHex = $0.hex }
                     ), supportsOpacity: false)
-                }
-                if supportsLiquidGlass {
-                    Toggle("Pencerelerde cam görünüm (Liquid Glass)", isOn: $settings.glassWindows)
                 }
             }
             Section("Ada") {
@@ -385,18 +360,8 @@ private struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .onChange(of: settings.islandTheme) { model.previewAppearance() }
-        .onChange(of: settings.glassClarity) { model.previewAppearance() }
         .onChange(of: settings.accentMode) { model.previewAppearance() }
         .onChange(of: settings.accentHex) { model.previewAppearance() }
-    }
-
-    private var themeNote: LocalizedStringKey {
-        switch settings.islandTheme {
-        case .black: return "Çentikle kusursuz kaynaşan klasik siyah."
-        case .melt: return "Çentik hizası siyah kalır, ada aşağı doğru buzlu cama dönüşür."
-        case .glass: return model.hasNotch ? "Tamamen cam sadece çentiksiz ekranlarda; bu ekranda Erime gibi görünür." : "Ada tamamen camdan, arkadaki masaüstü görünür."
-        }
     }
 
     private var notifications: some View {

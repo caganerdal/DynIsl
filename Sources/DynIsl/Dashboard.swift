@@ -140,7 +140,6 @@ struct DashboardView: View {
                     .padding(24)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .glassWindowBackground()
             .navigationTitle((model.dashboardPage ?? .overview).title)
         }
     }
@@ -204,7 +203,8 @@ private struct Card<Content: View>: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard()
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.background.secondary))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(.separator.opacity(0.5)))
     }
 }
 

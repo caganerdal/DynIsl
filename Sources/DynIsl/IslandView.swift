@@ -19,9 +19,8 @@ struct IslandView: View {
                 CAGlow(color: model.media.accent, top: top, bottom: bottom)
                     .transition(.opacity)
             }
-            IslandBackground(theme: model.settings.islandTheme, hasNotch: model.hasNotch,
-                             notchHeight: model.notchSize.height, top: top, bottom: bottom,
-                             clarity: model.settings.glassClarity)
+            NotchShape(topRadius: top, bottomRadius: bottom)
+                .fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
                 .opacity(model.state == .idle && model.hasNotch && !model.settings.showPet ? 0 : 1)
                 .shadow(color: .black.opacity(expanded ? 0.5 : 0), radius: 16, y: 6)
 

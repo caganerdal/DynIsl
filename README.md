@@ -22,7 +22,7 @@
 - **Sekmeler:** müzik, takvim, raf ve AirDrop, pano geçmişi, sistem kullanımı, pil analizi.
 - **Raf ile dönüştürme:** rafa bırakılan görselleri JPG'ye çevirme ve küçültme, görsel ve PDF'leri tek PDF'te birleştirme, PDF sıkıştırma; hepsi bilgisayarda.
 - **Sunum modu:** Keynote ya da PowerPoint sunumunda ve ekran yansıtılırken bildirimleri susturur, masaüstü simgelerini gizler; menü çubuğundan elle de açılır.
-- **Temalar:** Siyah, Erime (çentikte siyah, aşağı doğru buzlu cam) ve çentiksiz ekranlar için Cam; vurgu rengi (macOS, çalan şarkı ya da özel renk); macOS 26 ve sonrasında pencerelerde Liquid Glass.
+- **Vurgu rengi:** macOS rengi, çalan şarkının rengi ya da kendi seçtiğin renk.
 - **Ada kedisi:** ada boşken çentiğin yanında uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.
 - **Zamanlayıcı** ve `island` terminal komutuyla kendi bildirimlerin.
 

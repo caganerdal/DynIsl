@@ -985,16 +985,6 @@
         }
       }
     },
-    "Ada tamamen camdan, arkadaki masaüstü görünür.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The whole island is glass; the desktop shows through."
-          }
-        }
-      }
-    },
     "Adaptör": {
       "localizations": {
         "en": {
@@ -1725,26 +1715,6 @@
         }
       }
     },
-    "Cam": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glass"
-          }
-        }
-      }
-    },
-    "Cam şeffaflığı": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glass clarity"
-          }
-        }
-      }
-    },
     "Cevabını bekliyor": {
       "localizations": {
         "en": {
@@ -2211,16 +2181,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Top resource users"
-          }
-        }
-      }
-    },
-    "Erime": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Melt"
           }
         }
       }
@@ -3815,16 +3775,6 @@
         }
       }
     },
-    "Pencerelerde cam görünüm (Liquid Glass)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glass look in windows (Liquid Glass)"
-          }
-        }
-      }
-    },
     "Pencereyi Kapat": {
       "localizations": {
         "en": {
@@ -4475,32 +4425,12 @@
         }
       }
     },
-    "Siyah": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Black"
-          }
-        }
-      }
-    },
     "Sol": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Left"
-          }
-        }
-      }
-    },
-    "Sola: daha koyu ve okunaklı. Sağa: daha şeffaf, arkası daha çok görünür.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Left: darker and easier to read. Right: clearer, more of the background shows through."
           }
         }
       }
@@ -4771,16 +4701,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Full Disk Access"
-          }
-        }
-      }
-    },
-    "Tamamen cam sadece çentiksiz ekranlarda; bu ekranda Erime gibi görünür.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Full glass only works on displays without a notch; here it looks like Melt."
           }
         }
       }
@@ -5651,26 +5571,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cores"
-          }
-        }
-      }
-    },
-    "Çentik hizası siyah kalır, ada aşağı doğru buzlu cama dönüşür.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stays black at the notch and melts into frosted glass below."
-          }
-        }
-      }
-    },
-    "Çentikle kusursuz kaynaşan klasik siyah.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Classic black that blends perfectly with the notch."
           }
         }
       }

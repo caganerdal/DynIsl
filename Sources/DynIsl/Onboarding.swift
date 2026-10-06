@@ -71,7 +71,6 @@ private struct OnboardingView: View {
             HStack {
                 if page > 0 {
                     Button("Geri") { withAnimation(.snappy) { page -= 1 } }
-                        .glassButton()
                 } else {
                     Button("Atla") { done() }.buttonStyle(.borderless).foregroundStyle(.secondary)
                 }
@@ -87,18 +86,15 @@ private struct OnboardingView: View {
                 if page < pages - 1 {
                     Button("İleri") { withAnimation(.snappy) { page += 1 } }
                         .keyboardShortcut(.defaultAction)
-                        .glassButton(prominent: true)
                 } else {
                     Button("Başla") { done() }
                         .keyboardShortcut(.defaultAction)
-                        .glassButton(prominent: true)
                 }
             }
             .controlSize(.large)
             .padding(20)
         }
         .frame(width: 600, height: 470)
-        .glassWindowBackground()
     }
 
     private var welcome: some View {
@@ -255,6 +251,6 @@ private struct Permission: View {
             }
         }
         .padding(10)
-        .glassCard(radius: 10)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.04)))
     }
 }
