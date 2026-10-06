@@ -36,6 +36,8 @@ Click: System Dashboard</string>
 	<string>%@ / hour</string>
 	<key>%@ sunumu</key>
 	<string>%@ presentation</string>
+	<key>%@ uygulamasından zorla çıkış yaptırılsın mı?</key>
+	<string>Force quit %@?</string>
 	<key>%@ yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.</key>
 	<string>This frees up %@. You can undo until the Trash is emptied.</string>
 	<key>%@ yer kazanıldı</key>
@@ -184,6 +186,8 @@ charging on hold</string>
 	<string>On Apple silicon, GPU memory is shared with system memory (unified memory).</string>
 	<key>Apple, pil 1000 döngüye ya da %80 kapasiteye ulaşana kadar normal kabul eder.</key>
 	<string>Apple considers a battery normal until it reaches 1000 cycles or 80% capacity.</string>
+	<key>Arama sonuçları</key>
+	<string>Search results</string>
 	<key>Arayüzler</key>
 	<string>Interfaces</string>
 	<key>Araç Kullanma</key>
@@ -194,6 +198,8 @@ charging on hold</string>
 	<string>Skip</string>
 	<key>Ayarlar</key>
 	<string>Settings</string>
+	<key>Ayarlarda ara</key>
+	<string>Search settings</string>
 	<key>Ayarları aç</key>
 	<string>Open Settings</string>
 	<key>Ayarlar…</key>
@@ -564,6 +570,8 @@ charging on hold</string>
 	<string>Shuffle</string>
 	<key>Katıl</key>
 	<string>Join</string>
+	<key>Kaydedilmemiş değişiklikler kaybolabilir.</key>
+	<string>Unsaved changes may be lost.</string>
 	<key>Kayma</key>
 	<string>Slide</string>
 	<key>Kes</key>
@@ -798,8 +806,12 @@ calculating…</string>
 	<string>Only to read the active Focus mode. Skip it if you like.</string>
 	<key>Sadece simge</key>
 	<string>Icon only</string>
+	<key>Sadece uygulamalardan çıkış yaptırılabilir</key>
+	<string>Only apps can be quit</string>
 	<key>Sana göre ayarla</key>
 	<string>Make it yours</string>
+	<key>Sayfa ara</key>
+	<string>Search pages</string>
 	<key>Sağ</key>
 	<string>Right</string>
 	<key>Sağanak</key>
@@ -876,6 +888,8 @@ calculating…</string>
 	<string>Result</string>
 	<key>Sonuç okunamadı</key>
 	<string>Couldn't read the result</string>
+	<key>Sonuç yok</key>
+	<string>No results</string>
 	<key>Sorun bildir…</key>
 	<string>Report a Problem…</string>
 	<key>Spotify</key>
@@ -920,6 +934,8 @@ calculating…</string>
 	<string>Calendar</string>
 	<key>Tam Disk Erişimi</key>
 	<string>Full Disk Access</string>
+	<key>Tamam</key>
+	<string>OK</string>
 	<key>Tamamen dolu</key>
 	<string>Fully charged</string>
 	<key>Tamamen şarj oldu</key>
@@ -986,6 +1002,8 @@ calculating…</string>
 	<string>App</string>
 	<key>Uygulama kapat</key>
 	<string>Quit an app</string>
+	<key>Uygulamadan çıkış yaptırılamadı</key>
+	<string>Couldn't quit the app</string>
 	<key>Uyku</key>
 	<string>Sleep</string>
 	<key>Vazgeç</key>
@@ -1062,6 +1080,8 @@ calculating…</string>
 	<string>Already small</string>
 	<key>Zayıf</key>
 	<string>Weak</string>
+	<key>Zorla Çıkış Yaptır</key>
+	<string>Force Quit</string>
 	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
 	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
 	<key>island: %@ çalıştırılamadı: %@
@@ -1084,6 +1104,8 @@ calculating…</string>
 	<string>On the island instead of macOS's, in the style you like.</string>
 	<key>otomatik</key>
 	<string>automatic</string>
+	<key>pid %d</key>
+	<string>pid %d</string>
 	<key>s</key>
 	<string>s</string>
 	<key>son bilinen</key>
@@ -1126,6 +1148,10 @@ calculating…</string>
 	<string>Remove</string>
 	<key>Çıkış</key>
 	<string>Quit</string>
+	<key>Çıkış Yaptır</key>
+	<string>Quit</string>
+	<key>Çıkış yaptırmak için listeden bir uygulama seç</key>
+	<string>Select an app in the list to quit it</string>
 	<key>Ölçülüyor…</key>
 	<string>Measuring…</string>
 	<key>Ölçülüyor… %lld sn</key>
@@ -1180,6 +1206,8 @@ calculating…</string>
 	<string>Permissions</string>
 	<key>İş</key>
 	<string>Work</string>
+	<key>İşlem ara</key>
+	<string>Search processes</string>
 	<key>İşlemci</key>
 	<string>Processor</string>
 	<key>İşlemci kullanımı %@ · Bellek (RAM) kullanımı %@</key>

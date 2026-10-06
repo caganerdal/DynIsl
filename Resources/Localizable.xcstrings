@@ -161,6 +161,16 @@
         }
       }
     },
+    "%@ uygulamasından zorla çıkış yaptırılsın mı?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force quit %@?"
+          }
+        }
+      }
+    },
     "%@ yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.": {
       "localizations": {
         "en": {
@@ -1199,6 +1209,16 @@
         }
       }
     },
+    "Arama sonuçları": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search results"
+          }
+        }
+      }
+    },
     "Arayüzler": {
       "localizations": {
         "en": {
@@ -1245,6 +1265,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Settings"
+          }
+        }
+      }
+    },
+    "Ayarlarda ara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search settings"
           }
         }
       }
@@ -3099,6 +3129,16 @@
         }
       }
     },
+    "Kaydedilmemiş değişiklikler kaybolabilir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsaved changes may be lost."
+          }
+        }
+      }
+    },
     "Kayma": {
       "localizations": {
         "en": {
@@ -4249,12 +4289,32 @@
         }
       }
     },
+    "Sadece uygulamalardan çıkış yaptırılabilir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only apps can be quit"
+          }
+        }
+      }
+    },
     "Sana göre ayarla": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Make it yours"
+          }
+        }
+      }
+    },
+    "Sayfa ara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search pages"
           }
         }
       }
@@ -4639,6 +4699,16 @@
         }
       }
     },
+    "Sonuç yok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        }
+      }
+    },
     "Sorun bildir…": {
       "localizations": {
         "en": {
@@ -4855,6 +4925,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Full Disk Access"
+          }
+        }
+      }
+    },
+    "Tamam": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
           }
         }
       }
@@ -5185,6 +5265,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quit an app"
+          }
+        }
+      }
+    },
+    "Uygulamadan çıkış yaptırılamadı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't quit the app"
           }
         }
       }
@@ -5569,6 +5659,16 @@
         }
       }
     },
+    "Zorla Çıkış Yaptır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force Quit"
+          }
+        }
+      }
+    },
     "island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test": {
       "localizations": {
         "en": {
@@ -5655,6 +5755,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "automatic"
+          }
+        }
+      }
+    },
+    "pid %d": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pid %d"
           }
         }
       }
@@ -5865,6 +5975,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quit"
+          }
+        }
+      }
+    },
+    "Çıkış Yaptır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
+          }
+        }
+      }
+    },
+    "Çıkış yaptırmak için listeden bir uygulama seç": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select an app in the list to quit it"
           }
         }
       }
@@ -6135,6 +6265,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Work"
+          }
+        }
+      }
+    },
+    "İşlem ara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search processes"
           }
         }
       }

@@ -173,11 +173,13 @@ enum SettingsWindow {
     static func show(model: IslandModel) {
         if window == nil {
             let w = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 540, height: 560),
-                styleMask: [.titled, .closable],
+                contentRect: NSRect(x: 0, y: 0, width: 780, height: 600),
+                styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
             w.title = String(localized: "DynIsl Ayarları")
+            w.titlebarAppearsTransparent = true
+            w.toolbarStyle = .unified
             w.isReleasedWhenClosed = false
             w.contentView = NSHostingView(rootView: SettingsView(settings: model.settings)
                 .environmentObject(model)
@@ -209,20 +211,144 @@ enum SettingsWindow {
     }
 }
 
+enum SettingsPage: String, CaseIterable, Identifiable {
+    case general, appearance, notifications, features, permissions
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .general: return String(localized: "Genel")
+        case .appearance: return String(localized: "Görünüm")
+        case .notifications: return String(localized: "Bildirimler")
+        case .features: return String(localized: "Özellikler")
+        case .permissions: return String(localized: "İzinler")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .general: return "gearshape.fill"
+        case .appearance: return "paintbrush.fill"
+        case .notifications: return "bell.badge.fill"
+        case .features: return "square.grid.2x2.fill"
+        case .permissions: return "lock.shield.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .general: return .gray
+        case .appearance: return .purple
+        case .notifications: return .red
+        case .features: return .blue
+        case .permissions: return .green
+        }
+    }
+
+    static let searchIndex: [(String, SettingsPage)] = [
+        (String(localized: "Oturum açınca başlat"), .general),
+        (String(localized: "Ada nasıl açılsın"), .general),
+        (String(localized: "Ses ve parlaklık"), .general),
+        (String(localized: "Ses göstergesi"), .general),
+        (String(localized: "Parlaklık göstergesi"), .general),
+        (String(localized: "Her basışta"), .general),
+        (String(localized: "Güncellemeler"), .general),
+        (String(localized: "Sorun bildir…"), .general),
+        (String(localized: "Rehber"), .general),
+        (String(localized: "Vurgu rengi"), .appearance),
+        (String(localized: "Açılış animasyonu"), .appearance),
+        (String(localized: "Bildirim girişi"), .appearance),
+        (String(localized: "Ekolayzer"), .appearance),
+        (String(localized: "Şarj animasyonu"), .appearance),
+        (String(localized: "Ada kedisi"), .appearance),
+        (String(localized: "Müzik çalarken kapak rengi parıltısı"), .appearance),
+        (String(localized: "Menü çubuğu"), .appearance),
+        (String(localized: "Sekmeler"), .appearance),
+        (String(localized: "Ada hangi ekranda"), .appearance),
+        (String(localized: "Açık ada genişliği"), .appearance),
+        (String(localized: "Animasyon hızı"), .appearance),
+        (String(localized: "Mac pili ve şarj"), .notifications),
+        (String(localized: "Şarj sınırı"), .notifications),
+        (String(localized: "AirPods"), .notifications),
+        (String(localized: "Takvim"), .notifications),
+        (String(localized: "Görüşme modu (süre ve mikrofonu kapatma)"), .notifications),
+        (String(localized: "Kamera ve mikrofon göstergesi"), .notifications),
+        (String(localized: "İndirme ilerlemesi"), .notifications),
+        (String(localized: "İnternet koptu / geri geldi"), .notifications),
+        (String(localized: "Odak modu"), .notifications),
+        (String(localized: "Yağmur uyarısı"), .notifications),
+        (String(localized: "Sistem uyarıları"), .notifications),
+        (String(localized: "Sunum modu"), .features),
+        (String(localized: "Hava durumu"), .features),
+        (String(localized: "Raf"), .features),
+        (String(localized: "Pano geçmişi"), .features),
+        (String(localized: "Gizlilik"), .features),
+        (String(localized: "Terminal komutu"), .features),
+        (String(localized: "Erişilebilirlik"), .permissions),
+        (String(localized: "Tam Disk Erişimi"), .permissions),
+        (String(localized: "Konum"), .permissions),
+        (String(localized: "Spotify / Apple Music kontrolü"), .permissions),
+    ]
+}
+
 private struct SettingsView: View {
     @EnvironmentObject var model: IslandModel
     @EnvironmentObject var weather: WeatherService
     @ObservedObject var settings: AppSettings
+    @State private var page: SettingsPage? = .general
+    @State private var query = ""
 
     var body: some View {
-        TabView {
-            general.tabItem { Label("Genel", systemImage: "gearshape") }
-            appearance.tabItem { Label("Görünüm", systemImage: "paintbrush") }
-            notifications.tabItem { Label("Bildirimler", systemImage: "bell.badge") }
-            features.tabItem { Label("Özellikler", systemImage: "square.grid.2x2") }
-            permissions.tabItem { Label("İzinler", systemImage: "lock.shield") }
+        NavigationSplitView {
+            List(selection: $page) {
+                if query.isEmpty {
+                    ForEach(SettingsPage.allCases) { p in
+                        Label {
+                            Text(p.title)
+                        } icon: {
+                            Image(systemName: p.icon)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 22, height: 22)
+                                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(p.tint.gradient))
+                        }
+                        .tag(p)
+                    }
+                } else {
+                    let hits = SettingsPage.searchIndex.filter { $0.0.localizedStandardContains(query) }
+                    if hits.isEmpty {
+                        Text("Sonuç yok").foregroundStyle(.secondary)
+                    }
+                    ForEach(Array(hits.enumerated()), id: \.offset) { _, hit in
+                        Button {
+                            page = hit.1
+                            query = ""
+                        } label: {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(hit.0).lineLimit(1)
+                                Text(hit.1.title).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .searchable(text: $query, placement: .sidebar, prompt: Text("Ayarlarda ara"))
+            .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
+        } detail: {
+            let p = page ?? .general
+            Group {
+                switch p {
+                case .general: general
+                case .appearance: appearance
+                case .notifications: notifications
+                case .features: features
+                case .permissions: permissions
+                }
+            }
+            .navigationTitle(p.title)
         }
-        .frame(width: 540, height: 560)
+        .frame(minWidth: 760, minHeight: 560)
     }
 
     private var general: some View {

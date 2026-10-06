@@ -135,23 +135,31 @@ enum DashboardPage: String, CaseIterable, Identifiable {
 
 struct DashboardView: View {
     @EnvironmentObject var model: IslandModel
+    @State private var pageQuery = ""
 
     var body: some View {
         NavigationSplitView {
             List(selection: $model.dashboardPage) {
-                Section("Donanım") {
-                    ForEach([DashboardPage.overview, .cpu, .gpu, .memory, .storage]) { row($0) }
-                }
-                Section("Bağlantı ve güç") {
-                    ForEach([DashboardPage.network, .battery, .displays, .bluetooth]) { row($0) }
-                }
-                Section("Yazılım") {
-                    row(.processes)
-                    row(.desktop)
-                    row(.downloads)
-                    row(.convert)
+                if pageQuery.isEmpty {
+                    Section("Donanım") {
+                        ForEach([DashboardPage.overview, .cpu, .gpu, .memory, .storage]) { row($0) }
+                    }
+                    Section("Bağlantı ve güç") {
+                        ForEach([DashboardPage.network, .battery, .displays, .bluetooth]) { row($0) }
+                    }
+                    Section("Yazılım") {
+                        row(.processes)
+                        row(.desktop)
+                        row(.downloads)
+                        row(.convert)
+                    }
+                } else {
+                    let hits = DashboardPage.allCases.filter { $0.title.localizedStandardContains(pageQuery) }
+                    if hits.isEmpty { Text("Sonuç yok").foregroundStyle(.secondary) }
+                    ForEach(hits) { row($0) }
                 }
             }
+            .searchable(text: $pageQuery, placement: .sidebar, prompt: Text("Sayfa ara"))
             .navigationSplitViewColumnWidth(min: 190, ideal: 210)
         } detail: {
             let p = model.dashboardPage ?? .overview
@@ -160,6 +168,7 @@ struct DashboardView: View {
                 case .desktop: DesktopPage()
                 case .downloads: DownloadsPage()
                 case .convert: ConvertPage()
+                case .processes: ProcessesPage()
                 default: PageScroll { page(p) }
                 }
             }
@@ -1321,46 +1330,108 @@ private struct BluetoothPage: View {
 private struct ProcessesPage: View {
     @EnvironmentObject var details: SystemDetails
     @State private var sortByMemory = false
+    @State private var query = ""
+    @State private var selected: pid_t?
+    @State private var confirmForce = false
+    @State private var failed = false
 
     var body: some View {
         let rows = details.processes.sorted { sortByMemory ? $0.memory > $1.memory : $0.cpu > $1.cpu }
-        Card {
-            HStack {
-                Text("En çok kaynak kullananlar").font(.headline)
-                Spacer()
-                Picker("Sırala", selection: $sortByMemory) {
-                    Text("İşlemci").tag(false)
-                    Text("Bellek").tag(true)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 180)
-            }
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
-                GridRow {
-                    Text("Uygulama").gridCellColumns(2)
-                    Text("İşlemci").gridColumnAlignment(.trailing)
-                    Text("Bellek").gridColumnAlignment(.trailing)
-                }
-                .font(.caption).foregroundStyle(.secondary)
-                Divider()
-                ForEach(rows) { p in
-                    GridRow {
-                        Group {
-                            if let icon = p.icon { Image(nsImage: icon).resizable() } else { Image(systemName: "gearshape").foregroundStyle(.secondary) }
-                        }
-                        .frame(width: 18, height: 18)
-                        Text(p.name).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                        Text((p.cpu / 100).formatted(.percent.precision(.fractionLength(1)))).monospacedDigit().foregroundStyle(p.cpu >= 80 ? .orange : .primary)
-                        Text(p.memory >= GiB ? gb(p.memory, digits: 2) : "\(Int(p.memory / 1_048_576)) MB").monospacedDigit()
+        let current = rows.first { $0.id == selected }
+        PageScroll {
+            Card {
+                HStack {
+                    Text(query.isEmpty ? "En çok kaynak kullananlar" : "Arama sonuçları").font(.headline)
+                    Spacer()
+                    Picker("Sırala", selection: $sortByMemory) {
+                        Text("İşlemci").tag(false)
+                        Text("Bellek").tag(true)
                     }
-                    .font(.callout)
+                    .pickerStyle(.segmented)
+                    .frame(width: 180)
+                }
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("Uygulama").frame(maxWidth: .infinity, alignment: .leading)
+                        Text("İşlemci").frame(width: 70, alignment: .trailing)
+                        Text("Bellek").frame(width: 80, alignment: .trailing)
+                    }
+                    .font(.caption).foregroundStyle(.secondary)
+                    .padding(.horizontal, 8).padding(.bottom, 6)
+                    Divider()
+                    ForEach(rows) { p in
+                        HStack(spacing: 10) {
+                            Group {
+                                if let icon = p.icon { Image(nsImage: icon).resizable() } else { Image(systemName: "gearshape").foregroundStyle(.secondary) }
+                            }
+                            .frame(width: 18, height: 18)
+                            Text(p.name).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+                            Text((p.cpu / 100).formatted(.percent.precision(.fractionLength(1)))).monospacedDigit()
+                                .foregroundStyle(p.cpu >= 80 ? .orange : .primary)
+                                .frame(width: 70, alignment: .trailing)
+                            Text(p.memory >= GiB ? gb(p.memory, digits: 2) : "\(Int(p.memory / 1_048_576)) MB").monospacedDigit()
+                                .frame(width: 80, alignment: .trailing)
+                        }
+                        .font(.callout)
+                        .padding(.horizontal, 8).padding(.vertical, 5)
+                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(selected == p.id ? Color.accentColor.opacity(0.22) : .clear))
+                        .contentShape(Rectangle())
+                        .onTapGesture { selected = selected == p.id ? nil : p.id }
+                    }
+                }
+                Text("İşlemci yüzdesi tek çekirdeğe göredir (2 çekirdeği tam kullanan = %200).")
+                    .font(.caption).foregroundStyle(.tertiary)
+                if rows.isEmpty { Text(query.isEmpty ? "Ölçülüyor…" : "Sonuç yok").foregroundStyle(.secondary) }
+            }
+        } bar: {
+            HStack(spacing: 12) {
+                if let p = current {
+                    Group {
+                        if let icon = p.icon { Image(nsImage: icon).resizable() } else { Image(systemName: "gearshape").foregroundStyle(.secondary) }
+                    }
+                    .frame(width: 26, height: 26)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(p.name).font(.callout.weight(.medium)).lineLimit(1)
+                        Text(p.isApp ? "pid \(p.id)" : "Sadece uygulamalardan çıkış yaptırılabilir")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 16)
+                    Button("Çıkış Yaptır") { failed = !details.quit(p.id, force: false) }
+                        .glassButton()
+                        .controlSize(.large)
+                        .disabled(!p.isApp)
+                    Button("Zorla Çıkış Yaptır", role: .destructive) { confirmForce = true }
+                        .glassButton(prominent: true)
+                        .tint(.red)
+                        .controlSize(.large)
+                        .disabled(!p.isApp)
+                } else {
+                    Image(systemName: "hand.tap").foregroundStyle(.secondary)
+                    Text("Çıkış yaptırmak için listeden bir uygulama seç").foregroundStyle(.secondary)
+                    Spacer()
                 }
             }
-            Text("İşlemci yüzdesi tek çekirdeğe göredir (2 çekirdeği tam kullanan = %200).")
-                .font(.caption).foregroundStyle(.tertiary)
-            if rows.isEmpty { Text("Ölçülüyor…").foregroundStyle(.secondary) }
+            .frame(minHeight: 34)
+            .floatingGlassBar()
         }
+        .searchable(text: $query, placement: .toolbar, prompt: Text("İşlem ara"))
+        .onChange(of: query) { _, q in details.processQuery = q }
         .onAppear { details.wantsProcesses = true }
-        .onDisappear { details.wantsProcesses = false }
+        .onDisappear {
+            details.wantsProcesses = false
+            details.processQuery = ""
+        }
+        .alert("\(current?.name ?? "") uygulamasından zorla çıkış yaptırılsın mı?", isPresented: $confirmForce) {
+            Button("Zorla Çıkış Yaptır", role: .destructive) {
+                if let id = current?.id { failed = !details.quit(id, force: true) }
+            }
+            Button("Vazgeç", role: .cancel) {}
+        } message: {
+            Text("Kaydedilmemiş değişiklikler kaybolabilir.")
+        }
+        .alert("Uygulamadan çıkış yaptırılamadı", isPresented: $failed) {
+            Button("Tamam", role: .cancel) {}
+        }
     }
 }

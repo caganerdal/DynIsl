@@ -63,6 +63,7 @@ struct ProcessRow: Identifiable, Equatable {
     let cpu: Double
     let memory: Double
     let icon: NSImage?
+    let isApp: Bool
 
     static func == (a: Self, b: Self) -> Bool { a.id == b.id && a.cpu == b.cpu && a.memory == b.memory }
 }
@@ -137,6 +138,8 @@ final class SystemDetails: ObservableObject {
     private var lastProcTimes: [pid_t: UInt64] = [:]
     private var lastProcSample = Date()
     private var iconCache: [pid_t: NSImage] = [:]
+    private var appCache: [pid_t: Bool] = [:]
+    var processQuery = "" { didSet { if processQuery != oldValue, wantsProcesses { sampleProcesses() } } }
     private let tickToNanos: Double = {
         var tb = mach_timebase_info_data_t()
         mach_timebase_info(&tb)
@@ -488,21 +491,45 @@ final class SystemDetails: ObservableObject {
         }
         lastProcTimes = times
 
-        let byCPU = rows.sorted { $0.cpu > $1.cpu }.prefix(12)
-        let byMem = rows.sorted { $0.mem > $1.mem }.prefix(12)
-        var seen = Set<pid_t>()
-        processes = (byCPU + byMem).filter { seen.insert($0.pid).inserted }.map { r in
-            if nameCache[r.pid] == nil {
-                let app = NSRunningApplication(processIdentifier: r.pid)
-                nameCache[r.pid] = app?.localizedName ?? Self.procName(r.pid)
-                if let icon = app?.icon { iconCache[r.pid] = icon }
-            }
-            return ProcessRow(id: r.pid, name: nameCache[r.pid] ?? "", cpu: r.cpu, memory: r.mem, icon: iconCache[r.pid])
+        let picked: [(pid: pid_t, cpu: Double, mem: Double)]
+        let q = processQuery.trimmingCharacters(in: .whitespaces)
+        if q.isEmpty {
+            let byCPU = rows.sorted { $0.cpu > $1.cpu }.prefix(12)
+            let byMem = rows.sorted { $0.mem > $1.mem }.prefix(12)
+            var seen = Set<pid_t>()
+            picked = (byCPU + byMem).filter { seen.insert($0.pid).inserted }
+        } else {
+            picked = Array(rows.filter { name(of: $0.pid).localizedStandardContains(q) }
+                .sorted { $0.cpu == $1.cpu ? $0.mem > $1.mem : $0.cpu > $1.cpu }
+                .prefix(40))
         }
-        if nameCache.count > 400 {
+        processes = picked.map { r in
+            ProcessRow(id: r.pid, name: name(of: r.pid), cpu: r.cpu, memory: r.mem,
+                       icon: iconCache[r.pid], isApp: appCache[r.pid] ?? false)
+        }
+        if nameCache.count > 800 {
             nameCache = nameCache.filter { times[$0.key] != nil }
             iconCache = iconCache.filter { times[$0.key] != nil }
+            appCache = appCache.filter { times[$0.key] != nil }
         }
+    }
+
+    private func name(of pid: pid_t) -> String {
+        if let n = nameCache[pid] { return n }
+        let app = NSRunningApplication(processIdentifier: pid)
+        let n = app?.localizedName ?? Self.procName(pid)
+        nameCache[pid] = n
+        if let icon = app?.icon { iconCache[pid] = icon }
+        appCache[pid] = app.map { $0.activationPolicy != .prohibited } ?? false
+        return n
+    }
+
+    func quit(_ pid: pid_t, force: Bool) -> Bool {
+        guard pid != ProcessInfo.processInfo.processIdentifier,
+              let app = NSRunningApplication(processIdentifier: pid) else { return false }
+        let ok = force ? app.forceTerminate() : app.terminate()
+        if ok { DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in self?.sampleProcesses() } }
+        return ok
     }
 
     private static func procName(_ pid: pid_t) -> String {

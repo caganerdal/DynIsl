@@ -294,13 +294,18 @@ private struct CompactRow<L: View, T: View>: View {
 
 private struct ExpandedView: View {
     @EnvironmentObject var model: IslandModel
+    @State private var forward = true
 
     var body: some View {
         VStack(spacing: 8) {
             HStack {
                 HStack(spacing: 2) {
                     ForEach(model.settings.visibleTabs, id: \.self) { tab in
-                        TabButton(icon: tab.icon, selected: model.tab == tab) { model.tab = tab }
+                        TabButton(icon: tab.icon, selected: model.tab == tab) {
+                            let tabs = model.settings.visibleTabs
+                            forward = (tabs.firstIndex(of: tab) ?? 0) >= (tabs.firstIndex(of: model.tab) ?? 0)
+                            model.tab = tab
+                        }
                             .help(tab.title)
                             .overlay(alignment: .topTrailing) {
                                 if tab == .shelf, !model.shelf.items.isEmpty {
@@ -348,9 +353,13 @@ private struct ExpandedView: View {
                 }
             }
             .frame(maxHeight: .infinity)
-            .transition(.opacity)
+            .id(model.tab)
+            .transition(.asymmetric(
+                insertion: .offset(x: forward ? 36 : -36).combined(with: .opacity),
+                removal: .offset(x: forward ? -36 : 36).combined(with: .opacity)
+            ))
         }
-        .animation(.easeInOut(duration: 0.2), value: model.tab)
+        .animation(model.settings.spring(0.32, 1), value: model.tab)
         .foregroundStyle(.white)
     }
 }
