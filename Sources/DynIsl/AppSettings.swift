@@ -168,6 +168,7 @@ final class AppSettings: ObservableObject {
 @MainActor
 enum SettingsWindow {
     private static var window: NSWindow?
+    private static var closer: Closer?
 
     static func show(model: IslandModel) {
         if window == nil {
@@ -182,11 +183,28 @@ enum SettingsWindow {
                 .environmentObject(model)
                 .environmentObject(model.weather))
             w.center()
+            let c = Closer {
+                let old = window
+                window = nil
+                closer = nil
+                DispatchQueue.main.async {
+                    old?.delegate = nil
+                    old?.contentView = nil
+                }
+            }
+            w.delegate = c
+            closer = c
             window = w
         }
         model.settings.refreshLaunchAtLogin()
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
+    }
+
+    private final class Closer: NSObject, NSWindowDelegate {
+        let onClose: () -> Void
+        init(onClose: @escaping () -> Void) { self.onClose = onClose }
+        func windowWillClose(_ notification: Notification) { onClose() }
     }
 }
 

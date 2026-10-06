@@ -30,7 +30,11 @@ enum DashboardWindow {
                 .environmentObject(model.alerts)
                 .environmentObject(model.desktopCleaner)
                 .environmentObject(model.downloadsCleaner))
-            let d = CloseDelegate { model.details.end(); NSApp.setActivationPolicy(.accessory) }
+            let d = CloseDelegate {
+                model.details.end()
+                NSApp.setActivationPolicy(.accessory)
+                release()
+            }
             w.delegate = d
             delegate = d
             occlusionObserver = NotificationCenter.default.addObserver(
@@ -46,6 +50,18 @@ enum DashboardWindow {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
+    }
+
+    private static func release() {
+        if let o = occlusionObserver { NotificationCenter.default.removeObserver(o) }
+        occlusionObserver = nil
+        let w = window
+        window = nil
+        delegate = nil
+        DispatchQueue.main.async {
+            w?.delegate = nil
+            w?.contentView = nil
+        }
     }
 
     private final class CloseDelegate: NSObject, NSWindowDelegate {
