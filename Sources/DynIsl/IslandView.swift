@@ -13,7 +13,7 @@ struct IslandView: View {
         let expanded = model.state == .expanded
         let top: CGFloat = expanded ? 14 : 6
         let compactHUD = model.hud.current.map { model.settings.hudStyle(for: $0.kind).isCompact } ?? false
-        let bottom: CGFloat = expanded || model.state == .peek ? 28 : model.state == .hud && !compactHUD ? 18 : 10
+        let bottom: CGFloat = expanded || model.state == .peek ? 28 : (model.state == .hud && !compactHUD) || model.state == .charging ? 18 : 10
         let glowing = model.settings.albumGlow && model.media.isPlaying
             && (model.state == .playing || (expanded && model.tab == .media))
 
@@ -70,7 +70,7 @@ struct IslandView: View {
             } trailing: {
                 HStack(spacing: 5) {
                     PrivacyDots()
-                    CAEqualizer(color: model.media.accent)
+                    CAEqualizer(color: model.media.accent, style: model.settings.equalizerStyle)
                     if model.settings.showPet { IslandPet(mood: model.petMood).padding(.leading, 4) }
                 }
             }
@@ -152,6 +152,7 @@ struct IslandView: View {
             }
         case .activity:
             if let a = model.activity {
+                let style = model.settings.activityStyle
                 CompactRow(height: model.notchSize.height) {
                     HStack(spacing: 6) {
                         if SpinningSymbol.spins(a.icon) {
@@ -160,11 +161,13 @@ struct IslandView: View {
                             Image(systemName: a.icon).foregroundStyle(a.tint)
                                 .contentTransition(.symbolEffect(.replace))
                         }
-                        Text(a.title).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
+                        RevealText(text: a.title, active: style == .typewriter)
+                            .font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
                     }
+                    .modifier(PopIn(active: style == .pop))
                 } trailing: {
                     HStack(spacing: 6) {
-                        Text(a.trailing)
+                        RevealText(text: a.trailing, active: style == .typewriter, delay: Double(a.title.count) * 0.026)
                             .font(.system(size: 12, weight: .semibold).monospacedDigit())
                             .foregroundStyle(a.ring != nil ? .white : a.tint)
                             .lineLimit(1)
@@ -174,7 +177,9 @@ struct IslandView: View {
                         }
                     }
                     .animation(.snappy, value: a)
+                    .modifier(PopIn(active: style == .pop, delay: 0.14))
                 }
+                .id(a)
             }
         case .hud:
             if let info = model.hud.current {
@@ -204,6 +209,11 @@ struct IslandView: View {
                         SegmentBar(info: info)
                     }
                 }
+            }
+        case .charging:
+            if let level = model.chargeLevel {
+                ChargingView(level: level, notchHeight: model.notchSize.height)
+                    .padding(.bottom, 10)
             }
         case .peek:
             if let shot = model.screenshots.current {

@@ -183,3 +183,97 @@ struct LiquidShape: Shape {
 let appLocale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "tr")
 
 func pc(_ n: Int) -> String { n.formatted(.percent.locale(appLocale)) }
+
+enum ActivityStyle: String, CaseIterable, Identifiable {
+    case slide, pop, typewriter
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .slide: return String(localized: "Kayma")
+        case .pop: return String(localized: "Patlama")
+        case .typewriter: return String(localized: "Yazı makinesi")
+        }
+    }
+}
+
+struct RevealText: View {
+    let text: String
+    let active: Bool
+    var delay: Double = 0
+    @State private var count = Int.max
+
+    var body: some View {
+        Text(active && count < text.count ? String(text.prefix(count)) : text)
+            .task(id: text) {
+                guard active, !text.isEmpty else { count = .max; return }
+                count = 0
+                try? await Task.sleep(for: .seconds(delay))
+                for i in 1...text.count {
+                    count = i
+                    try? await Task.sleep(for: .milliseconds(26))
+                }
+            }
+    }
+}
+
+struct PopIn: ViewModifier {
+    let active: Bool
+    var delay: Double = 0.06
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(active && !shown ? 0.35 : 1)
+            .opacity(active && !shown ? 0 : 1)
+            .onAppear {
+                guard active else { return }
+                withAnimation(.spring(response: 0.36, dampingFraction: 0.5).delay(delay)) { shown = true }
+            }
+    }
+}
+
+struct ChargingView: View {
+    let level: Int
+    let notchHeight: CGFloat
+    @State private var fill: Double = 0
+    @State private var flash = false
+
+    var body: some View {
+        let green = [Color(red: 0.12, green: 0.62, blue: 0.3), Color(red: 0.3, green: 0.95, blue: 0.45)]
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "bolt.fill")
+                    .foregroundStyle(green[1])
+                    .symbolEffect(.bounce, value: flash)
+                Text("Şarj oluyor").font(.system(size: 12, weight: .medium))
+                Spacer()
+                Text(pc(Int((fill * 100).rounded())))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(green[1])
+                    .contentTransition(.numericText(value: fill))
+            }
+            .frame(height: notchHeight)
+            ZStack {
+                Capsule().fill(.white.opacity(0.1))
+                TimelineView(.animation(minimumInterval: 1.0 / 40)) { ctx in
+                    LiquidShape(level: fill, phase: ctx.date.timeIntervalSinceReferenceDate * 3.4, amplitude: 3)
+                        .fill(LinearGradient(colors: green, startPoint: .leading, endPoint: .trailing))
+                }
+                .clipShape(Capsule())
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .shadow(color: .green, radius: flash ? 6 : 0)
+                    .scaleEffect(flash ? 1 : 0.3)
+                    .opacity(flash ? 1 : 0)
+            }
+            .frame(height: 16)
+        }
+        .foregroundStyle(.white)
+        .onAppear {
+            withAnimation(.spring(response: 1.2, dampingFraction: 0.92).delay(0.15)) { fill = Double(level) / 100 }
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.45).delay(0.3)) { flash = true }
+        }
+    }
+}

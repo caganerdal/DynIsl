@@ -1515,6 +1515,16 @@
         }
       }
     },
+    "Bildirim girişi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification entrance"
+          }
+        }
+      }
+    },
     "Bildirimler": {
       "localizations": {
         "en": {
@@ -1771,6 +1781,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Built-in display"
+          }
+        }
+      }
+    },
+    "Dalga": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wave"
           }
         }
       }
@@ -2101,6 +2121,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "TOP CPU"
+          }
+        }
+      }
+    },
+    "Ekolayzer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equalizer"
           }
         }
       }
@@ -3015,6 +3045,16 @@
         }
       }
     },
+    "Kayma": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide"
+          }
+        }
+      }
+    },
     "Kes": {
       "localizations": {
         "en": {
@@ -3575,6 +3615,16 @@
         }
       }
     },
+    "Nabız": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulse"
+          }
+        }
+      }
+    },
     "Ne kadar önce": {
       "localizations": {
         "en": {
@@ -3591,6 +3641,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "What's New?"
+          }
+        }
+      }
+    },
+    "Nokta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dots"
           }
         }
       }
@@ -3791,6 +3851,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Partly cloudy"
+          }
+        }
+      }
+    },
+    "Patlama": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pop"
           }
         }
       }
@@ -5215,6 +5285,16 @@
         }
       }
     },
+    "Yazı makinesi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typewriter"
+          }
+        }
+      }
+    },
     "Yazılım": {
       "localizations": {
         "en": {
@@ -5665,6 +5745,16 @@
         }
       }
     },
+    "Çubuk": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bars"
+          }
+        }
+      }
+    },
     "Çöp Sepeti'ne taşı": {
       "localizations": {
         "en": {
@@ -6041,6 +6131,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Charge"
+          }
+        }
+      }
+    },
+    "Şarj animasyonu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charging animation"
           }
         }
       }

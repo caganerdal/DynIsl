@@ -3,7 +3,7 @@ import SwiftUI
 import IOKit.ps
 import Combine
 
-struct IslandActivity: Equatable {
+struct IslandActivity: Hashable {
     var icon: String
     var tint: Color
     var title: String
@@ -12,7 +12,7 @@ struct IslandActivity: Equatable {
 }
 
 enum IslandState: Equatable {
-    case idle, privacy, playing, call, meeting, speedTest, download, timer, activity, peek, expanded, hud
+    case idle, privacy, playing, call, meeting, speedTest, download, timer, activity, peek, expanded, hud, charging
 }
 
 enum IslandTab: String, CaseIterable, Equatable {
@@ -49,6 +49,8 @@ final class IslandModel: ObservableObject {
     @Published private(set) var notchSize = CGSize(width: 200, height: 32)
     @Published private(set) var hasNotch = false
     @Published private(set) var petMood: PetMood = .sleeping
+    @Published private(set) var chargeLevel: Int?
+    private var chargeWork: DispatchWorkItem?
     @Published var tab: IslandTab = .media
     @Published var isFileDragging = false
 
@@ -98,6 +100,12 @@ final class IslandModel: ObservableObject {
             guard let self else { return }
             self.batteryInfo.powerSourceChanged()
             if self.settings.notifyBattery { self.showActivity(a) }
+        }
+        battery.onPlugged = { [weak self] level, fallback in
+            guard let self else { return }
+            self.batteryInfo.powerSourceChanged()
+            guard self.settings.notifyBattery else { return }
+            if self.settings.chargeAnimation { self.showCharging(level) } else { self.showActivity(fallback) }
         }
         batteryInfo.start()
         keepAwake.onChange = { [weak self] a in self?.showActivity(a, duration: 2) }
@@ -313,6 +321,7 @@ final class IslandModel: ObservableObject {
         if hud.current != nil { return .hud }
         if isExpanded { return .expanded }
         if screenshots.current != nil { return .peek }
+        if chargeLevel != nil { return .charging }
         if activity != nil { return .activity }
         if timerRemaining != nil { return .timer }
         if settings.showDownloads, downloads.summary != nil { return .download }
@@ -344,6 +353,7 @@ final class IslandModel: ObservableObject {
         case .playing: return CGSize(width: notchSize.width + 100 + 2 * petEar, height: notchSize.height)
         case .timer, .meeting, .privacy, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
         case .activity: return CGSize(width: notchSize.width + 2 * activityEarWidth, height: notchSize.height)
+        case .charging: return CGSize(width: max(380, notchSize.width + 230), height: notchSize.height + 30)
         case .hud:
             let style = hud.current.map { settings.hudStyle(for: $0.kind) } ?? .classic
             if style.isCompact { return CGSize(width: notchSize.width + 2 * style.earWidth, height: notchSize.height) }
@@ -434,6 +444,21 @@ final class IslandModel: ObservableObject {
         }
     }
 
+    func showCharging(_ level: Int) {
+        guard !presentation.isActive else { return }
+        chargeWork?.cancel()
+        chargeLevel = nil
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.chargeLevel = level
+            let w = DispatchWorkItem { [weak self] in
+                MainActor.assumeIsolated { self?.chargeLevel = nil }
+            }
+            self.chargeWork = w
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.2, execute: w)
+        }
+    }
+
     func showActivity(_ a: IslandActivity, duration: TimeInterval = 3, force: Bool = false) {
         guard force || !presentation.isActive else { return }
         activityWork?.cancel()
@@ -478,6 +503,7 @@ final class BatteryMonitor: ObservableObject {
     @Published private(set) var hasBattery = false
 
     var onActivity: ((IslandActivity) -> Void)?
+    var onPlugged: ((Int, IslandActivity) -> Void)?
     var onReminder: ((IslandActivity) -> Void)?
     var chargeLimit: Int? = 80
     var fullReminderAfter: TimeInterval? = 2 * 3600
@@ -518,7 +544,11 @@ final class BatteryMonitor: ObservableObject {
 
             if notify {
                 if plugged != isPluggedIn {
-                    onActivity?(plugged ? chargingActivity(newLevel) : unpluggedActivity(newLevel))
+                    if plugged, let onPlugged {
+                        onPlugged(newLevel, chargingActivity(newLevel))
+                    } else {
+                        onActivity?(plugged ? chargingActivity(newLevel) : unpluggedActivity(newLevel))
+                    }
                 } else if !plugged, newLevel < level, let low = lowBatteryActivity(from: level, to: newLevel) {
                     onActivity?(low)
                 } else if plugged, charged, level < 100, newLevel >= 100 {

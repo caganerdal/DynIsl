@@ -292,6 +292,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func demoCharging() {
         let l = model.battery.level
+        if model.settings.chargeAnimation { model.showCharging(l); return }
         model.showActivity(.init(icon: "bolt.fill", tint: .green, title: String(localized: "Şarj oluyor"), trailing: pc(l), ring: Double(l) / 100))
     }
     @objc private func demoLowBattery() {

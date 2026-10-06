@@ -50,6 +50,9 @@ final class AppSettings: ObservableObject {
     @Published var animationSpeed: Double { didSet { d.set(animationSpeed, forKey: "animationSpeed") } }
     @Published var albumGlow: Bool { didSet { d.set(albumGlow, forKey: "albumGlow") } }
     @Published var showPet: Bool { didSet { d.set(showPet, forKey: "showPet") } }
+    @Published var chargeAnimation: Bool { didSet { d.set(chargeAnimation, forKey: "chargeAnimation") } }
+    @Published var equalizerStyle: EqualizerStyle { didSet { d.set(equalizerStyle.rawValue, forKey: "equalizerStyle") } }
+    @Published var activityStyle: ActivityStyle { didSet { d.set(activityStyle.rawValue, forKey: "activityStyle") } }
     @Published var islandMotion: IslandMotion { didSet { d.set(islandMotion.rawValue, forKey: "islandMotion") } }
     @Published var accentMode: AccentMode { didSet { d.set(accentMode.rawValue, forKey: "accentMode") } }
     @Published var accentHex: String { didSet { d.set(accentHex, forKey: "accentHex") } }
@@ -71,7 +74,7 @@ final class AppSettings: ObservableObject {
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
             "alertDisk": true, "alertMemory": true, "alertThermal": true, "alertBatteryHealth": true, "showWeather": true, "weatherCity": "",
-            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
+            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "chargeAnimation": true, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
         ])
         openOnHover = d.bool(forKey: "openOnHover")
         if d.object(forKey: "menuBarMode") == nil, !d.bool(forKey: "menuBarStats") {
@@ -114,6 +117,9 @@ final class AppSettings: ObservableObject {
         animationSpeed = d.double(forKey: "animationSpeed")
         albumGlow = d.bool(forKey: "albumGlow")
         showPet = d.bool(forKey: "showPet")
+        chargeAnimation = d.bool(forKey: "chargeAnimation")
+        equalizerStyle = EqualizerStyle(rawValue: d.string(forKey: "equalizerStyle") ?? "") ?? .bars
+        activityStyle = ActivityStyle(rawValue: d.string(forKey: "activityStyle") ?? "") ?? .slide
         islandMotion = IslandMotion(rawValue: d.string(forKey: "islandMotion") ?? "") ?? .classic
         accentMode = AccentMode(rawValue: d.string(forKey: "accentMode") ?? "") ?? .classic
         accentHex = d.string(forKey: "accentHex") ?? "0A84FF"
@@ -312,6 +318,23 @@ private struct SettingsView: View {
                         ForEach(IslandMotion.allCases) { Text($0.title).tag($0) }
                     }
                     Button("Dene") { model.previewAppearance() }
+                }
+                HStack {
+                    Picker("Bildirim girişi", selection: $settings.activityStyle) {
+                        ForEach(ActivityStyle.allCases) { Text($0.title).tag($0) }
+                    }
+                    Button("Dene") {
+                        model.showActivity(.init(icon: "airpodspro", tint: .white, title: "AirPods Pro", trailing: pc(92), ring: 0.92))
+                    }
+                }
+                Picker("Ekolayzer", selection: $settings.equalizerStyle) {
+                    ForEach(EqualizerStyle.allCases) { Text($0.title).tag($0) }
+                }
+                HStack {
+                    Toggle("Şarj animasyonu", isOn: $settings.chargeAnimation)
+                    Spacer()
+                    Button("Dene") { model.showCharging(model.battery.level) }
+                        .disabled(!settings.chargeAnimation)
                 }
                 Toggle("Ada kedisi", isOn: $settings.showPet)
                 Text("Boşken uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.")

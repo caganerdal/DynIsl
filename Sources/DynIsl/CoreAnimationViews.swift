@@ -1,12 +1,28 @@
 import AppKit
 import SwiftUI
 
+enum EqualizerStyle: String, CaseIterable, Identifiable {
+    case bars, wave, dots, pulse
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .bars: return String(localized: "Çubuk")
+        case .wave: return String(localized: "Dalga")
+        case .dots: return String(localized: "Nokta")
+        case .pulse: return String(localized: "Nabız")
+        }
+    }
+}
+
 struct CAEqualizer: NSViewRepresentable {
     var color: Color
+    var style: EqualizerStyle = .bars
 
-    func makeNSView(context: Context) -> EqualizerView { EqualizerView() }
+    func makeNSView(context: Context) -> EqualizerView { EqualizerView(style: style) }
 
     func updateNSView(_ view: EqualizerView, context: Context) {
+        view.setStyle(style)
         view.setColor(NSColor(color))
     }
 
@@ -17,52 +33,147 @@ struct CAEqualizer: NSViewRepresentable {
 
 final class EqualizerView: NSView {
     static let size = CGSize(width: 18, height: 16)
-    private var bars: [CALayer] = []
+    private var parts: [CALayer] = []
+    private var strokes: [CAShapeLayer] = []
+    private var style: EqualizerStyle
+    private var color: CGColor = NSColor.white.cgColor
 
-    init() {
+    init(style: EqualizerStyle) {
+        self.style = style
         super.init(frame: CGRect(origin: .zero, size: Self.size))
         wantsLayer = true
-        addDecorativeAnimations()
+        layer?.masksToBounds = false
+        build()
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
     override var intrinsicContentSize: NSSize { Self.size }
 
-    private func addDecorativeAnimations() {
-        if bars.isEmpty {
-            for i in 0..<4 {
-                let bar = CALayer()
-                bar.cornerRadius = 1.5
-                bar.frame = CGRect(x: CGFloat(i) * 5, y: 0, width: 3, height: Self.size.height)
-                layer?.addSublayer(bar)
-                bars.append(bar)
-            }
-        }
-        let durations: [CFTimeInterval] = [0.42, 0.58, 0.36, 0.51]
-        let now = CACurrentMediaTime()
-        for (i, d) in durations.enumerated() {
-            let bar = bars[i]
-            let a = CABasicAnimation(keyPath: "transform.scale.y")
-            a.fromValue = 0.25
-            a.toValue = 1.0
-            a.duration = d
-            a.autoreverses = true
-            a.repeatCount = .infinity
-            a.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            a.beginTime = now + Double(i) * 0.11
-            a.isRemovedOnCompletion = false
-            bar.add(a, forKey: "eq")
-        }
+    func setStyle(_ s: EqualizerStyle) {
+        guard s != style else { return }
+        style = s
+        build()
     }
 
-    func setColor(_ color: NSColor) {
-        let cg = color.cgColor
-        guard bars.first?.backgroundColor != cg else { return }
+    private func build() {
+        parts.forEach { $0.removeFromSuperlayer() }
+        strokes.forEach { $0.removeFromSuperlayer() }
+        parts = []
+        strokes = []
+        let now = CACurrentMediaTime()
+        let w = Self.size.width, h = Self.size.height
+        switch style {
+        case .bars:
+            let durations: [CFTimeInterval] = [0.42, 0.58, 0.36, 0.51]
+            for (i, d) in durations.enumerated() {
+                let bar = CALayer()
+                bar.cornerRadius = 1.5
+                bar.frame = CGRect(x: CGFloat(i) * 5, y: 0, width: 3, height: h)
+                bar.add(Self.loop("transform.scale.y", 0.25, 1, d, begin: now + Double(i) * 0.11), forKey: "eq")
+                add(bar)
+            }
+        case .wave:
+            let line = CAShapeLayer()
+            line.frame = bounds
+            line.fillColor = nil
+            line.lineWidth = 2
+            line.lineCap = .round
+            let frames = (0..<8).map { k in Self.sine(width: w, height: h, phase: Double(k) / 8 * 2 * .pi) }
+            line.path = frames[0]
+            let a = CAKeyframeAnimation(keyPath: "path")
+            a.values = frames + [frames[0]]
+            a.duration = 0.9
+            a.repeatCount = .infinity
+            a.isRemovedOnCompletion = false
+            line.add(a, forKey: "wave")
+            layer?.addSublayer(line)
+            strokes.append(line)
+        case .dots:
+            for i in 0..<3 {
+                let dot = CALayer()
+                dot.bounds = CGRect(x: 0, y: 0, width: 4, height: 4)
+                dot.cornerRadius = 2
+                dot.position = CGPoint(x: 3 + CGFloat(i) * 6, y: 4)
+                dot.add(Self.loop("position.y", 3, h - 3, 0.38, begin: now + Double(i) * 0.13), forKey: "hop")
+                add(dot)
+            }
+        case .pulse:
+            for i in 0..<2 {
+                let ring = CAShapeLayer()
+                ring.frame = CGRect(x: (w - 14) / 2, y: (h - 14) / 2, width: 14, height: 14)
+                ring.path = CGPath(ellipseIn: ring.bounds.insetBy(dx: 1, dy: 1), transform: nil)
+                ring.fillColor = nil
+                ring.lineWidth = 1.5
+                let g = CAAnimationGroup()
+                let sc = CABasicAnimation(keyPath: "transform.scale")
+                sc.fromValue = 0.3
+                sc.toValue = 1.15
+                let op = CABasicAnimation(keyPath: "opacity")
+                op.fromValue = 1
+                op.toValue = 0
+                g.animations = [sc, op]
+                g.duration = 1.1
+                g.repeatCount = .infinity
+                g.beginTime = now + Double(i) * 0.55
+                g.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                g.isRemovedOnCompletion = false
+                ring.add(g, forKey: "pulse")
+                layer?.addSublayer(ring)
+                strokes.append(ring)
+            }
+            let core = CALayer()
+            core.bounds = CGRect(x: 0, y: 0, width: 5, height: 5)
+            core.cornerRadius = 2.5
+            core.position = CGPoint(x: w / 2, y: h / 2)
+            core.add(Self.loop("transform.scale", 0.8, 1.2, 0.55, begin: now), forKey: "beat")
+            add(core)
+        }
+        applyColor()
+    }
+
+    private func add(_ l: CALayer) {
+        layer?.addSublayer(l)
+        parts.append(l)
+    }
+
+    private static func loop(_ key: String, _ from: CGFloat, _ to: CGFloat, _ d: CFTimeInterval, begin: CFTimeInterval) -> CABasicAnimation {
+        let a = CABasicAnimation(keyPath: key)
+        a.fromValue = from
+        a.toValue = to
+        a.duration = d
+        a.autoreverses = true
+        a.repeatCount = .infinity
+        a.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        a.beginTime = begin
+        a.isRemovedOnCompletion = false
+        return a
+    }
+
+    private static func sine(width: CGFloat, height: CGFloat, phase: Double) -> CGPath {
+        let p = CGMutablePath()
+        let steps = 18
+        for i in 0...steps {
+            let x = width * CGFloat(i) / CGFloat(steps)
+            let y = height / 2 + (height / 2 - 2) * CGFloat(sin(Double(i) / Double(steps) * 2 * .pi * 1.5 + phase))
+            i == 0 ? p.move(to: CGPoint(x: x, y: y)) : p.addLine(to: CGPoint(x: x, y: y))
+        }
+        return p
+    }
+
+    func setColor(_ c: NSColor) {
+        let cg = c.cgColor
+        guard color != cg else { return }
+        color = cg
         CATransaction.begin()
         CATransaction.setAnimationDuration(0.6)
-        bars.forEach { $0.backgroundColor = cg }
+        applyColor()
         CATransaction.commit()
+    }
+
+    private func applyColor() {
+        parts.forEach { $0.backgroundColor = color }
+        strokes.forEach { $0.strokeColor = color }
     }
 }
 

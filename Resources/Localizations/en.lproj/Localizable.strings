@@ -256,6 +256,8 @@ charging on hold</string>
 	<string>Memory pressure critical</string>
 	<key>Bellek baskısı yükselirse</key>
 	<string>If memory pressure rises</string>
+	<key>Bildirim girişi</key>
+	<string>Notification entrance</string>
 	<key>Bildirimler</key>
 	<string>Notifications</string>
 	<key>Bildirimleri susturur. Zoom/Meet/Teams paylaşımında menüden ya da ⌥⌘P ile aç.</key>
@@ -308,6 +310,8 @@ charging on hold</string>
 	<string>Internal</string>
 	<key>Dahili ekran</key>
 	<string>Built-in display</string>
+	<key>Dalga</key>
+	<string>Wave</string>
 	<key>Damla</key>
 	<string>Drop</string>
 	<key>Dene</key>
@@ -374,6 +378,8 @@ charging on hold</string>
 	<string>Low battery</string>
 	<key>EN ÇOK İŞLEMCİ</key>
 	<string>TOP CPU</string>
+	<key>Ekolayzer</key>
+	<string>Equalizer</string>
 	<key>Ekran Görüntüleri</key>
 	<string>Screenshots</string>
 	<key>Ekran görüntülerini rafa ekle</key>
@@ -556,6 +562,8 @@ charging on hold</string>
 	<string>Shuffle</string>
 	<key>Katıl</key>
 	<string>Join</string>
+	<key>Kayma</key>
+	<string>Slide</string>
 	<key>Kes</key>
 	<string>Cut</string>
 	<key>Keynote/PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç</key>
@@ -668,10 +676,14 @@ charging on hold</string>
 	<string>Album color glow while playing</string>
 	<key>Müzik: Oynat / Duraklat</key>
 	<string>Music: Play / Pause</string>
+	<key>Nabız</key>
+	<string>Pulse</string>
 	<key>Ne kadar önce</key>
 	<string>How early</string>
 	<key>Neler yeni?</key>
 	<string>What's New?</string>
+	<key>Nokta</key>
+	<string>Dots</string>
 	<key>Normal</key>
 	<string>Normal</string>
 	<key>Odak</key>
@@ -712,6 +724,8 @@ charging on hold</string>
 	<string>Brightness indicator</string>
 	<key>Parçalı bulutlu</key>
 	<string>Partly cloudy</string>
+	<key>Patlama</key>
+	<string>Pop</string>
 	<key>Pencere</key>
 	<string>Window</string>
 	<key>Pencereyi Kapat</key>
@@ -1000,6 +1014,8 @@ calculating…</string>
 	<string>Slow</string>
 	<key>Yazma</key>
 	<string>Write</string>
+	<key>Yazı makinesi</key>
+	<string>Typewriter</string>
 	<key>Yazılım</key>
 	<string>Software</string>
 	<key>Yağmur</key>
@@ -1094,6 +1110,8 @@ calculating…</string>
 	<string>Drizzle</string>
 	<key>Çok bulutlu</key>
 	<string>Overcast</string>
+	<key>Çubuk</key>
+	<string>Bars</string>
 	<key>Çöp Sepeti'ne taşı</key>
 	<string>Move to Trash</string>
 	<key>Çöp Sepeti'ne taşır</key>
@@ -1170,6 +1188,8 @@ calculating…</string>
 	<string>Processes</string>
 	<key>Şarj</key>
 	<string>Charge</string>
+	<key>Şarj animasyonu</key>
+	<string>Charging animation</string>
 	<key>Şarj gücü</key>
 	<string>Charging power</string>
 	<key>Şarj oluyor</key>
