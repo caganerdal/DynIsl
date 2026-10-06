@@ -1315,6 +1315,16 @@
         }
       }
     },
+    "Açılış animasyonu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening animation"
+          }
+        }
+      }
+    },
     "AĞ": {
       "localizations": {
         "en": {
@@ -1761,6 +1771,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Built-in display"
+          }
+        }
+      }
+    },
+    "Damla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop"
           }
         }
       }
@@ -2831,6 +2851,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Convert to JPG"
+          }
+        }
+      }
+    },
+    "Jöle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jelly"
           }
         }
       }

@@ -216,6 +216,8 @@ charging on hold</string>
 	<string>On · %@</string>
 	<key>Açılacak yer</key>
 	<string>Space to free</string>
+	<key>Açılış animasyonu</key>
+	<string>Opening animation</string>
 	<key>AĞ</key>
 	<string>NETWORK</string>
 	<key>Ağ</key>
@@ -306,6 +308,8 @@ charging on hold</string>
 	<string>Internal</string>
 	<key>Dahili ekran</key>
 	<string>Built-in display</string>
+	<key>Damla</key>
+	<string>Drop</string>
 	<key>Dene</key>
 	<string>Try</string>
 	<key>Denetlenemedi</key>
@@ -520,6 +524,8 @@ charging on hold</string>
 	<string>Thermal state</string>
 	<key>JPG'ye çevir</key>
 	<string>Convert to JPG</string>
+	<key>Jöle</key>
+	<string>Jelly</string>
 	<key>Kablolu</key>
 	<string>Wired</string>
 	<key>Kalan süre</key>

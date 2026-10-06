@@ -4,9 +4,12 @@ import UniformTypeIdentifiers
 
 struct IslandView: View {
     @EnvironmentObject var model: IslandModel
+    @State private var shown: CGSize = .zero
 
     var body: some View {
-        let size = model.currentSize
+        let size = shown == .zero ? model.currentSize : shown
+        let motion = model.settings.islandMotion
+        let speed = model.settings.animationSpeed
         let expanded = model.state == .expanded
         let top: CGFloat = expanded ? 14 : 6
         let compactHUD = model.hud.current.map { model.settings.hudStyle(for: $0.kind).isCompact } ?? false
@@ -26,7 +29,7 @@ struct IslandView: View {
 
             content
                 .padding(.horizontal, expanded ? 28 : 14)
-                .transition(.opacity.combined(with: .scale(scale: 0.92, anchor: .top)))
+                .transition(.opacity.combined(with: .scale(scale: motion.contentScale, anchor: .top)))
                 .id(model.state)
                 .frame(width: size.width, height: size.height, alignment: .top)
                 .clipShape(NotchShape(topRadius: top, bottomRadius: bottom))
@@ -37,7 +40,14 @@ struct IslandView: View {
             if !expanded, model.state != .peek, model.state != .hud { model.setExpanded(true) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .animation(model.settings.spring(0.42, 0.78), value: model.state)
+        .animation(motion.main(speed), value: model.state)
+        .onAppear { shown = model.currentSize }
+        .onChange(of: model.currentSize) { old, new in
+            withAnimation(motion.height(speed, growing: new.height > old.height)) { shown.height = new.height }
+            withAnimation(motion.width(speed, growing: new.height > old.height || (new.height == old.height && new.width > old.width))) {
+                shown.width = new.width
+            }
+        }
         .animation(.easeInOut(duration: 0.5), value: glowing)
         .preferredColorScheme(.dark)
         .environment(\.islandAccent, model.accent)
@@ -349,7 +359,7 @@ private struct TabButton: View {
                 .foregroundStyle(selected ? .white : .white.opacity(0.5))
                 .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 }
 
@@ -555,7 +565,7 @@ private struct ToggleIcon: View {
                 )
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { hover = $0 }
         .help(help)
         .animation(.easeOut(duration: 0.15), value: on)
@@ -685,7 +695,7 @@ private struct StatusIcons: View {
                     .background(Capsule().fill((model.call.micMuted ? Color.red : Color.green).opacity(0.22)))
                     .contentShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .help(model.call.micMuted ? "Mikrofonu aç" : "Mikrofonu kapat (tüm uygulamalar için)")
             }
             if model.settings.notifyFocus, let f = model.focus.current {
@@ -717,7 +727,7 @@ private struct StatusIcons: View {
                     }
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .help("Pil analizi")
             }
         }
@@ -894,7 +904,7 @@ private struct SystemCard: View {
                     Text("EN ÇOK İŞLEMCİ").font(.system(size: 9, weight: .bold)).tracking(0.6).foregroundStyle(.secondary)
                     Spacer()
                     Button("Ayrıntılar ›") { DashboardWindow.show(model: model, page: .overview) }
-                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
+                        .buttonStyle(.pressable).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                 }
                 if sys.topProcesses.isEmpty {
                     Text("Ölçülüyor…").font(.system(size: 11)).foregroundStyle(.secondary)
@@ -981,7 +991,7 @@ private struct BatteryCard: View {
                     Text("SON 24 SAAT").font(.system(size: 9, weight: .bold)).tracking(0.6).foregroundStyle(.secondary)
                     Spacer()
                     Button("Ayrıntılar ›") { DashboardWindow.show(model: model, page: .battery) }
-                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
+                        .buttonStyle(.pressable).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                 }
                 let data = b.last24h
                 if data.count >= 2 {
@@ -1078,7 +1088,7 @@ private struct ClipboardCard: View {
                     Text("Pano · \(clip.items.count)").font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                     Spacer()
                     Button("Temizle") { withAnimation(.snappy) { clip.clear() } }
-                        .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
+                        .buttonStyle(.pressable).font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                 }
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 2) {
@@ -1116,7 +1126,7 @@ private struct ClipRow: View {
                 Button { withAnimation(.snappy) { model.clipboard.remove(item) } } label: {
                     Image(systemName: "xmark").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
             } else {
                 Text([item.sourceApp, item.date.formatted(.relative(presentation: .named))]
                         .compactMap { $0 }.joined(separator: " · "))
@@ -1264,9 +1274,9 @@ private struct ShelfCard: View {
                                 .fixedSize()
                             }
                             Button("AirDrop'la") { model.airdrop.share(shelf.items) }
-                                .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
+                                .buttonStyle(.pressable).font(.system(size: 10, weight: .semibold)).foregroundStyle(model.accent ?? .blue)
                             Button("Temizle") { withAnimation(.snappy) { shelf.clear() } }
-                                .buttonStyle(.plain).font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
+                                .buttonStyle(.pressable).font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                         }
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 6) {
@@ -1347,7 +1357,7 @@ private struct ShelfItemView: View {
                         .symbolRenderingMode(.palette)
                         .foregroundStyle(.white, .gray)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .offset(x: 3, y: -3)
             }
         }
@@ -1488,7 +1498,7 @@ private struct IconButton: View {
                 .background(Circle().fill(.white.opacity(hover ? 0.12 : 0)))
                 .contentShape(Circle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { hover = $0 }
     }
 }
@@ -1516,7 +1526,7 @@ private struct Pill: View {
                 .background(Capsule().fill(tint.opacity(0.22)))
                 .foregroundStyle(tint)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 }
 

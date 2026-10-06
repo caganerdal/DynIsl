@@ -50,6 +50,7 @@ final class AppSettings: ObservableObject {
     @Published var animationSpeed: Double { didSet { d.set(animationSpeed, forKey: "animationSpeed") } }
     @Published var albumGlow: Bool { didSet { d.set(albumGlow, forKey: "albumGlow") } }
     @Published var showPet: Bool { didSet { d.set(showPet, forKey: "showPet") } }
+    @Published var islandMotion: IslandMotion { didSet { d.set(islandMotion.rawValue, forKey: "islandMotion") } }
     @Published var accentMode: AccentMode { didSet { d.set(accentMode.rawValue, forKey: "accentMode") } }
     @Published var accentHex: String { didSet { d.set(accentHex, forKey: "accentHex") } }
     @Published var presentationAuto: Bool { didSet { d.set(presentationAuto, forKey: "presentationAuto") } }
@@ -113,6 +114,7 @@ final class AppSettings: ObservableObject {
         animationSpeed = d.double(forKey: "animationSpeed")
         albumGlow = d.bool(forKey: "albumGlow")
         showPet = d.bool(forKey: "showPet")
+        islandMotion = IslandMotion(rawValue: d.string(forKey: "islandMotion") ?? "") ?? .classic
         accentMode = AccentMode(rawValue: d.string(forKey: "accentMode") ?? "") ?? .classic
         accentHex = d.string(forKey: "accentHex") ?? "0A84FF"
         presentationAuto = d.bool(forKey: "presentationAuto")
@@ -305,6 +307,12 @@ private struct SettingsView: View {
                 }
             }
             Section("Ada") {
+                HStack {
+                    Picker("Açılış animasyonu", selection: $settings.islandMotion) {
+                        ForEach(IslandMotion.allCases) { Text($0.title).tag($0) }
+                    }
+                    Button("Dene") { model.previewAppearance() }
+                }
                 Toggle("Ada kedisi", isOn: $settings.showPet)
                 Text("Boşken uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.")
                     .font(.caption).foregroundStyle(.secondary)
