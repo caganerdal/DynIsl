@@ -186,7 +186,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             collapseWork?.cancel()
             collapseWork = nil
             if !model.isExpanded, model.settings.openOnHover || fileDrag { model.setExpanded(true) }
-        } else if model.isExpanded, !fileDrag, collapseWork == nil {
+        } else if model.isExpanded, !fileDrag, !model.previewHold, collapseWork == nil {
             let work = DispatchWorkItem { [weak self] in
                 MainActor.assumeIsolated {
                     guard let self else { return }

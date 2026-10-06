@@ -20,7 +20,8 @@ struct IslandView: View {
                     .transition(.opacity)
             }
             IslandBackground(theme: model.settings.islandTheme, hasNotch: model.hasNotch,
-                             notchHeight: model.notchSize.height, top: top, bottom: bottom)
+                             notchHeight: model.notchSize.height, top: top, bottom: bottom,
+                             clarity: model.settings.glassClarity)
                 .opacity(model.state == .idle && model.hasNotch && !model.settings.showPet ? 0 : 1)
                 .shadow(color: .black.opacity(expanded ? 0.5 : 0), radius: 16, y: 6)
 

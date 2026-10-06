@@ -391,6 +391,23 @@ final class IslandModel: ObservableObject {
         }
     }
 
+    private(set) var previewHold = false
+    private var previewWork: DispatchWorkItem?
+
+    func previewAppearance() {
+        previewHold = true
+        if !isExpanded { setExpanded(true) }
+        previewWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                self?.previewHold = false
+                self?.setExpanded(false)
+            }
+        }
+        previewWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: w)
+    }
+
     func setExpanded(_ value: Bool) {
         isExpanded = value
         if value, isFileDragging { tab = .shelf }

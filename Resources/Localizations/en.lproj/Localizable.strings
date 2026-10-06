@@ -300,6 +300,8 @@ charging on hold</string>
 	<string>Drop to send</string>
 	<key>Cam</key>
 	<string>Glass</string>
+	<key>Cam şeffaflığı</key>
+	<string>Glass clarity</string>
 	<key>Cevabını bekliyor</key>
 	<string>Waiting for your reply</string>
 	<key>Cihazlar okunuyor…</key>
@@ -320,6 +322,8 @@ charging on hold</string>
 	<string>Checking…</string>
 	<key>Depolama</key>
 	<string>Storage</string>
+	<key>Değiştirdiğin anda ada birkaç saniye açılıp önizleme gösterir.</key>
+	<string>The island opens for a few seconds to preview your change.</string>
 	<key>Disk dolmak üzere</key>
 	<string>Disk almost full</string>
 	<key>Disk dolmak üzereyse</key>
@@ -852,6 +856,8 @@ calculating…</string>
 	<string>Black</string>
 	<key>Sol</key>
 	<string>Left</string>
+	<key>Sola: daha koyu ve okunaklı. Sağa: daha şeffaf, arkası daha çok görünür.</key>
+	<string>Left: darker and easier to read. Right: clearer, more of the background shows through.</string>
 	<key>Son 48 saat</key>
 	<string>Last 48 hours</string>
 	<key>Son açılış %@</key>

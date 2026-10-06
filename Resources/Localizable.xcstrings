@@ -1735,6 +1735,16 @@
         }
       }
     },
+    "Cam şeffaflığı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glass clarity"
+          }
+        }
+      }
+    },
     "Cevabını bekliyor": {
       "localizations": {
         "en": {
@@ -1831,6 +1841,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Storage"
+          }
+        }
+      }
+    },
+    "Değiştirdiğin anda ada birkaç saniye açılıp önizleme gösterir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The island opens for a few seconds to preview your change."
           }
         }
       }
@@ -4471,6 +4491,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Left"
+          }
+        }
+      }
+    },
+    "Sola: daha koyu ve okunaklı. Sağa: daha şeffaf, arkası daha çok görünür.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left: darker and easier to read. Right: clearer, more of the background shows through."
           }
         }
       }

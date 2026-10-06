@@ -80,6 +80,9 @@ struct IslandBackground: View {
     let notchHeight: CGFloat
     let top: CGFloat
     let bottom: CGFloat
+    var clarity: Double = 0.7
+
+    private var dim: Double { 0.58 - 0.54 * min(max(clarity, 0), 1) }
 
     var body: some View {
         let shape = NotchShape(topRadius: top, bottomRadius: bottom)
@@ -89,13 +92,13 @@ struct IslandBackground: View {
                 shape.fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
             } else if #available(macOS 26.0, *) {
                 ZStack {
-                    Color.clear.glassEffect(.regular.tint(.black.opacity(effective == .glass ? 0.12 : 0.2)), in: shape)
+                    Color.clear.glassEffect(.regular.tint(.black.opacity(effective == .glass ? dim * 0.6 : dim)), in: shape)
                     if effective == .melt { notchBand(height: h).clipShape(shape) }
                 }
             } else {
                 ZStack {
                     VisualEffect(material: .hudWindow)
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(dim)
                     if effective == .melt { notchBand(height: h) }
                 }
                 .clipShape(shape)
