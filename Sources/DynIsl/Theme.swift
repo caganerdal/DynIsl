@@ -82,7 +82,8 @@ struct IslandBackground: View {
     let bottom: CGFloat
     var clarity: Double = 0.7
 
-    private var dim: Double { 0.58 - 0.54 * min(max(clarity, 0), 1) }
+    private var c: Double { min(max(clarity, 0), 1) }
+    private var dim: Double { 0.5 - 0.44 * c }
 
     var body: some View {
         let shape = NotchShape(topRadius: top, bottomRadius: bottom)
@@ -90,20 +91,45 @@ struct IslandBackground: View {
             let h = max(g.size.height, 1)
             if effective == .black || h <= notchHeight + 2 {
                 shape.fill(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 1))
-            } else if #available(macOS 26.0, *) {
-                ZStack {
-                    Color.clear.glassEffect(.regular.tint(.black.opacity(effective == .glass ? dim * 0.6 : dim)), in: shape)
-                    if effective == .melt { notchBand(height: h).clipShape(shape) }
-                }
             } else {
+                let band = effective == .melt ? min((notchHeight + 28) / h, 1) : 0
                 ZStack {
-                    VisualEffect(material: .hudWindow)
-                    Color.black.opacity(dim)
-                    if effective == .melt { notchBand(height: h) }
+                    glass(shape)
+                    if effective == .melt { notchBand(height: h).clipShape(shape) }
+                    shape.stroke(Color.white.opacity(0.12), lineWidth: 6)
+                        .blur(radius: 4)
+                        .clipShape(shape)
+                        .mask(fadeFrom(band))
+                    shape.stroke(LinearGradient(stops: [
+                        .init(color: .white.opacity(0.10), location: 0),
+                        .init(color: .white.opacity(0.22), location: 0.6),
+                        .init(color: .white.opacity(0.55), location: 1),
+                    ], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                    .mask(fadeFrom(band))
                 }
-                .clipShape(shape)
             }
         }
+    }
+
+    @ViewBuilder private func glass(_ shape: NotchShape) -> some View {
+        if #available(macOS 26.0, *) {
+            let base: Glass = c < 0.35 ? .regular : .clear
+            Color.clear.glassEffect(base.tint(.black.opacity(effective == .glass ? dim * 0.7 : dim)), in: shape)
+        } else {
+            ZStack {
+                VisualEffect(material: .hudWindow)
+                Color.black.opacity(dim)
+            }
+            .clipShape(shape)
+        }
+    }
+
+    private func fadeFrom(_ start: CGFloat) -> LinearGradient {
+        LinearGradient(stops: [
+            .init(color: .clear, location: 0),
+            .init(color: .clear, location: start),
+            .init(color: .black, location: min(start + 0.12, 1)),
+        ], startPoint: .top, endPoint: .bottom)
     }
 
     private func notchBand(height h: CGFloat) -> some View {

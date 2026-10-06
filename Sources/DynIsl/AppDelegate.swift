@@ -18,6 +18,7 @@ final class IslandPanel: NSPanel {
         isMovable = false
         hidesOnDeactivate = false
         ignoresMouseEvents = true
+        appearance = NSAppearance(named: .darkAqua)
     }
 
     override var canBecomeKey: Bool { true }
