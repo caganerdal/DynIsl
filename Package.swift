@@ -5,6 +5,7 @@ let package = Package(
     name: "DynIsl",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "DynIsl", path: "Sources/DynIsl")
+        .executableTarget(name: "DynIsl", path: "Sources/DynIsl"),
+        .testTarget(name: "DynIslTests", dependencies: ["DynIsl"], path: "Tests/DynIslTests")
     ]
 )

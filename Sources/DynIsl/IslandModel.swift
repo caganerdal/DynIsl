@@ -88,13 +88,13 @@ final class IslandModel: ObservableObject {
     private var bag: [Any] = []
 
     init() {
-        bag.append(media.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() })
-        for publisher in [battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
-                          calendar.objectWillChange, shelf.objectWillChange, downloads.objectWillChange,
-                          settings.objectWillChange, screenshots.objectWillChange, speedTest.objectWillChange,
-                          hud.objectWillChange, call.objectWillChange, keepAwake.objectWillChange, updates.objectWillChange, presentation.objectWillChange] {
-            bag.append(publisher.sink { [weak self] _ in self?.objectWillChange.send() })
+        for publisher in [media.objectWillChange, battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
+                          calendar.objectWillChange, downloads.objectWillChange, settings.objectWillChange,
+                          screenshots.objectWillChange, speedTest.objectWillChange, hud.objectWillChange, call.objectWillChange] {
+            bag.append(publisher.sink { [weak self] _ in self?.scheduleLayoutCheck() })
         }
+
+        details.onSample = { [weak self] in self?.system.ingest($0) }
 
         battery.onActivity = { [weak self] a in
             guard let self else { return }
@@ -314,6 +314,29 @@ final class IslandModel: ObservableObject {
         } else {
             hasNotch = false
             notchSize = CGSize(width: 190, height: 30)
+        }
+    }
+
+    private struct LayoutKey: Equatable {
+        var state: IslandState
+        var size: CGSize
+        var compactHUD: Bool
+    }
+
+    private var layoutKey: LayoutKey?
+    private var layoutCheckPending = false
+
+    private func scheduleLayoutCheck() {
+        guard !layoutCheckPending else { return }
+        layoutCheckPending = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.layoutCheckPending = false
+            let key = LayoutKey(state: self.state, size: self.currentSize,
+                                compactHUD: self.hud.current.map { self.settings.hudStyle(for: $0.kind).isCompact } ?? false)
+            guard key != self.layoutKey else { return }
+            self.layoutKey = key
+            self.objectWillChange.send()
         }
     }
 
@@ -616,5 +639,19 @@ final class BatteryMonitor: ObservableObject {
         case ..<88: return "battery.75percent"
         default: return "battery.100percent"
         }
+    }
+}
+
+extension View {
+    func islandServices(_ m: IslandModel) -> some View {
+        environmentObject(m)
+            .environmentObject(m.media).environmentObject(m.battery).environmentObject(m.privacy)
+            .environmentObject(m.focus).environmentObject(m.calendar).environmentObject(m.shelf)
+            .environmentObject(m.downloads).environmentObject(m.clipboard).environmentObject(m.screenshots)
+            .environmentObject(m.weather).environmentObject(m.system).environmentObject(m.batteryInfo)
+            .environmentObject(m.details).environmentObject(m.speedTest).environmentObject(m.alerts)
+            .environmentObject(m.hud).environmentObject(m.call).environmentObject(m.desktopCleaner)
+            .environmentObject(m.keepAwake).environmentObject(m.updates).environmentObject(m.presentation)
+            .environmentObject(m.downloadsCleaner).environmentObject(m.settings)
     }
 }

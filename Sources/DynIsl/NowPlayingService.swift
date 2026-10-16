@@ -163,7 +163,7 @@ final class NowPlayingService: ObservableObject {
 
     struct ScriptError: Error { let code: Int }
 
-    private nonisolated static let sep = "|~|"
+    nonisolated static let sep = "|~|"
 
     private nonisolated static func query(_ source: MediaSource) -> Result<NowPlayingInfo?, ScriptError> {
         guard source.isRunning else { return .success(nil) }
@@ -205,27 +205,31 @@ final class NowPlayingService: ObservableObject {
         switch run(script, cache: true) {
         case .failure(let e): return .failure(e)
         case .success(let d):
-            guard let str = d.stringValue, str != "stopped" else { return .success(nil) }
-            let f = str.components(separatedBy: sep)
-            guard f.count >= 15 else { return .success(nil) }
-            let num = { (s: String) in Double(s.replacingOccurrences(of: ",", with: ".")) ?? 0 }
-            var duration = num(f[4])
-            if source == .spotify { duration /= 1000 }
-            let volume = Int(num(f[8]))
-            let repeatMode: RepeatMode = source == .spotify
-                ? (f[10] == "true" ? .all : .off)
-                : (RepeatMode(rawValue: f[10]) ?? .off)
-            return .success(NowPlayingInfo(
-                source: source, title: f[1], artist: f[2], album: f[3],
-                duration: max(duration, 1), position: num(f[5]),
-                isPlaying: f[0] == "playing", trackID: f[6],
-                artworkURL: f[7].isEmpty ? nil : f[7],
-                volume: volume, shuffle: f[9] == "true", repeatMode: repeatMode,
-                favorited: f[11] == "true", disliked: f[12] == "true",
-                muted: source == .spotify ? volume == 0 : f[13] == "true",
-                shareURI: f[14].isEmpty ? nil : f[14]
-            ))
+            return .success(d.stringValue.flatMap { parse($0, source: source) })
         }
+    }
+
+    nonisolated static func parse(_ str: String, source: MediaSource) -> NowPlayingInfo? {
+        guard str != "stopped" else { return nil }
+        let f = str.components(separatedBy: sep)
+        guard f.count >= 15 else { return nil }
+        let num = { (s: String) in Double(s.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+        var duration = num(f[4])
+        if source == .spotify { duration /= 1000 }
+        let volume = Int(num(f[8]))
+        let repeatMode: RepeatMode = source == .spotify
+            ? (f[10] == "true" ? .all : .off)
+            : (RepeatMode(rawValue: f[10]) ?? .off)
+        return NowPlayingInfo(
+            source: source, title: f[1], artist: f[2], album: f[3],
+            duration: max(duration, 1), position: num(f[5]),
+            isPlaying: f[0] == "playing", trackID: f[6],
+            artworkURL: f[7].isEmpty ? nil : f[7],
+            volume: volume, shuffle: f[9] == "true", repeatMode: repeatMode,
+            favorited: f[11] == "true", disliked: f[12] == "true",
+            muted: source == .spotify ? volume == 0 : f[13] == "true",
+            shareURI: f[14].isEmpty ? nil : f[14]
+        )
     }
 
     private nonisolated(unsafe) static var compiled: [String: NSAppleScript] = [:]
@@ -237,7 +241,10 @@ final class NowPlayingService: ObservableObject {
             script = s
         } else {
             guard let s = NSAppleScript(source: source) else { return .failure(ScriptError(code: -1)) }
-            if cache { compiled[source] = s }
+            if cache {
+                if compiled.count > 64 { compiled.removeAll() }
+                compiled[source] = s
+            }
             script = s
         }
         let result = script.executeAndReturnError(&err)
@@ -356,7 +363,7 @@ final class NowPlayingService: ObservableObject {
         guard let source = info?.source, source.isRunning else { return }
         let script = "tell application \"\(source.scriptName)\" to \(command)"
         queue.async {
-            _ = Self.run(script)
+            _ = Self.run(script, cache: true)
             guard refreshAfter else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 MainActor.assumeIsolated { self.refresh() }
@@ -387,14 +394,15 @@ final class NowPlayingService: ObservableObject {
 
     private func loadArtwork(for info: NowPlayingInfo) {
         let key = artworkKey
-        let finish: (NSImage?) -> Void = { img in
+        let finish: @Sendable (Data?) -> Void = { data in
+            let prepared = data.flatMap(Self.prepareArtwork)
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     guard self.artworkKey == key else { return }
-                    if img == nil && self.artwork == nil { return }
-                    self.artwork = img
+                    if prepared == nil && self.artwork == nil { return }
+                    self.artwork = prepared.map { NSImage(cgImage: $0.image, size: NSSize(width: $0.image.width, height: $0.image.height)) }
                     self.artworkID += 1
-                    self.accent = img.map { Color(nsColor: $0.accentColor) } ?? .white
+                    self.accent = prepared.map { Color(nsColor: $0.accent) } ?? .white
                 }
             }
         }
@@ -402,31 +410,34 @@ final class NowPlayingService: ObservableObject {
         case .spotify:
             guard let s = info.artworkURL, let url = URL(string: s), url.scheme?.lowercased() == "https" else { finish(nil); return }
             URLSession.shared.dataTask(with: url) { data, _, _ in
-                finish(data.flatMap(NSImage.init(data:)))
+                finish(data)
             }.resume()
         case .music:
             queue.async {
                 guard MediaSource.music.isRunning else { finish(nil); return }
                 let r = Self.run("tell application \"Music\" to get raw data of artwork 1 of current track")
-                if case .success(let d) = r { finish(NSImage(data: d.data)) } else { finish(nil) }
+                if case .success(let d) = r { finish(d.data) } else { finish(nil) }
             }
         }
     }
-}
 
-extension NSImage {
-    var accentColor: NSColor {
-        guard let rep = NSBitmapImageRep(
-            bitmapDataPlanes: nil, pixelsWide: 1, pixelsHigh: 1, bitsPerSample: 8,
-            samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
-            colorSpaceName: .deviceRGB, bytesPerRow: 4, bitsPerPixel: 32
-        ) else { return .white }
-        NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-        NSGraphicsContext.current?.imageInterpolation = .high
-        draw(in: NSRect(x: 0, y: 0, width: 1, height: 1))
-        NSGraphicsContext.restoreGraphicsState()
-        guard let c = rep.colorAt(x: 0, y: 0)?.usingColorSpace(.deviceRGB) else { return .white }
+    private nonisolated static func prepareArtwork(_ data: Data) -> (image: CGImage, accent: NSColor)? {
+        guard let src = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let opts: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true,
+                                     kCGImageSourceThumbnailMaxPixelSize: 256,
+                                     kCGImageSourceCreateThumbnailWithTransform: true]
+        guard let thumb = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else { return nil }
+        return (thumb, accentColor(of: thumb))
+    }
+
+    private nonisolated static func accentColor(of image: CGImage) -> NSColor {
+        var px = [UInt8](repeating: 0, count: 4)
+        guard let ctx = CGContext(data: &px, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                                  space: CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return .white }
+        ctx.interpolationQuality = .high
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        let c = NSColor(deviceRed: CGFloat(px[0]) / 255, green: CGFloat(px[1]) / 255, blue: CGFloat(px[2]) / 255, alpha: 1)
         return NSColor(
             hue: c.hueComponent,
             saturation: min(c.saturationComponent * 1.4, 0.9),

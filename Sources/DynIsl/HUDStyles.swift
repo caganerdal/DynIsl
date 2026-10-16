@@ -105,6 +105,7 @@ struct SegmentBar: View {
 }
 
 struct LiquidHUD: View {
+    @EnvironmentObject private var hud: HUDController
     @EnvironmentObject var model: IslandModel
     let info: HUDInfo
     let notchHeight: CGFloat
@@ -135,7 +136,7 @@ struct LiquidHUD: View {
             }
             .contentShape(Rectangle())
             .gesture(DragGesture(minimumDistance: 0).onChanged { v in
-                model.hud.setLevel(v.location.x / max(g.size.width, 1))
+                hud.setLevel(v.location.x / max(g.size.width, 1))
             })
         }
         .foregroundStyle(.white)

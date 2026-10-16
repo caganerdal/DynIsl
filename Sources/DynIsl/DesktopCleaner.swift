@@ -137,7 +137,7 @@ final class DesktopCleaner: ObservableObject {
         return prefixes.contains { lower.hasPrefix($0) }
     }
 
-    private nonisolated static func dateInName(_ name: String) -> Date? {
+    nonisolated static func dateInName(_ name: String) -> Date? {
         guard let r = name.range(of: #"\d{4}-\d{2}-\d{2}"#, options: .regularExpression) else { return nil }
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"

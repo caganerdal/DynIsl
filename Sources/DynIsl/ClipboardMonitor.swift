@@ -4,7 +4,7 @@ import ImageIO
 struct ClipItem: Identifiable, Equatable {
     enum Content: Equatable {
         case text(String)
-        case image(thumbnail: NSImage, png: Data, size: CGSize)
+        case image(thumbnail: NSImage, file: URL, type: NSPasteboard.PasteboardType, bytes: Int, size: CGSize)
     }
 
     let id = UUID()
@@ -17,8 +17,8 @@ struct ClipItem: Identifiable, Equatable {
         case .text(let s):
             return s.trimmingCharacters(in: .whitespacesAndNewlines)
                 .replacingOccurrences(of: "\n", with: " ⏎ ")
-        case .image(_, let png, let size):
-            let kb = png.count / 1024
+        case .image(_, _, _, let bytes, let size):
+            let kb = bytes / 1024
             return String(localized: "Görsel · \(Int(size.width))×\(Int(size.height)) · ") + (kb >= 1024 ? "\(kb / 1024) MB" : "\(kb) KB")
         }
     }
@@ -36,6 +36,12 @@ final class ClipboardMonitor: ObservableObject {
     private var lastChange = NSPasteboard.general.changeCount
     private var timer: Timer?
 
+    private nonisolated static let storeDir: URL = {
+        let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("DynamicIsland/Clipboard", isDirectory: true)
+        return dir
+    }()
+
     private static let skipTypes: [NSPasteboard.PasteboardType] = [
         .init("org.nspasteboard.ConcealedType"),
         .init("org.nspasteboard.TransientType"),
@@ -50,6 +56,9 @@ final class ClipboardMonitor: ObservableObject {
     ]
 
     func start() {
+        try? FileManager.default.removeItem(at: Self.storeDir)
+        try? FileManager.default.createDirectory(at: Self.storeDir, withIntermediateDirectories: true,
+                                                 attributes: [.posixPermissions: 0o700])
         DistributedNotificationCenter.default().addObserver(
             forName: .init("com.apple.screenIsLocked"), object: nil, queue: .main
         ) { [weak self] _ in
@@ -76,11 +85,13 @@ final class ClipboardMonitor: ObservableObject {
         if let s = pb.string(forType: .string), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             items.removeAll { if case .text(let t) = $0.content { return t == s }; return false }
             item = ClipItem(content: .text(s), date: Date(), sourceApp: source)
-        } else if types.contains(.tiff) || types.contains(.png),
-                  let data = pb.data(forType: .png) ?? pb.data(forType: .tiff) {
-            let isPNG = types.contains(.png)
+        } else if types.contains(.tiff) || types.contains(.png) {
+            let type: NSPasteboard.PasteboardType = types.contains(.png) ? .png : .tiff
+            let change = pb.changeCount
             encoder.async { [weak self] in
-                guard let content = Self.makeImageContent(data, isPNG: isPNG) else { return }
+                let pb = NSPasteboard.general
+                guard pb.changeCount == change, let data = pb.data(forType: type),
+                      let content = Self.makeImageContent(data, type: type) else { return }
                 DispatchQueue.main.async {
                     MainActor.assumeIsolated {
                         self?.insert(ClipItem(content: content, date: Date(), sourceApp: source))
@@ -103,9 +114,24 @@ final class ClipboardMonitor: ObservableObject {
             return images > imageLimit
         }
         if items.count > limit { items.removeLast(items.count - limit) }
+        pruneFiles()
     }
 
-    private nonisolated static func makeImageContent(_ data: Data, isPNG: Bool) -> ClipItem.Content? {
+    private func pruneFiles() {
+        let keep = Set(items.compactMap { i -> String? in
+            if case .image(_, let url, _, _, _) = i.content { return url.lastPathComponent }
+            return nil
+        })
+        encoder.async {
+            let files = (try? FileManager.default.contentsOfDirectory(at: Self.storeDir, includingPropertiesForKeys: [.creationDateKey])) ?? []
+            for f in files where !keep.contains(f.lastPathComponent) {
+                let created = (try? f.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? .distantPast
+                if Date().timeIntervalSince(created) > 10 || keep.isEmpty { try? FileManager.default.removeItem(at: f) }
+            }
+        }
+    }
+
+    private nonisolated static func makeImageContent(_ data: Data, type: NSPasteboard.PasteboardType) -> ClipItem.Content? {
         guard let src = CGImageSourceCreateWithData(data as CFData, nil),
               let props = CGImageSourceCopyPropertiesAtIndex(src, 0, nil) as? [CFString: Any] else { return nil }
         let size = CGSize(width: props[kCGImagePropertyPixelWidth] as? Int ?? 0,
@@ -115,11 +141,9 @@ final class ClipboardMonitor: ObservableObject {
                                      kCGImageSourceCreateThumbnailWithTransform: true]
         guard let thumbCG = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else { return nil }
         let thumb = NSImage(cgImage: thumbCG, size: NSSize(width: thumbCG.width, height: thumbCG.height))
-        var png = data
-        if !isPNG, let full = CGImageSourceCreateImageAtIndex(src, 0, nil) {
-            png = NSBitmapImageRep(cgImage: full).representation(using: .png, properties: [:]) ?? data
-        }
-        return .image(thumbnail: thumb, png: png, size: size)
+        let url = storeDir.appendingPathComponent(UUID().uuidString + (type == .png ? ".png" : ".tiff"))
+        guard FileManager.default.createFile(atPath: url.path, contents: data, attributes: [.posixPermissions: 0o600]) else { return nil }
+        return .image(thumbnail: thumb, file: url, type: type, bytes: data.count, size: size)
     }
 
     func copy(_ item: ClipItem) {
@@ -127,9 +151,9 @@ final class ClipboardMonitor: ObservableObject {
         pb.clearContents()
         switch item.content {
         case .text(let s): pb.setString(s, forType: .string)
-        case .image(_, let png, _):
-            pb.setData(png, forType: .png)
-            if let img = NSImage(data: png), let tiff = img.tiffRepresentation { pb.setData(tiff, forType: .tiff) }
+        case .image(_, let url, let type, _, _):
+            guard let data = try? Data(contentsOf: url) else { break }
+            pb.setData(data, forType: type)
         }
         lastChange = pb.changeCount
         items.removeAll { $0.id == item.id }
@@ -138,9 +162,11 @@ final class ClipboardMonitor: ObservableObject {
 
     func remove(_ item: ClipItem) {
         items.removeAll { $0.id == item.id }
+        pruneFiles()
     }
 
     func clear() {
         items.removeAll()
+        pruneFiles()
     }
 }

@@ -54,20 +54,44 @@ final class SystemMonitor: ObservableObject {
 
     let didSample = PassthroughSubject<Void, Never>()
     private var lastProcessScan = Date.distantPast
+    private var lastIngest = Date.distantPast
+
+    func ingest(_ d: DetailsSample) {
+        lastIngest = Date()
+        lastTicks = nil
+        lastNet = nil
+        if cpu != d.cpu { cpu = d.cpu }
+        if memoryUsed != d.memoryUsed { memoryUsed = d.memoryUsed }
+        if isVisible {
+            if downBytesPerSec != d.down { downBytesPerSec = d.down }
+            if upBytesPerSec != d.up { upBytesPerSec = d.up }
+        }
+        if let p = d.processCPU {
+            lastProcessScan = Date()
+            lastProcTimes = [:]
+            let usages = p.filter { $0.value >= 1 }.map { ProcessUsage(id: $0.key, name: "", cpu: $0.value) }
+            applyProcesses(usages)
+        }
+        didSample.send()
+    }
 
     private func sample() {
-        cpu = Self.cpuUsage(last: &lastTicks) ?? cpu
-        memoryUsed = Self.memoryUsed()
-        if isVisible {
-            sampleNetwork()
-        } else {
-            lastNet = nil
+        let fed = Date().timeIntervalSince(lastIngest) <= 2.5
+        if !fed {
+            cpu = Self.cpuUsage(last: &lastTicks) ?? cpu
+            memoryUsed = Self.memoryUsed()
+            if isVisible {
+                sampleNetwork()
+            } else {
+                lastNet = nil
+            }
         }
-        if isVisible || (alertsEnabled && Date().timeIntervalSince(lastProcessScan) >= 15) {
+        let sinceScan = Date().timeIntervalSince(lastProcessScan)
+        if (isVisible && sinceScan >= 1.5) || (alertsEnabled && sinceScan >= 15) {
             lastProcessScan = Date()
             sampleProcesses()
         }
-        didSample.send()
+        if !fed { didSample.send() }
     }
 
     private static func cpuUsage(last: inout [UInt64]?) -> Double? {
@@ -158,11 +182,14 @@ final class SystemMonitor: ObservableObject {
             }
         }
         lastProcTimes = times
+        applyProcesses(usages)
+    }
 
+    private func applyProcesses(_ usages: [ProcessUsage]) {
         let top = usages.sorted { $0.cpu > $1.cpu }.prefix(4).map {
             ProcessUsage(id: $0.id, name: Self.name(of: $0.id), cpu: $0.cpu)
         }
-        topProcesses = top
+        if top != topProcesses { topProcesses = top }
         checkHotProcesses(usages)
     }
 

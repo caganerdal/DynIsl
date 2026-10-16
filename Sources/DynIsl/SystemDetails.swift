@@ -57,6 +57,14 @@ struct BluetoothDeviceInfo: Identifiable, Equatable {
     }
 }
 
+struct DetailsSample {
+    let cpu: Double
+    let memoryUsed: Double
+    let down: Double
+    let up: Double
+    let processCPU: [pid_t: Double]?
+}
+
 struct ProcessRow: Identifiable, Equatable {
     let id: pid_t
     let name: String
@@ -138,6 +146,13 @@ final class SystemDetails: ObservableObject {
     private var lastProcTimes: [pid_t: UInt64] = [:]
     private var lastProcSample = Date()
     private var iconCache: [pid_t: NSImage] = [:]
+    private var gpuEntry: io_registry_entry_t = 0
+    private var diskEntries: [io_registry_entry_t] = []
+    private var wifiInterface: String?
+    private var wifiInterfaceLoaded = false
+    private var tick = 0
+    private var screenObserver: NSObjectProtocol?
+    var onSample: ((DetailsSample) -> Void)?
     private var appCache: [pid_t: Bool] = [:]
     var processQuery = "" { didSet { if processQuery != oldValue, wantsProcesses { sampleProcesses() } } }
     private let tickToNanos: Double = {
@@ -182,6 +197,11 @@ final class SystemDetails: ObservableObject {
 
     private func startTimers() {
         guard !paused, timer == nil else { return }
+        refreshDiskEntries()
+        sampleDisplays()
+        screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.sampleDisplays() }
+        }
         sampleFast()
         sampleSlow()
         timer = Timer.repeating(every: 1, tolerance: 0.1) { [weak self] _ in
@@ -195,6 +215,8 @@ final class SystemDetails: ObservableObject {
     private func stopTimers() {
         timer?.invalidate(); timer = nil
         slowTimer?.invalidate(); slowTimer = nil
+        if let o = screenObserver { NotificationCenter.default.removeObserver(o); screenObserver = nil }
+        releaseIOEntries()
         lastCoreTicks = []
         lastDisk = nil
         lastNet = nil
@@ -202,23 +224,62 @@ final class SystemDetails: ObservableObject {
     }
 
     private func sampleFast() {
+        tick += 1
         sampleCPU()
         sampleGPU()
         sampleMemory()
         sampleDiskIO()
         sampleNetwork()
-        if wantsProcesses { sampleProcesses() }
-        thermal = ProcessInfo.processInfo.thermalState
+        var processCPU: [pid_t: Double]?
+        if wantsProcesses, tick % 2 == 0 || processes.isEmpty { processCPU = sampleProcesses() }
+        set(\.thermal, ProcessInfo.processInfo.thermalState)
         var la = [Double](repeating: 0, count: 3)
         getloadavg(&la, 3)
-        loadAverage = la
+        set(\.loadAverage, la)
+        onSample?(DetailsSample(cpu: cpuTotal, memoryUsed: memUsed, down: netDown, up: netUp, processCPU: processCPU))
     }
 
     private func sampleSlow() {
         sampleVolumes()
         sampleWiFi()
-        sampleDisplays()
-        if wantsBluetooth, Date().timeIntervalSince(lastBluetooth) >= 30 { sampleBluetooth() }
+        refreshDiskEntries()
+        if wantsBluetooth, Date().timeIntervalSince(lastBluetooth) >= 60 { sampleBluetooth() }
+    }
+
+    private func set<T: Equatable>(_ kp: ReferenceWritableKeyPath<SystemDetails, T>, _ v: T) {
+        if self[keyPath: kp] != v { self[keyPath: kp] = v }
+    }
+
+    private func releaseIOEntries() {
+        if gpuEntry != 0 { IOObjectRelease(gpuEntry); gpuEntry = 0 }
+        diskEntries.forEach { IOObjectRelease($0) }
+        diskEntries = []
+    }
+
+    private func refreshDiskEntries() {
+        var iter: io_iterator_t = 0
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOBlockStorageDriver"), &iter) == KERN_SUCCESS else { return }
+        defer { IOObjectRelease(iter) }
+        diskEntries.forEach { IOObjectRelease($0) }
+        diskEntries = []
+        var entry = IOIteratorNext(iter)
+        while entry != 0 {
+            diskEntries.append(entry)
+            entry = IOIteratorNext(iter)
+        }
+    }
+
+    private func findGPUEntry() -> io_registry_entry_t {
+        var iter: io_iterator_t = 0
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOAccelerator"), &iter) == KERN_SUCCESS else { return 0 }
+        defer { IOObjectRelease(iter) }
+        var entry = IOIteratorNext(iter)
+        while entry != 0 {
+            if IORegistryEntryCreateCFProperty(entry, "PerformanceStatistics" as CFString, kCFAllocatorDefault, 0) != nil { return entry }
+            IOObjectRelease(entry)
+            entry = IOIteratorNext(iter)
+        }
+        return 0
     }
 
     private func push<T>(_ value: T, to history: inout [T]) {
@@ -251,31 +312,27 @@ final class SystemDetails: ObservableObject {
             perCore.append(all > 0 ? (user + sys) / all : 0)
             tUser += user; tSys += sys; tAll += all
         }
-        cores = perCore
-        cpuUser = tAll > 0 ? tUser / tAll : 0
-        cpuSystem = tAll > 0 ? tSys / tAll : 0
-        cpuTotal = cpuUser + cpuSystem
+        set(\.cores, perCore)
+        set(\.cpuUser, tAll > 0 ? tUser / tAll : 0)
+        set(\.cpuSystem, tAll > 0 ? tSys / tAll : 0)
+        set(\.cpuTotal, cpuUser + cpuSystem)
         push(cpuTotal, to: &cpuHistory)
     }
 
     private func sampleGPU() {
-        var iter: io_iterator_t = 0
-        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOAccelerator"), &iter) == KERN_SUCCESS else { return }
-        defer { IOObjectRelease(iter) }
-        var entry = IOIteratorNext(iter)
-        while entry != 0 {
-            defer { IOObjectRelease(entry); entry = IOIteratorNext(iter) }
-            guard let stats = IORegistryEntryCreateCFProperty(entry, "PerformanceStatistics" as CFString, kCFAllocatorDefault, 0)?
-                    .takeRetainedValue() as? [String: Any] else { continue }
-            gpuUsage = Double((stats["Device Utilization %"] as? NSNumber)?.intValue ?? 0) / 100
-            gpuMemory = (stats["In use system memory"] as? NSNumber)?.doubleValue ?? 0
-            if gpuCores == nil {
-                gpuCores = (IORegistryEntryCreateCFProperty(entry, "gpu-core-count" as CFString, kCFAllocatorDefault, 0)?
-                    .takeRetainedValue() as? NSNumber)?.intValue
-            }
-            push(gpuUsage, to: &gpuHistory)
-            return
+        if gpuEntry == 0 { gpuEntry = findGPUEntry() }
+        guard gpuEntry != 0 else { return }
+        guard let stats = IORegistryEntryCreateCFProperty(gpuEntry, "PerformanceStatistics" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? [String: Any] else {
+            IOObjectRelease(gpuEntry); gpuEntry = 0; return
         }
+        set(\.gpuUsage, Double((stats["Device Utilization %"] as? NSNumber)?.intValue ?? 0) / 100)
+        set(\.gpuMemory, (stats["In use system memory"] as? NSNumber)?.doubleValue ?? 0)
+        if gpuCores == nil {
+            gpuCores = (IORegistryEntryCreateCFProperty(gpuEntry, "gpu-core-count" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? NSNumber)?.intValue
+        }
+        push(gpuUsage, to: &gpuHistory)
     }
 
     private func sampleMemory() {
@@ -288,18 +345,18 @@ final class SystemDetails: ObservableObject {
         }
         guard r == KERN_SUCCESS else { return }
         let page = Double(vm_kernel_page_size)
-        memApp = (Double(stats.internal_page_count) - Double(stats.purgeable_count)) * page
-        memWired = Double(stats.wire_count) * page
-        memCompressed = Double(stats.compressor_page_count) * page
-        memCached = (Double(stats.external_page_count) + Double(stats.purgeable_count)) * page
+        set(\.memApp, (Double(stats.internal_page_count) - Double(stats.purgeable_count)) * page)
+        set(\.memWired, Double(stats.wire_count) * page)
+        set(\.memCompressed, Double(stats.compressor_page_count) * page)
+        set(\.memCached, (Double(stats.external_page_count) + Double(stats.purgeable_count)) * page)
 
         var swap = xsw_usage()
         var size = MemoryLayout<xsw_usage>.size
         if sysctlbyname("vm.swapusage", &swap, &size, nil, 0) == 0 {
-            swapUsed = Double(swap.xsu_used)
-            swapTotal = Double(swap.xsu_total)
+            set(\.swapUsed, Double(swap.xsu_used))
+            set(\.swapTotal, Double(swap.xsu_total))
         }
-        pressure = Self.sysctlInt("kern.memorystatus_vm_pressure_level") ?? 1
+        set(\.pressure, Self.sysctlInt("kern.memorystatus_vm_pressure_level") ?? 1)
         push(memTotalRatio, to: &memHistory)
     }
 
@@ -310,7 +367,7 @@ final class SystemDetails: ObservableObject {
                                       .volumeAvailableCapacityKey, .volumeLocalizedFormatDescriptionKey,
                                       .volumeIsInternalKey, .volumeIsEjectableKey, .volumeIsBrowsableKey]
         let urls = FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: keys, options: [.skipHiddenVolumes]) ?? []
-        volumes = urls.compactMap { url in
+        let list: [VolumeInfo] = urls.compactMap { url in
             guard let v = try? url.resourceValues(forKeys: Set(keys)), v.volumeIsBrowsable ?? true,
                   let total = v.volumeTotalCapacity, total > 0 else { return nil }
             let avail = v.volumeAvailableCapacityForImportantUsage.map(Double.init)
@@ -319,6 +376,7 @@ final class SystemDetails: ObservableObject {
                               available: avail, format: v.volumeLocalizedFormatDescription ?? "",
                               isInternal: v.volumeIsInternal ?? false, isEjectable: v.volumeIsEjectable ?? false)
         }
+        set(\.volumes, list)
     }
 
     func eject(_ v: VolumeInfo) {
@@ -328,25 +386,19 @@ final class SystemDetails: ObservableObject {
 
     private func sampleDiskIO() {
         var read: UInt64 = 0, write: UInt64 = 0
-        var iter: io_iterator_t = 0
-        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOBlockStorageDriver"), &iter) == KERN_SUCCESS else { return }
-        defer { IOObjectRelease(iter) }
-        var entry = IOIteratorNext(iter)
-        while entry != 0 {
+        for entry in diskEntries {
             if let stats = IORegistryEntryCreateCFProperty(entry, "Statistics" as CFString, kCFAllocatorDefault, 0)?
                 .takeRetainedValue() as? [String: Any] {
                 read += (stats["Bytes (Read)"] as? NSNumber)?.uint64Value ?? 0
                 write += (stats["Bytes (Write)"] as? NSNumber)?.uint64Value ?? 0
             }
-            IOObjectRelease(entry)
-            entry = IOIteratorNext(iter)
         }
         let now = Date()
         if let l = lastDisk, read >= l.read, write >= l.write {
             let dt = now.timeIntervalSince(l.at)
             if dt > 0 {
-                diskRead = Double(read - l.read) / dt
-                diskWrite = Double(write - l.write) / dt
+                set(\.diskRead, Double(read - l.read) / dt)
+                set(\.diskWrite, Double(write - l.write) / dt)
             }
         }
         lastDisk = (read, write, now)
@@ -358,7 +410,11 @@ final class SystemDetails: ObservableObject {
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0, let first = ifaddr else { return }
         defer { freeifaddrs(ifaddr) }
-        let wifiName = CWWiFiClient.shared().interface()?.interfaceName
+        if !wifiInterfaceLoaded {
+            wifiInterfaceLoaded = true
+            wifiInterface = CWWiFiClient.shared().interface()?.interfaceName
+        }
+        let wifiName = wifiInterface
         var p: UnsafeMutablePointer<ifaddrs>? = first
         while let cur = p {
             defer { p = cur.pointee.ifa_next }
@@ -377,9 +433,9 @@ final class SystemDetails: ObservableObject {
             }
             list[name] = e
         }
-        interfaces = list.filter { $0.value.ip != nil }
+        set(\.interfaces, list.filter { $0.value.ip != nil }
             .map { InterfaceInfo(name: $0.key, kind: $0.value.kind, ipv4: $0.value.ip, received: $0.value.rx, sent: $0.value.tx) }
-            .sorted { ($0.kind == "Wi-Fi" ? 0 : 1, $0.name) < ($1.kind == "Wi-Fi" ? 0 : 1, $1.name) }
+            .sorted { ($0.kind == "Wi-Fi" ? 0 : 1, $0.name) < ($1.kind == "Wi-Fi" ? 0 : 1, $1.name) })
 
         let down = list.filter { $0.key.hasPrefix("en") }.values.reduce(0) { $0 + $1.rx }
         let up = list.filter { $0.key.hasPrefix("en") }.values.reduce(0) { $0 + $1.tx }
@@ -387,8 +443,8 @@ final class SystemDetails: ObservableObject {
         if let l = lastNet, down >= l.down, up >= l.up {
             let dt = now.timeIntervalSince(l.at)
             if dt > 0 {
-                netDown = Double(down - l.down) / dt
-                netUp = Double(up - l.up) / dt
+                set(\.netDown, Double(down - l.down) / dt)
+                set(\.netUp, Double(up - l.up) / dt)
             }
         }
         lastNet = (down, up, now)
@@ -396,7 +452,8 @@ final class SystemDetails: ObservableObject {
     }
 
     private func sampleWiFi() {
-        guard let i = CWWiFiClient.shared().interface(), i.powerOn() else { wifi = nil; return }
+        guard let i = CWWiFiClient.shared().interface(), i.powerOn() else { set(\.wifi, nil); return }
+        wifiInterface = i.interfaceName
         let ch = i.wlanChannel()
         let band: String? = switch ch?.channelBand {
         case .band2GHz: String(localized: "2,4 GHz")
@@ -411,12 +468,12 @@ final class SystemDetails: ObservableObject {
         case .unknown: nil
         default: "WPA"
         }
-        wifi = WiFiInfo(ssid: i.ssid(), rssi: i.rssiValue(), noise: i.noiseMeasurement(),
-                        txRate: i.transmitRate(), channel: ch?.channelNumber, band: band, security: security)
+        set(\.wifi, WiFiInfo(ssid: i.ssid(), rssi: i.rssiValue(), noise: i.noiseMeasurement(),
+                              txRate: i.transmitRate(), channel: ch?.channelNumber, band: band, security: security))
     }
 
     private func sampleDisplays() {
-        displays = NSScreen.screens.compactMap { s in
+        let list: [DisplayInfo] = NSScreen.screens.compactMap { s in
             guard let id = s.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else { return nil }
             let mode = CGDisplayCopyDisplayMode(id)
             return DisplayInfo(
@@ -426,6 +483,7 @@ final class SystemDetails: ObservableObject {
                 isMain: s == NSScreen.screens.first
             )
         }
+        set(\.displays, list)
     }
 
     private func sampleBluetooth() {
@@ -439,16 +497,7 @@ final class SystemDetails: ObservableObject {
     }
 
     private nonisolated static func readBluetooth() -> [BluetoothDeviceInfo] {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
-        p.arguments = ["-json", "SPBluetoothDataType"]
-        let pipe = Pipe()
-        p.standardOutput = pipe
-        p.standardError = FileHandle.nullDevice
-        guard (try? p.run()) != nil else { return [] }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
-        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        guard let root = BluetoothProfiler.root(maxAge: 30),
               let bt = (root["SPBluetoothDataType"] as? [[String: Any]])?.first else { return [] }
         var out: [BluetoothDeviceInfo] = []
         for (section, connected) in [("device_connected", true), ("device_not_connected", false)] {
@@ -468,15 +517,16 @@ final class SystemDetails: ObservableObject {
         return out
     }
 
-    private func sampleProcesses() {
+    @discardableResult
+    private func sampleProcesses() -> [pid_t: Double] {
         let now = Date()
         let dt = now.timeIntervalSince(lastProcSample)
         lastProcSample = now
         let size = proc_listallpids(nil, 0)
-        guard size > 0 else { return }
+        guard size > 0 else { return [:] }
         var pids = [pid_t](repeating: 0, count: Int(size) + 32)
         let n = proc_listallpids(&pids, Int32(pids.count * MemoryLayout<pid_t>.size))
-        guard n > 0 else { return }
+        guard n > 0 else { return [:] }
 
         var times: [pid_t: UInt64] = [:]
         var rows: [(pid: pid_t, cpu: Double, mem: Double)] = []
@@ -503,15 +553,16 @@ final class SystemDetails: ObservableObject {
                 .sorted { $0.cpu == $1.cpu ? $0.mem > $1.mem : $0.cpu > $1.cpu }
                 .prefix(40))
         }
-        processes = picked.map { r in
+        set(\.processes, picked.map { r in
             ProcessRow(id: r.pid, name: name(of: r.pid), cpu: r.cpu, memory: r.mem,
                        icon: iconCache[r.pid], isApp: appCache[r.pid] ?? false)
-        }
+        })
         if nameCache.count > 800 {
             nameCache = nameCache.filter { times[$0.key] != nil }
             iconCache = iconCache.filter { times[$0.key] != nil }
             appCache = appCache.filter { times[$0.key] != nil }
         }
+        return Dictionary(uniqueKeysWithValues: rows.map { ($0.pid, $0.cpu) })
     }
 
     private func name(of pid: pid_t) -> String {
@@ -540,6 +591,12 @@ final class SystemDetails: ObservableObject {
     }
 
     private func loadHardwareName() {
+        let key = "hardwareName.\(modelID)"
+        if let saved = UserDefaults.standard.array(forKey: key) as? [String], saved.count == 2 {
+            modelName = saved[0]
+            if !saved[1].isEmpty { chip = saved[1] }
+            return
+        }
         DispatchQueue.global(qos: .utility).async {
             let p = Process()
             p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
@@ -555,6 +612,7 @@ final class SystemDetails: ObservableObject {
                 MainActor.assumeIsolated {
                     if let n = hw?["machine_name"] as? String { self.modelName = n }
                     if let c = hw?["chip_type"] as? String { self.chip = c }
+                    if hw?["machine_name"] != nil { UserDefaults.standard.set([self.modelName, hw?["chip_type"] as? String ?? ""], forKey: key) }
                 }
             }
         }

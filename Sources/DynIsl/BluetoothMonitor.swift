@@ -2,6 +2,31 @@ import AppKit
 import SwiftUI
 @preconcurrency import IOBluetooth
 
+enum BluetoothProfiler {
+    private nonisolated(unsafe) static var cached: (at: Date, root: [String: Any])?
+    private static let lock = NSLock()
+
+    nonisolated static func root(maxAge: TimeInterval) -> [String: Any]? {
+        lock.lock()
+        if let c = cached, Date().timeIntervalSince(c.at) <= maxAge { lock.unlock(); return c.root }
+        lock.unlock()
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+        p.arguments = ["-json", "SPBluetoothDataType"]
+        let pipe = Pipe()
+        p.standardOutput = pipe
+        p.standardError = FileHandle.nullDevice
+        guard (try? p.run()) != nil else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        lock.lock()
+        cached = (Date(), root)
+        lock.unlock()
+        return root
+    }
+}
+
 @MainActor
 final class BluetoothMonitor: NSObject {
     var onActivity: ((IslandActivity) -> Void)?
@@ -63,7 +88,7 @@ final class BluetoothMonitor: NSObject {
         } else if name.lowercased().contains("airpods") {
             airPodsConnected(address: address, name: name, symbol: kind.symbol, announce: announce)
         } else if kind.isAudio {
-            identify(address: address, attempts: 6) { [weak self] details in
+            identify(address: address, attempts: 3) { [weak self] details in
                 guard let self, let symbol = details?.productSymbol else { return }
                 self.knownAirPods[address] = symbol
                 UserDefaults.standard.set(self.knownAirPods, forKey: "knownAirPodsSymbols")
@@ -85,7 +110,7 @@ final class BluetoothMonitor: NSObject {
                                    trailing: pc(battery), ring: Double(battery) / 100))
             self.checkBattery(address: address, name: name, level: battery, symbol: d.productSymbol ?? symbol)
         }
-        if let details, details.batteryLevel != nil { show(details) } else { fetchDetails(address: address, attempts: 3, completion: show) }
+        if let details, details.batteryLevel != nil { show(details) } else { fetchDetails(address: address, attempts: 2, completion: show) }
     }
 
     private func handleDisconnect(_ device: IOBluetoothDevice) {
@@ -101,18 +126,38 @@ final class BluetoothMonitor: NSObject {
         }
     }
 
+    private var lowestLevel = 100
+
     private func startBatteryWatch() {
         guard batteryTimer == nil else { return }
-        batteryTimer = Timer.repeating(every: 300) { [weak self] _ in
+        scheduleBatteryPoll()
+    }
+
+    private func scheduleBatteryPoll() {
+        batteryTimer?.invalidate()
+        let interval: TimeInterval = lowestLevel > 50 ? 900 : lowestLevel > 25 ? 600 : 300
+        batteryTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated { self?.pollBatteries() }
         }
     }
 
     private func pollBatteries() {
-        for (address, name) in airPods {
-            fetchDetails(address: address, attempts: 1) { [weak self] d in
-                guard let self, let level = d?.batteryLevel, self.airPods[address] != nil else { return }
-                self.checkBattery(address: address, name: name, level: level, symbol: d?.productSymbol ?? "airpods")
+        guard !airPods.isEmpty else { batteryTimer = nil; return }
+        let devices = airPods
+        profilerQueue.async {
+            let root = BluetoothProfiler.root(maxAge: 60)
+            let results = devices.map { ($0.key, $0.value, Self.details(in: root, address: $0.key)) }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    var lowest = 100
+                    for (address, name, d) in results {
+                        guard let level = d?.batteryLevel, self.airPods[address] != nil else { continue }
+                        lowest = min(lowest, level)
+                        self.checkBattery(address: address, name: name, level: level, symbol: d?.productSymbol ?? "airpods")
+                    }
+                    self.lowestLevel = lowest
+                    if !self.airPods.isEmpty { self.scheduleBatteryPoll() }
+                }
             }
         }
     }
@@ -134,7 +179,7 @@ final class BluetoothMonitor: NSObject {
     }
 
     private func identify(address: String, attempts: Int, completion: @escaping (Details?) -> Void) {
-        profilerQueue.asyncAfter(deadline: .now() + 0.3) {
+        profilerQueue.asyncAfter(deadline: .now() + (attempts >= 3 ? 0.5 : 2)) {
             let details = Self.readProfiler(address: address)
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
@@ -166,17 +211,11 @@ final class BluetoothMonitor: NSObject {
     }
 
     private nonisolated static func readProfiler(address: String) -> Details? {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
-        p.arguments = ["-json", "SPBluetoothDataType"]
-        let pipe = Pipe()
-        p.standardOutput = pipe
-        p.standardError = FileHandle.nullDevice
-        guard (try? p.run()) != nil else { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        p.waitUntilExit()
+        details(in: BluetoothProfiler.root(maxAge: 0), address: address)
+    }
 
-        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+    private nonisolated static func details(in root: [String: Any]?, address: String) -> Details? {
+        guard let root,
               let bt = (root["SPBluetoothDataType"] as? [[String: Any]])?.first,
               let connected = bt["device_connected"] as? [[String: Any]] else { return nil }
 

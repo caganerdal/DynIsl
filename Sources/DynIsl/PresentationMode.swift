@@ -17,6 +17,7 @@ final class PresentationMode: ObservableObject {
     private var timer: Timer?
     private var observers: [NSObjectProtocol] = []
     private var covers: [NSWindow] = []
+    private var wallpaperCache: [String: CGImage] = [:]
 
     func start() {
         let nc = NSWorkspace.shared.notificationCenter
@@ -46,7 +47,8 @@ final class PresentationMode: ObservableObject {
         let presenterRunning = NSWorkspace.shared.runningApplications.contains {
             Self.presentationApps.contains($0.bundleIdentifier ?? "")
         }
-        if autoDetect && presenterRunning {
+        let presenterFront = Self.presentationApps.contains(NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "")
+        if autoDetect && presenterFront {
             if timer == nil {
                 timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
                     MainActor.assumeIsolated { self?.evaluate() }
@@ -110,27 +112,32 @@ final class PresentationMode: ObservableObject {
             w.isReleasedWhenClosed = false
             w.hasShadow = false
             w.backgroundColor = .black
-            let iv = NSImageView(frame: NSRect(origin: .zero, size: screen.frame.size))
-            iv.imageScaling = .scaleAxesIndependently
-            iv.autoresizingMask = [.width, .height]
-            if let url = NSWorkspace.shared.desktopImageURL(for: screen), let img = NSImage(contentsOf: url) {
-                iv.image = Self.aspectFill(img, to: screen.frame.size)
+            let v = NSView(frame: NSRect(origin: .zero, size: screen.frame.size))
+            v.wantsLayer = true
+            v.layer?.contentsGravity = .resizeAspectFill
+            v.layer?.masksToBounds = true
+            v.autoresizingMask = [.width, .height]
+            if let url = NSWorkspace.shared.desktopImageURL(for: screen) {
+                let maxPixel = Int(max(screen.frame.width, screen.frame.height) * screen.backingScaleFactor)
+                v.layer?.contents = wallpaper(url, maxPixel: maxPixel)
             }
-            w.contentView = iv
+            w.contentView = v
             w.setFrame(screen.frame, display: false)
             w.orderFront(nil)
             covers.append(w)
         }
     }
 
-    private static func aspectFill(_ img: NSImage, to size: NSSize) -> NSImage {
-        let s = max(size.width / max(img.size.width, 1), size.height / max(img.size.height, 1))
-        let drawn = NSSize(width: img.size.width * s, height: img.size.height * s)
-        let out = NSImage(size: size)
-        out.lockFocus()
-        img.draw(in: NSRect(x: (size.width - drawn.width) / 2, y: (size.height - drawn.height) / 2,
-                            width: drawn.width, height: drawn.height))
-        out.unlockFocus()
-        return out
+    private func wallpaper(_ url: URL, maxPixel: Int) -> CGImage? {
+        let key = "\(url.path)|\(maxPixel)"
+        if let c = wallpaperCache[key] { return c }
+        guard let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let opts: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true,
+                                     kCGImageSourceThumbnailMaxPixelSize: maxPixel,
+                                     kCGImageSourceCreateThumbnailWithTransform: true]
+        guard let img = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else { return nil }
+        if wallpaperCache.count > 4 { wallpaperCache.removeAll() }
+        wallpaperCache[key] = img
+        return img
     }
 }

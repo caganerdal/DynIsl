@@ -21,7 +21,7 @@ enum OnboardingWindow {
             w.isMovableByWindowBackground = true
             w.isReleasedWhenClosed = false
             w.contentView = NSHostingView(rootView: OnboardingView(settings: model.settings) { finish() }
-                .environmentObject(model))
+                .islandServices(model))
             let d = Closer { UserDefaults.standard.set(true, forKey: doneKey); window = nil }
             w.delegate = d
             delegate = d
@@ -45,7 +45,10 @@ enum OnboardingWindow {
 }
 
 private struct OnboardingView: View {
-    @EnvironmentObject var model: IslandModel
+    @EnvironmentObject private var calendar: CalendarService
+    @EnvironmentObject private var focus: FocusMonitor
+    @EnvironmentObject private var hud: HUDController
+    @EnvironmentObject private var weather: WeatherService
     @ObservedObject var settings: AppSettings
     let done: () -> Void
     @State private var page = 0
@@ -123,24 +126,24 @@ private struct OnboardingView: View {
             VStack(spacing: 10) {
                 Permission(icon: "keyboard", tint: .blue, title: "Erişilebilirlik",
                            why: "Ses ve parlaklık tuşlarını yakalayıp adada göstermek için. Sadece bu tuşlar dinlenir.",
-                           ok: !model.hud.needsPermission) {
-                    model.hud.requestPermission()
-                    model.hud.openAccessibilitySettings()
+                           ok: !hud.needsPermission) {
+                    hud.requestPermission()
+                    hud.openAccessibilitySettings()
                 }
                 Permission(icon: "calendar", tint: .red, title: "Takvim",
                            why: "Yaklaşan toplantıları haber vermek için.",
-                           ok: model.calendar.access == .granted) {
-                    model.calendar.access == .unknown ? model.calendar.requestAccess() : model.calendar.openSettings()
+                           ok: calendar.access == .granted) {
+                    calendar.access == .unknown ? calendar.requestAccess() : calendar.openSettings()
                 }
                 Permission(icon: "location.fill", tint: .teal, title: "Konum",
                            why: "Hava durumu için, yaklaşık 1 km'ye yuvarlanır. İstersen şehir de yazabilirsin.",
-                           ok: model.weather.now != nil || !settings.weatherCity.isEmpty) {
-                    model.weather.openLocationSettings()
+                           ok: weather.now != nil || !settings.weatherCity.isEmpty) {
+                    weather.openLocationSettings()
                 }
                 Permission(icon: "moon.fill", tint: .indigo, title: "Tam Disk Erişimi",
                            why: "Sadece etkin Odak modunu okumak için. İstemezsen atlayabilirsin.",
-                           ok: !model.focus.needsPermission) {
-                    model.focus.openPermissionSettings()
+                           ok: !focus.needsPermission) {
+                    focus.openPermissionSettings()
                 }
             }
             Text("Spotify ve Apple Music kontrolü için izin, ilk şarkı çaldığında macOS tarafından sorulur.")
@@ -167,7 +170,7 @@ private struct OnboardingView: View {
                         )) {
                             ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
                         }
-                        Button("Dene") { model.hud.preview(.volume) }
+                        Button("Dene") { hud.preview(.volume) }
                     }
                 }
                 Picker("Menü çubuğu", selection: $settings.menuBarMode) {

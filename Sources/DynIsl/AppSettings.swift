@@ -181,9 +181,7 @@ enum SettingsWindow {
             w.titlebarAppearsTransparent = true
             w.toolbarStyle = .unified
             w.isReleasedWhenClosed = false
-            w.contentView = NSHostingView(rootView: SettingsView(settings: model.settings)
-                .environmentObject(model)
-                .environmentObject(model.weather))
+            w.contentView = NSHostingView(rootView: SettingsView(settings: model.settings).islandServices(model))
             w.center()
             let c = Closer {
                 let old = window
@@ -319,6 +317,14 @@ enum SettingsPage: String, CaseIterable, Identifiable {
 }
 
 private struct SettingsView: View {
+    @EnvironmentObject private var battery: BatteryMonitor
+    @EnvironmentObject private var calendar: CalendarService
+    @EnvironmentObject private var clipboard: ClipboardMonitor
+    @EnvironmentObject private var focus: FocusMonitor
+    @EnvironmentObject private var hud: HUDController
+    @EnvironmentObject private var media: NowPlayingService
+    @EnvironmentObject private var presentation: PresentationMode
+    @EnvironmentObject private var updates: UpdateChecker
     @EnvironmentObject var model: IslandModel
     @EnvironmentObject var weather: WeatherService
     @ObservedObject var settings: AppSettings
@@ -435,12 +441,12 @@ private struct SettingsView: View {
                 Toggle("macOS göstergesi yerine adada göster", isOn: $settings.replaceHUD)
                     .settingAnchor("replaceHUD")
                 if settings.replaceHUD {
-                    if model.hud.needsPermission {
+                    if hud.needsPermission {
                         HStack {
                             Text("Erişilebilirlik izni gerekiyor. DynIsl listede zaten açıksa − ile kaldırıp yeniden ekle.")
                                 .font(.caption).foregroundStyle(.orange)
                             Spacer()
-                            Button("İzin ver…") { model.hud.requestPermission(); model.hud.openAccessibilitySettings() }
+                            Button("İzin ver…") { hud.requestPermission(); hud.openAccessibilitySettings() }
                         }
                     }
                     HStack {
@@ -448,14 +454,14 @@ private struct SettingsView: View {
                             ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
                         }
                         .settingAnchor("volumeHUDStyle")
-                        Button("Dene") { model.hud.preview(.volume) }
+                        Button("Dene") { hud.preview(.volume) }
                     }
                     HStack {
                         Picker("Parlaklık göstergesi", selection: $settings.brightnessHUDStyle) {
                             ForEach(HUDStyle.allCases) { Text($0.title).tag($0) }
                         }
                         .settingAnchor("brightnessHUDStyle")
-                        Button("Dene") { model.hud.preview(.brightness) }
+                        Button("Dene") { hud.preview(.brightness) }
                     }
                     Picker("Her basışta", selection: $settings.volumeStep) {
                         Text(pc(2)).tag(2)
@@ -471,22 +477,22 @@ private struct SettingsView: View {
                 Toggle("Yeni sürümleri günde bir kez denetle", isOn: $settings.checkUpdates)
                     .settingAnchor("checkUpdates")
                 HStack {
-                    Text(model.updates.checking ? String(localized: "Denetleniyor…") : (model.updates.lastResult ?? String(localized: "Henüz denetlenmedi")))
-                        .foregroundStyle(model.updates.available != nil ? .blue : .secondary)
+                    Text(updates.checking ? String(localized: "Denetleniyor…") : (updates.lastResult ?? String(localized: "Henüz denetlenmedi")))
+                        .foregroundStyle(updates.available != nil ? .blue : .secondary)
                     Spacer()
-                    Button("Şimdi denetle") { model.updates.check(manual: true) }
-                        .disabled(model.updates.checking)
+                    Button("Şimdi denetle") { updates.check(manual: true) }
+                        .disabled(updates.checking)
                 }
-                if let r = model.updates.available {
+                if let r = updates.available {
                     if !r.notes.isEmpty {
                         Text(r.notes).font(.caption).foregroundStyle(.secondary).lineLimit(8)
                     }
                     HStack {
-                        Button("Neler yeni?") { model.updates.openReleasePage() }
+                        Button("Neler yeni?") { updates.openReleasePage() }
                         Spacer()
-                        Button("Komutu kopyala") { model.updates.copyCommand() }
-                        if model.updates.canRunUpdate {
-                            Button("Güncelle") { model.updates.runUpdate() }.buttonStyle(.borderedProminent)
+                        Button("Komutu kopyala") { updates.copyCommand() }
+                        if updates.canRunUpdate {
+                            Button("Güncelle") { updates.runUpdate() }.buttonStyle(.borderedProminent)
                         }
                     }
                 }
@@ -550,7 +556,7 @@ private struct SettingsView: View {
                     Toggle("Şarj animasyonu", isOn: $settings.chargeAnimation)
                         .settingAnchor("chargeAnimation")
                     Spacer()
-                    Button("Dene") { model.showCharging(model.battery.level) }
+                    Button("Dene") { model.showCharging(battery.level) }
                         .disabled(!settings.chargeAnimation)
                 }
                 Toggle("Ada kedisi", isOn: $settings.showPet)
@@ -692,10 +698,10 @@ private struct SettingsView: View {
         Form {
             Section("Sunum modu") {
                 HStack {
-                    Text(model.presentation.isActive ? "Açık · \(model.presentation.reason ?? "")" : "Kapalı")
-                        .foregroundStyle(model.presentation.isActive ? .purple : .secondary)
+                    Text(presentation.isActive ? "Açık · \(presentation.reason ?? "")" : "Kapalı")
+                        .foregroundStyle(presentation.isActive ? .purple : .secondary)
                     Spacer()
-                    Button(model.presentation.manual ? "Kapat" : "Şimdi aç") { model.presentation.toggleManual() }
+                    Button(presentation.manual ? "Kapat" : "Şimdi aç") { presentation.toggleManual() }
                 }
                 Toggle("Keynote/PowerPoint sunumunda ve ekran yansıtılırken kendiliğinden aç", isOn: $settings.presentationAuto)
                     .settingAnchor("presentationAuto")
@@ -709,7 +715,7 @@ private struct SettingsView: View {
                     .settingAnchor("showWeather")
                 if settings.showWeather {
                     TextField("Şehir (boşsa konumun kullanılır)", text: $settings.weatherCity)
-                        .onSubmit { model.weather.manualCity = settings.weatherCity }
+                        .onSubmit { weather.manualCity = settings.weatherCity }
                     if let status = weather.status {
                         Text(status).font(.caption).foregroundStyle(.orange)
                     }
@@ -731,7 +737,7 @@ private struct SettingsView: View {
                         Text("Sadece bellekte tutulur, şifre yöneticisi kopyaları kaydedilmez.")
                             .font(.caption).foregroundStyle(.secondary)
                         Spacer()
-                        Button("Temizle") { model.clipboard.clear() }
+                        Button("Temizle") { clipboard.clear() }
                     }
                 }
             }
@@ -753,25 +759,25 @@ private struct SettingsView: View {
     private var permissions: some View {
         Form {
             Section {
-                PermissionRow(title: "Takvim", ok: model.calendar.access == .granted) {
-                    model.calendar.access == .unknown ? model.calendar.requestAccess() : model.calendar.openSettings()
+                PermissionRow(title: "Takvim", ok: calendar.access == .granted) {
+                    calendar.access == .unknown ? calendar.requestAccess() : calendar.openSettings()
                 }
                 .settingAnchor("permCalendar")
-                PermissionRow(title: "Odak için Tam Disk Erişimi", ok: !model.focus.needsPermission) {
-                    model.focus.openPermissionSettings()
+                PermissionRow(title: "Odak için Tam Disk Erişimi", ok: !focus.needsPermission) {
+                    focus.openPermissionSettings()
                 }
                 .settingAnchor("permFocus")
-                PermissionRow(title: "Spotify / Apple Music kontrolü", ok: !model.media.permissionDenied) {
-                    model.media.openAutomationSettings()
+                PermissionRow(title: "Spotify / Apple Music kontrolü", ok: !media.permissionDenied) {
+                    media.openAutomationSettings()
                 }
                 .settingAnchor("permMedia")
-                PermissionRow(title: "Erişilebilirlik (ses ve parlaklık tuşları)", ok: !model.hud.needsPermission) {
-                    model.hud.requestPermission()
-                    model.hud.openAccessibilitySettings()
+                PermissionRow(title: "Erişilebilirlik (ses ve parlaklık tuşları)", ok: !hud.needsPermission) {
+                    hud.requestPermission()
+                    hud.openAccessibilitySettings()
                 }
                 .settingAnchor("permAccessibility")
                 PermissionRow(title: "Konum (hava durumu)", ok: weather.now != nil || !settings.weatherCity.isEmpty) {
-                    model.weather.openLocationSettings()
+                    weather.openLocationSettings()
                 }
                 .settingAnchor("permLocation")
             }

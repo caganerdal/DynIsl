@@ -34,7 +34,6 @@ final class BatteryAnalytics: ObservableObject {
 
     private var liveTimer: Timer?
     private var sampleTimer: Timer?
-    private var healthTimer: Timer?
     private let storeURL: URL = {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("DynamicIsland", isDirectory: true)
@@ -46,13 +45,9 @@ final class BatteryAnalytics: ObservableObject {
         loadHistory()
         readLive()
         record()
-        refreshHealth()
         reschedule()
         sampleTimer = Timer.repeating(every: 300) { [weak self] _ in
             MainActor.assumeIsolated { self?.readLive(); self?.record() }
-        }
-        healthTimer = Timer.repeating(every: 6 * 3600) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refreshHealth() }
         }
     }
 
@@ -80,65 +75,42 @@ final class BatteryAnalytics: ObservableObject {
               let d = props?.takeRetainedValue() as? [String: Any] else { return }
 
         func int(_ k: String) -> Int? { (d[k] as? NSNumber)?.intValue }
-        level = int("CurrentCapacity") ?? level
-        isCharging = d["IsCharging"] as? Bool ?? false
-        externalPower = d["ExternalConnected"] as? Bool ?? false
-        fullyCharged = d["FullyCharged"] as? Bool ?? false
+        set(\.level, int("CurrentCapacity") ?? level)
+        set(\.isCharging, d["IsCharging"] as? Bool ?? false)
+        set(\.externalPower, d["ExternalConnected"] as? Bool ?? false)
+        set(\.fullyCharged, d["FullyCharged"] as? Bool ?? false)
         let mV = Double(int("Voltage") ?? 0)
         let mA = Double((d["Amperage"] as? NSNumber)?.int64Value ?? 0)
-        voltage = mV / 1000
-        watts = abs(mV * mA) / 1_000_000
-        cycleCount = int("CycleCount") ?? cycleCount
-        designCycles = int("DesignCycleCount9C") ?? designCycles
+        set(\.voltage, mV / 1000)
+        set(\.watts, abs(mV * mA) / 1_000_000)
+        set(\.cycleCount, int("CycleCount") ?? cycleCount)
+        set(\.designCycles, int("DesignCycleCount9C") ?? designCycles)
         let toEmpty = int("AvgTimeToEmpty") ?? 65535
         let toFull = int("AvgTimeToFull") ?? 65535
-        minutesToEmpty = (!externalPower && toEmpty < 65535 && toEmpty > 0) ? toEmpty : nil
-        minutesToFull = (isCharging && toFull < 65535 && toFull > 0) ? toFull : nil
+        set(\.minutesToEmpty, (!externalPower && toEmpty < 65535 && toEmpty > 0) ? toEmpty : nil)
+        set(\.minutesToFull, (isCharging && toFull < 65535 && toFull > 0) ? toFull : nil)
 
         if let ad = d["AdapterDetails"] as? [String: Any], externalPower {
-            adapterWatts = (ad["Watts"] as? NSNumber)?.intValue
-            adapterName = (ad["Name"] as? String)?.trimmingCharacters(in: .whitespaces)
+            set(\.adapterWatts, (ad["Watts"] as? NSNumber)?.intValue)
+            set(\.adapterName, (ad["Name"] as? String)?.trimmingCharacters(in: .whitespaces))
         } else {
-            adapterWatts = nil
-            adapterName = nil
+            set(\.adapterWatts, nil)
+            set(\.adapterName, nil)
         }
         if let bd = d["BatteryData"] as? [String: Any] {
-            designCapacity = (bd["DesignCapacity"] as? NSNumber)?.intValue ?? designCapacity
-            fullCapacity = (bd["NominalChargeCapacity"] as? NSNumber)?.intValue ?? fullCapacity
+            set(\.designCapacity, (bd["DesignCapacity"] as? NSNumber)?.intValue ?? designCapacity)
+            set(\.fullCapacity, (bd["NominalChargeCapacity"] as? NSNumber)?.intValue ?? fullCapacity)
+        }
+        if let h = wearFromDesign {
+            let pct = min(h, 100)
+            set(\.healthPercent, pct)
+            let failed = (int("PermanentFailureStatus") ?? 0) != 0
+            set(\.condition, failed || pct < 80 ? String(localized: "Servis önerilir") : String(localized: "Normal"))
         }
     }
 
-    private func refreshHealth() {
-        DispatchQueue.global(qos: .utility).async {
-            let p = Process()
-            p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
-            p.arguments = ["-json", "SPPowerDataType"]
-            let pipe = Pipe()
-            p.standardOutput = pipe
-            p.standardError = FileHandle.nullDevice
-            guard (try? p.run()) != nil else { return }
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            p.waitUntilExit()
-            let items = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["SPPowerDataType"] as? [[String: Any]] ?? []
-            let health = items.compactMap { $0["sppower_battery_health_info"] as? [String: Any] }.first
-            let pct = (health?["sppower_battery_health_maximum_capacity"] as? String).flatMap { Int($0.filter(\.isNumber)) }
-            let cond = health?["sppower_battery_health"] as? String
-            DispatchQueue.main.async {
-                MainActor.assumeIsolated {
-                    self.healthPercent = pct
-                    self.condition = cond.map(Self.translateCondition)
-                }
-            }
-        }
-    }
-
-    private nonisolated static func translateCondition(_ c: String) -> String {
-        switch c.lowercased() {
-        case "good", "normal": return String(localized: "Normal")
-        case "fair": return String(localized: "İyi değil")
-        case "poor", "service recommended", "check battery": return String(localized: "Servis önerilir")
-        default: return c
-        }
+    private func set<T: Equatable>(_ kp: ReferenceWritableKeyPath<BatteryAnalytics, T>, _ v: T) {
+        if self[keyPath: kp] != v { self[keyPath: kp] = v }
     }
 
     private func record() {
@@ -148,6 +120,7 @@ final class BatteryAnalytics: ObservableObject {
         history.append(s)
         let cutoff = Date().addingTimeInterval(-48 * 3600)
         history.removeAll { $0.date < cutoff }
+        recomputeDerived()
         saveHistory()
     }
 
@@ -155,18 +128,24 @@ final class BatteryAnalytics: ObservableObject {
         guard let data = try? Data(contentsOf: storeURL),
               let h = try? JSONDecoder().decode([BatterySample].self, from: data) else { return }
         history = h
+        recomputeDerived()
     }
 
     private func saveHistory() {
         if let data = try? JSONEncoder().encode(history) { try? data.write(to: storeURL, options: .atomic) }
     }
 
-    var last24h: [BatterySample] {
+    @Published private(set) var last24h: [BatterySample] = []
+    @Published private(set) var drainPerHour: Double?
+
+    private func recomputeDerived() {
         let cutoff = Date().addingTimeInterval(-24 * 3600)
-        return history.filter { $0.date >= cutoff }
+        let recent = history.filter { $0.date >= cutoff }
+        set(\.last24h, recent)
+        set(\.drainPerHour, Self.drain(recent))
     }
 
-    var drainPerHour: Double? {
+    private static func drain(_ last24h: [BatterySample]) -> Double? {
         var drop = 0.0, hours = 0.0
         for (a, b) in zip(last24h, last24h.dropFirst()) where !a.charging && !b.charging {
             let dt = b.date.timeIntervalSince(a.date) / 3600

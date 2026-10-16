@@ -42,18 +42,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var lastStatsKey = ""
     private var dragTimer: Timer?
     private var dragBaseline = 0
+    private var dragButtonDown = false
+    private let dragPasteboard = NSPasteboard(name: .drag)
     private var collapseWork: DispatchWorkItem?
 
     private let panelSize = NSSize(width: 820, height: 330)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         panel = IslandPanel(contentRect: NSRect(origin: .zero, size: panelSize))
-        let host = NSHostingView(rootView: IslandView()
-            .environmentObject(model)
-            .environmentObject(model.system)
-            .environmentObject(model.batteryInfo)
-            .environmentObject(model.weather)
-            .environmentObject(model.clipboard))
+        let host = NSHostingView(rootView: IslandView().islandServices(model))
         host.sizingOptions = []
         host.frame = NSRect(origin: .zero, size: panelSize)
         panel.contentView = host
@@ -112,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func setupMouseTracking() {
-        dragBaseline = NSPasteboard(name: .drag).changeCount
+        dragBaseline = dragPasteboard.changeCount
         panel.acceptsMouseMovedEvents = true
         let mask: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDown, .leftMouseDragged, .leftMouseUp]
         if let g = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: { [weak self] e in
@@ -144,12 +141,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func detectFileDrag() -> Bool {
-        let pb = NSPasteboard(name: .drag)
         guard NSEvent.pressedMouseButtons & 1 != 0 else {
-            dragBaseline = pb.changeCount
+            if dragButtonDown {
+                dragButtonDown = false
+                dragBaseline = dragPasteboard.changeCount
+            }
             return false
         }
-        return pb.changeCount != dragBaseline && (pb.types?.contains(.fileURL) ?? false)
+        dragButtonDown = true
+        return dragPasteboard.changeCount != dragBaseline && (dragPasteboard.types?.contains(.fileURL) ?? false)
     }
 
     private func handleMouse() {
