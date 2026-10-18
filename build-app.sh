@@ -26,7 +26,6 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$BUILD</string>
-  <key>DynIslSourcePath</key><string>${${SRC//&/&amp;}//</&lt;}</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSCalendarsFullAccessUsageDescription</key><string>Yaklaşan toplantıları adada göstermek ve başlamadan önce haber vermek için.</string>
@@ -39,6 +38,9 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>NSAppleEventsUsageDescription</key><string>Spotify ve Apple Music’te çalan şarkıyı göstermek ve kontrol etmek için.</string>
 </dict></plist>
 PLIST
+if [[ "$1" != "dmg" ]]; then
+  /usr/libexec/PlistBuddy -c "Add :DynIslSourcePath string $SRC" "$APP/Contents/Info.plist"
+fi
 LOCAL_ID="DynIsl Local"
 make_local_identity() {
   local tmp=$(mktemp -d)
@@ -51,6 +53,29 @@ make_local_identity() {
   rm -rf "$tmp"
   return $ok
 }
+if [[ "$1" == "dmg" ]]; then
+  IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null | grep -m1 '"Developer ID Application' | sed -E 's/.*"(.*)"/\1/')
+  if [[ -z "$IDENTITY" ]]; then
+    echo "Developer ID Application sertifikası bulunamadı. Xcode › Settings › Accounts › Manage Certificates › + › Developer ID Application"
+    exit 1
+  fi
+  codesign --force --options runtime --timestamp --entitlements Resources/DynIsl.entitlements --sign "$IDENTITY" "$APP"
+  echo "İmza: $IDENTITY"
+  DMG="build/DynIsl-$VERSION.dmg"
+  STAGE=$(mktemp -d)
+  ditto "$APP" "$STAGE/DynIsl.app"
+  ln -s /Applications "$STAGE/Applications"
+  rm -f "$DMG"
+  hdiutil create -volname "DynIsl $VERSION" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
+  rm -rf "$STAGE"
+  codesign --force --timestamp --sign "$IDENTITY" "$DMG"
+  echo "Apple onayına gönderiliyor (birkaç dakika sürebilir)…"
+  xcrun notarytool submit "$DMG" --keychain-profile DynIsl --wait
+  xcrun stapler staple "$DMG"
+  spctl -a -t open --context context:primary-signature -v "$DMG"
+  echo "Hazır: $DMG"
+  exit 0
+fi
 IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null | grep -m1 '"Apple Development' | sed -E 's/.*"(.*)"/\1/')
 if [[ -z "$IDENTITY" ]]; then
   if ! security find-identity -p codesigning 2>/dev/null | grep -q "\"$LOCAL_ID\""; then

@@ -6069,6 +6069,16 @@
         }
       }
     },
+    "İndir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        }
+      }
+    },
     "İndirildi": {
       "localizations": {
         "en": {

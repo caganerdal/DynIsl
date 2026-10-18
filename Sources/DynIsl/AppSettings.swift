@@ -490,9 +490,11 @@ private struct SettingsView: View {
                     HStack {
                         Button("Neler yeni?") { updates.openReleasePage() }
                         Spacer()
-                        Button("Komutu kopyala") { updates.copyCommand() }
                         if updates.canRunUpdate {
+                            Button("Komutu kopyala") { updates.copyCommand() }
                             Button("Güncelle") { updates.runUpdate() }.buttonStyle(.borderedProminent)
+                        } else {
+                            Button("İndir") { updates.openReleasePage() }.buttonStyle(.borderedProminent)
                         }
                     }
                 }
