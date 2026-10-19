@@ -4,11 +4,9 @@ import UniformTypeIdentifiers
 
 struct IslandView: View {
     @EnvironmentObject private var calendar: CalendarService
-    @EnvironmentObject private var call: CallController
     @EnvironmentObject private var downloads: DownloadMonitor
     @EnvironmentObject private var hud: HUDController
     @EnvironmentObject private var media: NowPlayingService
-    @EnvironmentObject private var privacy: PrivacyMonitor
     @EnvironmentObject private var screenshots: ScreenshotMonitor
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject var model: IslandModel
@@ -77,7 +75,6 @@ struct IslandView: View {
                 Artwork(image: media.artwork, id: media.artworkID, size: 20, corner: 5)
             } trailing: {
                 HStack(spacing: 5) {
-                    PrivacyDots()
                     CAEqualizer(color: media.accent, style: settings.equalizerStyle)
                     if settings.showPet { IslandPet(mood: model.petMood).padding(.leading, 4) }
                 }
@@ -89,7 +86,6 @@ struct IslandView: View {
                         .foregroundStyle(e.color)
                 } trailing: {
                     HStack(spacing: 5) {
-                        PrivacyDots()
                         Text(countdown(to: e.start))
                             .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
                             .foregroundStyle(e.color)
@@ -115,21 +111,6 @@ struct IslandView: View {
                 }
                 .help(d.name)
             }
-        case .call:
-            CompactRow(height: model.notchSize.height) {
-                HStack(spacing: 5) {
-                    Image(systemName: call.usesCamera ? "video.fill" : "mic.fill")
-                        .foregroundStyle(call.usesCamera ? .green : .orange)
-                    Text(call.appName ?? String(localized: "Görüşme")).font(.system(size: 12, weight: .medium)).lineLimit(1)
-                }
-            } trailing: {
-                HStack(spacing: 5) {
-                    if call.micMuted {
-                        Image(systemName: "mic.slash.fill").foregroundStyle(.red).font(.system(size: 11))
-                    }
-                    if let start = call.startedAt { ElapsedText(since: start, tint: .white) }
-                }
-            }
         case .speedTest:
             CompactRow(height: model.notchSize.height) {
                 Image(systemName: "gauge.with.needle.fill").foregroundStyle(.cyan)
@@ -137,22 +118,11 @@ struct IslandView: View {
                 ProgressRing(value: nil, tint: .cyan)
             }
             .help("İnternet hız testi sürüyor")
-        case .privacy:
-            CompactRow(height: model.notchSize.height) {
-                HStack(spacing: 4) {
-                    if privacy.cameraOn { Image(systemName: "video.fill").foregroundStyle(.green) }
-                    if privacy.micOn { Image(systemName: "mic.fill").foregroundStyle(.orange) }
-                }
-                .font(.system(size: 11))
-            } trailing: {
-                PrivacyDots()
-            }
         case .timer:
             CompactRow(height: model.notchSize.height) {
                 Image(systemName: "timer").foregroundStyle(model.accent ?? .orange)
             } trailing: {
                 HStack(spacing: 5) {
-                    PrivacyDots()
                     Text(formatSeconds(model.timerRemaining ?? 0))
                         .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
                         .foregroundStyle(model.accent ?? .orange)
@@ -295,21 +265,6 @@ struct CompactRow<L: View, T: View>: View {
         }
         .frame(height: height)
         .foregroundStyle(.white)
-    }
-}
-
-struct ElapsedText: View {
-    let since: Date
-    let tint: Color
-
-    var body: some View {
-        TimelineView(.periodic(from: since, by: 1)) { ctx in
-            let s = max(Int(ctx.date.timeIntervalSince(since)), 0)
-            Text(s >= 3600 ? String(format: "%d:%02d:%02d", s / 3600, s % 3600 / 60, s % 60)
-                           : String(format: "%d:%02d", s / 60, s % 60))
-                .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundStyle(tint)
-        }
     }
 }
 

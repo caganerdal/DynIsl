@@ -135,10 +135,10 @@ final class HUDController: ObservableObject {
             VolumeControl.isMuted = muted
             show(HUDInfo(kind: .volume, level: Double(VolumeControl.volume), muted: muted))
         case .brightnessUp, .brightnessDown:
-            guard BrightnessControl.isAvailable else { return false }
-            var b = BrightnessControl.brightness + (key == .brightnessUp ? step : -step)
+            guard BrightnessControl.isAvailable, let current = BrightnessControl.read() else { return false }
+            var b = current + (key == .brightnessUp ? step : -step)
             b = min(max((b / step).rounded() * step, 0), 1)
-            BrightnessControl.brightness = b
+            guard BrightnessControl.write(b) else { return false }
             show(HUDInfo(kind: .brightness, level: Double(b), muted: false))
         }
         return true
@@ -188,7 +188,7 @@ final class HUDController: ObservableObject {
         case .volume:
             show(HUDInfo(kind: .volume, level: Double(VolumeControl.volume), muted: VolumeControl.isMuted))
         case .brightness:
-            show(HUDInfo(kind: .brightness, level: Double(BrightnessControl.isAvailable ? BrightnessControl.brightness : 0.6), muted: false))
+            show(HUDInfo(kind: .brightness, level: Double(BrightnessControl.read() ?? 0.6), muted: false))
         }
     }
 
@@ -202,7 +202,7 @@ final class HUDController: ObservableObject {
             VolumeControl.volume = Float(l)
             info.muted = l == 0
         case .brightness:
-            BrightnessControl.brightness = Float(l)
+            BrightnessControl.write(Float(l))
         }
         info.level = l
         current = info

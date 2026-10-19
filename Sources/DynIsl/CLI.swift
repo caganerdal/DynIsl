@@ -1,7 +1,22 @@
 import Foundation
+import Security
 
 enum CLI {
     static let notificationName = Notification.Name("local.dynamicisland.notify")
+
+    private static let tokenURL = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/DynamicIsland/cli-token")
+
+    static func token(create: Bool) -> String? {
+        if let t = try? String(contentsOf: tokenURL, encoding: .utf8), t.count == 64 { return t }
+        guard create else { return nil }
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else { return nil }
+        let t = bytes.map { String(format: "%02x", $0) }.joined()
+        try? FileManager.default.createDirectory(at: tokenURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        guard FileManager.default.createFile(atPath: tokenURL.path, contents: Data(t.utf8), attributes: [.posixPermissions: 0o600]) else { return nil }
+        return t
+    }
 
     static func runIfNeeded() -> Int32? {
         var args = Array(CommandLine.arguments.dropFirst())
@@ -115,7 +130,7 @@ enum CLI {
         DistributedNotificationCenter.default().postNotificationName(
             notificationName, object: nil,
             userInfo: ["title": title, "message": message, "icon": icon, "tint": tint,
-                       "duration": duration, "sound": sound],
+                       "duration": duration, "sound": sound, "token": token(create: false) ?? ""],
             deliverImmediately: true
         )
     }

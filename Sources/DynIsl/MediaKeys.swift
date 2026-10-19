@@ -105,17 +105,17 @@ enum BrightnessControl {
 
     static var isAvailable: Bool { getFn != nil && setFn != nil && builtInDisplay != nil }
 
-    static var brightness: Float {
-        get {
-            guard let d = builtInDisplay, let getFn else { return 0 }
-            var b: Float = 0
-            _ = getFn(d, &b)
-            return b
-        }
-        set {
-            guard let d = builtInDisplay, let setFn else { return }
-            _ = setFn(d, min(max(newValue, 0), 1))
-        }
+    static func read() -> Float? {
+        guard let d = builtInDisplay, let getFn else { return nil }
+        var b: Float = -1
+        guard getFn(d, &b) == 0, (0...1).contains(b) else { return nil }
+        return b
+    }
+
+    @discardableResult
+    static func write(_ value: Float) -> Bool {
+        guard let d = builtInDisplay, let setFn else { return false }
+        return setFn(d, min(max(value, 0), 1)) == 0
     }
 }
 

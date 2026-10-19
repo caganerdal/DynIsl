@@ -397,44 +397,14 @@ struct StatusCard: View {
     }
 }
 
-struct PrivacyDots: View {
-    @EnvironmentObject private var privacy: PrivacyMonitor
-    @EnvironmentObject private var settings: AppSettings
-    var body: some View {
-        HStack(spacing: 3) {
-            if settings.showPrivacy {
-                if privacy.cameraOn { Circle().fill(.green).frame(width: 6, height: 6) }
-                if privacy.micOn { Circle().fill(.orange).frame(width: 6, height: 6) }
-            }
-        }
-    }
-}
-
 struct StatusIcons: View {
     @EnvironmentObject private var battery: BatteryMonitor
-    @EnvironmentObject private var call: CallController
     @EnvironmentObject private var focus: FocusMonitor
-    @EnvironmentObject private var privacy: PrivacyMonitor
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject var model: IslandModel
 
     var body: some View {
         HStack(spacing: 8) {
-            if settings.callMode, let start = call.startedAt {
-                Button { call.toggleMute() } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: call.micMuted ? "mic.slash.fill" : "mic.fill")
-                        ElapsedText(since: start, tint: call.micMuted ? .red : .white)
-                    }
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(call.micMuted ? .red : .white)
-                    .padding(.horizontal, 7).padding(.vertical, 3)
-                    .background(Capsule().fill((call.micMuted ? Color.red : Color.green).opacity(0.22)))
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.pressable)
-                .help(call.micMuted ? "Mikrofonu aç" : "Mikrofonu kapat (tüm uygulamalar için)")
-            }
             if settings.notifyFocus, let f = focus.current {
                 HStack(spacing: 4) {
                     Image(systemName: f.symbol)
@@ -447,13 +417,6 @@ struct StatusIcons: View {
                 .frame(maxWidth: 90)
                 .help("Odak: \(f.name)")
                 .transition(.scale.combined(with: .opacity))
-            }
-            if settings.showPrivacy, privacy.cameraOn {
-                Image(systemName: "video.fill").foregroundStyle(.green).help("Kamera kullanımda")
-            }
-            if settings.showPrivacy, privacy.micOn {
-                Image(systemName: "mic.fill").foregroundStyle(.orange)
-                    .help(String(localized: "Mikrofon: ") + privacy.micApps.joined(separator: ", "))
             }
             if battery.hasBattery {
                 Button { model.tab = .battery } label: {

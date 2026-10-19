@@ -22,6 +22,8 @@ jobs:
           swift --version
       - name: Derle
         run: swift build -c release
+      - name: Testler
+        run: swift test
       - name: Uygulama paketi
         run: |
           mkdir -p build/DynIsl.app/Contents/MacOS

@@ -17,8 +17,7 @@
 ### Ada
 - **Müzik:** Spotify ve Apple Music için kapak, ilerleme çubuğu, oynat/duraklat/geç, ses, karışık çal, tekrar; Apple Music'te favori ve "sevmedim". Şarkı değişimlerinde yumuşak geçişler, kapak renginde parıltı.
 - **Ses ve parlaklık göstergesi:** macOS'un göstergesinin yerine adada kendi göstergesi (isteğe bağlı); Klasik, Minimal, Halka, Bölmeli ve Sıvı stilleri; her basışta %2, %5 ya da %10 adım.
-- **Canlı bildirimler:** şarj ve pil, AirPods bağlanması ve pil uyarısı, takvim toplantıları, Odak modu, kamera/mikrofon kullanımı, indirme ilerlemesi, ekran görüntüsü önizlemesi, internet koptu / geri geldi, yağmur uyarısı, sistem uyarıları.
-- **Görüşme modu:** kamera ya da mikrofon açıkken görüşme süresi ve sistem genelinde mikrofonu kapatma.
+- **Canlı bildirimler:** şarj ve pil, AirPods bağlanması ve pil uyarısı, takvim toplantıları, Odak modu, indirme ilerlemesi, ekran görüntüsü önizlemesi, internet koptu / geri geldi, yağmur uyarısı, sistem uyarıları.
 - **Sekmeler:** müzik, takvim, raf ve AirDrop, pano geçmişi, sistem kullanımı, pil analizi.
 - **Raf ile dönüştürme:** rafa bırakılan görselleri JPG'ye çevirme ve küçültme, görsel ve PDF'leri tek PDF'te birleştirme, PDF sıkıştırma; hepsi bilgisayarda.
 - **Sunum modu:** Keynote ya da PowerPoint sunumunda ve ekran yansıtılırken bildirimleri susturur, masaüstü simgelerini gizler; menü çubuğundan elle de açılır.

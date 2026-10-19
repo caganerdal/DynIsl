@@ -403,7 +403,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func cleanUpBeforeExit() {
-        model.call.releaseMute()
         model.speedTest.cancel()
     }
 

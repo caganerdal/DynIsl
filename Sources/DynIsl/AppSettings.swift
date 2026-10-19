@@ -7,7 +7,6 @@ final class AppSettings: ObservableObject {
     private let d = UserDefaults.standard
 
     @Published var openOnHover: Bool { didSet { d.set(openOnHover, forKey: "openOnHover") } }
-    @Published var callMode: Bool { didSet { d.set(callMode, forKey: "callMode") } }
     @Published var hideFromCapture: Bool { didSet { d.set(hideFromCapture, forKey: "hideFromCapture") } }
     @Published var replaceHUD: Bool { didSet { d.set(replaceHUD, forKey: "replaceHUD") } }
     @Published var volumeStep: Int { didSet { d.set(volumeStep, forKey: "volumeStep") } }
@@ -30,7 +29,6 @@ final class AppSettings: ObservableObject {
     @Published var notifyFocus: Bool { didSet { d.set(notifyFocus, forKey: "notifyFocus") } }
     @Published var notifyNetwork: Bool { didSet { d.set(notifyNetwork, forKey: "notifyNetwork") } }
     @Published var checkUpdates: Bool { didSet { d.set(checkUpdates, forKey: "checkUpdates") } }
-    @Published var showPrivacy: Bool { didSet { d.set(showPrivacy, forKey: "showPrivacy") } }
     @Published var showDownloads: Bool { didSet { d.set(showDownloads, forKey: "showDownloads") } }
     @Published var rainAlerts: Bool { didSet { d.set(rainAlerts, forKey: "rainAlerts") } }
     @Published var systemAlerts: Bool { didSet { d.set(systemAlerts, forKey: "systemAlerts") } }
@@ -70,11 +68,11 @@ final class AppSettings: ObservableObject {
             "openOnHover": true, "notifyBattery": true, "notifyBluetooth": true,
             "airPodsBatteryAlert": true, "chargeLimitAlert": true, "chargeLimit": 80, "fullPluggedAlert": true,
             "notifyCalendar": true, "calendarLeadMinutes": 10, "notifyFocus": true, "notifyNetwork": true, "checkUpdates": true,
-            "showPrivacy": true, "showDownloads": true, "downloadsToShelf": true,
+            "showDownloads": true, "downloadsToShelf": true,
             "clipboardHistory": true, "screenshotPreview": true, "screenshotsToShelf": false,
             "rainAlerts": true, "systemAlerts": true,
             "alertDisk": true, "alertMemory": true, "alertThermal": true, "alertBatteryHealth": true, "showWeather": true, "weatherCity": "",
-            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "callMode": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "chargeAnimation": true, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
+            "islandWidth": 660, "menuBarStats": true, "menuBarMode": "both", "replaceHUD": true, "volumeStep": 5, "hideFromCapture": true, "animationSpeed": 1.0, "albumGlow": true, "showPet": true, "chargeAnimation": true, "accentHex": "0A84FF", "presentationAuto": true, "presentationHideIcons": true, "screenChoice": "auto",
         ])
         openOnHover = d.bool(forKey: "openOnHover")
         if d.object(forKey: "menuBarMode") == nil, !d.bool(forKey: "menuBarStats") {
@@ -86,7 +84,6 @@ final class AppSettings: ObservableObject {
         volumeHUDStyle = HUDStyle(rawValue: d.string(forKey: "volumeHUDStyle") ?? "") ?? .classic
         brightnessHUDStyle = HUDStyle(rawValue: d.string(forKey: "brightnessHUDStyle") ?? "") ?? .classic
         hideFromCapture = d.bool(forKey: "hideFromCapture")
-        callMode = d.bool(forKey: "callMode")
         notifyBattery = d.bool(forKey: "notifyBattery")
         notifyBluetooth = d.bool(forKey: "notifyBluetooth")
         airPodsBatteryAlert = d.bool(forKey: "airPodsBatteryAlert")
@@ -99,7 +96,6 @@ final class AppSettings: ObservableObject {
         notifyFocus = d.bool(forKey: "notifyFocus")
         notifyNetwork = d.bool(forKey: "notifyNetwork")
         checkUpdates = d.bool(forKey: "checkUpdates")
-        showPrivacy = d.bool(forKey: "showPrivacy")
         showDownloads = d.bool(forKey: "showDownloads")
         rainAlerts = d.bool(forKey: "rainAlerts")
         systemAlerts = d.bool(forKey: "systemAlerts")
@@ -268,8 +264,6 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         (String(localized: "Bağlanınca"), "notifyBluetooth", .notifications),
         (String(localized: "Toplantılardan önce haber ver"), "notifyCalendar", .notifications),
         (String(localized: "Ne kadar önce"), "calendarLeadMinutes", .notifications),
-        (String(localized: "Görüşme modu (süre ve mikrofonu kapatma)"), "callMode", .notifications),
-        (String(localized: "Kamera ve mikrofon göstergesi"), "showPrivacy", .notifications),
         (String(localized: "İndirme ilerlemesi"), "showDownloads", .notifications),
         (String(localized: "İnternet koptu / geri geldi"), "notifyNetwork", .notifications),
         (String(localized: "Odak modu"), "notifyFocus", .notifications),
@@ -301,7 +295,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         (String(localized: "Mac pili ve şarj"), "notifyBattery", .notifications),
         (String(localized: "AirPods"), "notifyBluetooth", .notifications),
         (String(localized: "Takvim"), "notifyCalendar", .notifications),
-        (String(localized: "Diğer"), "callMode", .notifications),
+        (String(localized: "Diğer"), "showDownloads", .notifications),
         (String(localized: "Sunum modu"), "presentationAuto", .features),
         (String(localized: "Hava durumu"), "showWeather", .features),
         (String(localized: "Raf"), "downloadsToShelf", .features),
@@ -664,10 +658,6 @@ private struct SettingsView: View {
                 }
             }
             Section("Diğer") {
-                Toggle("Görüşme modu (süre ve mikrofonu kapatma)", isOn: $settings.callMode)
-                    .settingAnchor("callMode")
-                Toggle("Kamera ve mikrofon göstergesi", isOn: $settings.showPrivacy)
-                    .settingAnchor("showPrivacy")
                 Toggle("İndirme ilerlemesi", isOn: $settings.showDownloads)
                     .settingAnchor("showDownloads")
                 Toggle("İnternet koptu / geri geldi", isOn: $settings.notifyNetwork)

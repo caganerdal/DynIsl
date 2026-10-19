@@ -21,12 +21,13 @@ final class CalendarService: ObservableObject {
 
     var onActivity: ((IslandActivity) -> Void)?
 
-    var leadMinutes = 10
+    var leadMinutes = 10 { didSet { if oldValue != leadMinutes, timer != nil { tick() } } }
 
     private let store = EKEventStore()
     private var timer: Timer?
     private var notified: Set<String> = []
     private var lastSignature: String?
+    private var lastReload = Date.distantPast
 
     func start() {
         updateAccess()
@@ -34,8 +35,11 @@ final class CalendarService: ObservableObject {
         NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reload() }
         }
-        timer = Timer.repeating(every: 20, tolerance: 0.25) { [weak self] _ in
-            MainActor.assumeIsolated { self?.tick() }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.reload() }
+        }
+        NotificationCenter.default.addObserver(forName: .NSSystemClockDidChange, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.reload() }
         }
         reload()
     }
@@ -75,7 +79,8 @@ final class CalendarService: ObservableObject {
     }
 
     private func reload() {
-        guard access == .granted else { upcoming = []; return }
+        lastReload = Date()
+        guard access == .granted else { upcoming = []; timer?.invalidate(); timer = nil; return }
         let now = Date()
         let predicate = store.predicateForEvents(
             withStart: now.addingTimeInterval(-3 * 3600),
@@ -123,6 +128,31 @@ final class CalendarService: ObservableObject {
                                   title: e.title, trailing: String(localized: "Başlıyor")))
             }
         }
+        scheduleNext()
+    }
+
+    private func scheduleNext() {
+        timer?.invalidate()
+        let now = Date()
+        var next = now.addingTimeInterval(1800)
+        for e in upcoming {
+            let until = e.start.timeIntervalSince(now)
+            var marks = [e.start.addingTimeInterval(-Double(leadMinutes) * 60), e.start.addingTimeInterval(-5 * 60),
+                         e.start.addingTimeInterval(-60), e.start.addingTimeInterval(60), e.start.addingTimeInterval(120), e.end]
+            if until <= Double(leadMinutes) * 60 + 60, until > -120 {
+                let k = (until / 60).rounded(.down)
+                marks.append(e.start.addingTimeInterval(-k * 60))
+                marks.append(e.start.addingTimeInterval(-(k - 1) * 60))
+            }
+            if let m = marks.filter({ $0.timeIntervalSince(now) > 0.5 }).min(), m < next { next = m }
+        }
+        timer = Timer.scheduledTimer(withTimeInterval: max(next.timeIntervalSince(now) + 0.3, 1), repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                if Date().timeIntervalSince(self.lastReload) > 3600 { self.reload() } else { self.tick() }
+            }
+        }
+        timer?.tolerance = 0.5
     }
 
     var imminent: UpcomingEvent? {

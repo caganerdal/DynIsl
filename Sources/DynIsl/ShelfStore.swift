@@ -5,12 +5,21 @@ final class ShelfStore: ObservableObject {
     @Published private(set) var items: [URL] = []
 
     private let key = "shelfItems"
+    private let bookmarkKey = "shelfBookmarks"
     let limit = 12
 
     init() {
-        let paths = UserDefaults.standard.stringArray(forKey: key) ?? []
-        items = paths.map { URL(fileURLWithPath: $0) }
+        if let marks = UserDefaults.standard.array(forKey: bookmarkKey) as? [Data] {
+            items = marks.compactMap { data in
+                var stale = false
+                return try? URL(resolvingBookmarkData: data, options: [.withoutUI], bookmarkDataIsStale: &stale)
+            }
+        } else {
+            items = (UserDefaults.standard.stringArray(forKey: key) ?? []).map { URL(fileURLWithPath: $0) }
+            UserDefaults.standard.removeObject(forKey: key)
+        }
         prune()
+        save()
     }
 
     func add(_ urls: [URL]) {
@@ -34,6 +43,7 @@ final class ShelfStore: ObservableObject {
     }
 
     func prune() {
+        refreshMovedItems()
         let existing = items.filter { FileManager.default.fileExists(atPath: $0.path) }
         if existing.count != items.count {
             items = existing
@@ -73,7 +83,27 @@ final class ShelfStore: ObservableObject {
         return i
     }
 
+    private var bookmarks: [URL: Data] = [:]
+
+    private func refreshMovedItems() {
+        var changed = false
+        items = items.map { url in
+            guard let data = bookmarks[url] else { return url }
+            var stale = false
+            guard let resolved = try? URL(resolvingBookmarkData: data, options: [.withoutUI], bookmarkDataIsStale: &stale),
+                  resolved.standardizedFileURL != url.standardizedFileURL else { return url }
+            changed = true
+            return resolved
+        }
+        if changed { save() }
+    }
+
     private func save() {
-        UserDefaults.standard.set(items.map(\.path), forKey: key)
+        var next: [URL: Data] = [:]
+        for url in items {
+            if let d = bookmarks[url] ?? (try? url.bookmarkData()) { next[url] = d }
+        }
+        bookmarks = next
+        UserDefaults.standard.set(items.compactMap { next[$0] }, forKey: bookmarkKey)
     }
 }

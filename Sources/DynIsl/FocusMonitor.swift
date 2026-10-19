@@ -26,7 +26,7 @@ final class FocusMonitor: ObservableObject {
         refresh(notify: false)
         started = true
         watchDirectory()
-        timer = Timer.repeating(every: 20) { [weak self] _ in
+        timer = Timer.repeating(every: 180) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.refresh(notify: true)

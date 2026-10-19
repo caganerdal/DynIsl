@@ -12,7 +12,7 @@ struct IslandActivity: Hashable {
 }
 
 enum IslandState: Equatable {
-    case idle, privacy, playing, call, meeting, speedTest, download, timer, activity, peek, expanded, hud, charging
+    case idle, playing, meeting, speedTest, download, timer, activity, peek, expanded, hud, charging
 }
 
 enum IslandTab: String, CaseIterable, Equatable {
@@ -58,7 +58,6 @@ final class IslandModel: ObservableObject {
     let battery = BatteryMonitor()
     let airdrop = AirDropService()
     let bluetooth = BluetoothMonitor()
-    let privacy = PrivacyMonitor()
     let focus = FocusMonitor()
     let calendar = CalendarService()
     let shelf = ShelfStore()
@@ -72,7 +71,6 @@ final class IslandModel: ObservableObject {
     let speedTest = SpeedTest()
     let alerts = SystemAlerts()
     let hud = HUDController()
-    let call = CallController()
     let desktopCleaner = DesktopCleaner()
     let keepAwake = KeepAwake()
     let network = NetworkWatcher()
@@ -88,9 +86,9 @@ final class IslandModel: ObservableObject {
     private var bag: [Any] = []
 
     init() {
-        for publisher in [media.objectWillChange, battery.objectWillChange, privacy.objectWillChange, focus.objectWillChange,
+        for publisher in [media.objectWillChange, battery.objectWillChange, focus.objectWillChange,
                           calendar.objectWillChange, downloads.objectWillChange, settings.objectWillChange,
-                          screenshots.objectWillChange, speedTest.objectWillChange, hud.objectWillChange, call.objectWillChange] {
+                          screenshots.objectWillChange, speedTest.objectWillChange, hud.objectWillChange] {
             bag.append(publisher.sink { [weak self] _ in self?.scheduleLayoutCheck() })
         }
 
@@ -127,11 +125,6 @@ final class IslandModel: ObservableObject {
 
         bag.append(settings.objectWillChange.receive(on: RunLoop.main).sink { _ in syncCharge() })
         bluetooth.start()
-        privacy.onActivity = { [weak self] a in
-            guard let self, self.settings.showPrivacy else { return }
-            self.showActivity(a)
-        }
-        privacy.start()
         focus.onActivity = { [weak self] a in
             guard let self, self.settings.notifyFocus else { return }
             self.showActivity(a)
@@ -245,10 +238,6 @@ final class IslandModel: ObservableObject {
         alerts.start { [weak self] in self?.batteryInfo.healthPercent }
         bag.append(batteryInfo.$healthPercent.dropFirst().sink { [weak self] in self?.alerts.checkBatteryHealth($0) })
 
-        bag.append(privacy.objectWillChange.receive(on: RunLoop.main).sink { [weak self] _ in
-            guard let self else { return }
-            self.call.update(camera: self.privacy.cameraOn, mic: self.privacy.micOn, apps: self.privacy.micApps)
-        })
 
         hud.onNeedsPermission = { [weak self] in
             DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
@@ -272,10 +261,11 @@ final class IslandModel: ObservableObject {
             if let self, hidden.contains(self.tab) { self.tab = .media }
         })
 
+        let cliToken = CLI.token(create: true)
         DistributedNotificationCenter.default().addObserver(
             forName: CLI.notificationName, object: nil, queue: .main
         ) { [weak self] note in
-            let info = note.userInfo ?? [:]
+            guard let info = note.userInfo, let cliToken, info["token"] as? String == cliToken else { return }
             let icon = (info["icon"] as? String).flatMap {
                 $0.count <= 64 && NSImage(systemSymbolName: $0, accessibilityDescription: nil) != nil ? $0 : nil
             } ?? "terminal.fill"
@@ -350,9 +340,7 @@ final class IslandModel: ObservableObject {
         if settings.showDownloads, downloads.summary != nil { return .download }
         if speedTest.isRunning { return .speedTest }
         if settings.notifyCalendar, calendar.imminent != nil { return .meeting }
-        if settings.callMode, settings.showPrivacy, call.isActive { return .call }
         if media.isPlaying { return .playing }
-        if settings.showPrivacy, privacy.isActive { return .privacy }
         return .idle
     }
 
@@ -370,11 +358,8 @@ final class IslandModel: ObservableObject {
     var currentSize: CGSize {
         switch state {
         case .idle: return CGSize(width: notchSize.width + 2 * petEar, height: notchSize.height)
-        case .call:
-            let w = textWidth(call.appName ?? String(localized: "Görüşme"), weight: .medium) + 34
-            return CGSize(width: notchSize.width + 2 * min(max(w, 100), 180), height: notchSize.height)
         case .playing: return CGSize(width: notchSize.width + 100 + 2 * petEar, height: notchSize.height)
-        case .timer, .meeting, .privacy, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
+        case .timer, .meeting, .download, .speedTest: return CGSize(width: notchSize.width + 100, height: notchSize.height)
         case .activity: return CGSize(width: notchSize.width + 2 * activityEarWidth, height: notchSize.height)
         case .charging: return CGSize(width: max(380, notchSize.width + 230), height: notchSize.height + 30)
         case .hud:
@@ -384,15 +369,6 @@ final class IslandModel: ObservableObject {
         case .peek: return CGSize(width: max(500, notchSize.width + 240), height: notchSize.height + 118)
         case .expanded: return expandedSize
         }
-    }
-
-    private var widthCache: [String: CGFloat] = [:]
-    private func textWidth(_ s: String, weight: NSFont.Weight) -> CGFloat {
-        if let w = widthCache[s] { return w }
-        let w = (s as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: 12, weight: weight)]).width
-        if widthCache.count > 200 { widthCache.removeAll() }
-        widthCache[s] = w
-        return w
     }
 
     private var activityEarWidth: CGFloat = 130
@@ -645,12 +621,12 @@ final class BatteryMonitor: ObservableObject {
 extension View {
     func islandServices(_ m: IslandModel) -> some View {
         environmentObject(m)
-            .environmentObject(m.media).environmentObject(m.battery).environmentObject(m.privacy)
+            .environmentObject(m.media).environmentObject(m.battery)
             .environmentObject(m.focus).environmentObject(m.calendar).environmentObject(m.shelf)
             .environmentObject(m.downloads).environmentObject(m.clipboard).environmentObject(m.screenshots)
             .environmentObject(m.weather).environmentObject(m.system).environmentObject(m.batteryInfo)
             .environmentObject(m.details).environmentObject(m.speedTest).environmentObject(m.alerts)
-            .environmentObject(m.hud).environmentObject(m.call).environmentObject(m.desktopCleaner)
+            .environmentObject(m.hud).environmentObject(m.desktopCleaner)
             .environmentObject(m.keepAwake).environmentObject(m.updates).environmentObject(m.presentation)
             .environmentObject(m.downloadsCleaner).environmentObject(m.settings)
     }

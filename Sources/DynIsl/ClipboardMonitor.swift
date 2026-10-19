@@ -62,8 +62,34 @@ final class ClipboardMonitor: ObservableObject {
         DistributedNotificationCenter.default().addObserver(
             forName: .init("com.apple.screenIsLocked"), object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.clear() }
+            MainActor.assumeIsolated {
+                self?.clear()
+                self?.pause()
+            }
         }
+        DistributedNotificationCenter.default().addObserver(
+            forName: .init("com.apple.screenIsUnlocked"), object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.resume() }
+        }
+        let ws = NSWorkspace.shared.notificationCenter
+        ws.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.pause() }
+        }
+        ws.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.resume() }
+        }
+        resume()
+    }
+
+    private func pause() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func resume() {
+        guard timer == nil else { return }
+        lastChange = NSPasteboard.general.changeCount
         timer = Timer.repeating(every: 1, tolerance: 0.3) { [weak self] _ in
             MainActor.assumeIsolated { self?.check() }
         }
