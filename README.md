@@ -108,7 +108,7 @@ island run npm test
 
 - Her şey bilgisayarda çalışır; analiz, ölçüm ve kayıtlar cihazdan çıkmaz.
 - İnternete yalnızca şu durumlarda bağlanılır: hava durumu ([Open-Meteo](https://open-meteo.com), yuvarlanmış konumla), Spotify kapak görseli, günde bir kez yeni sürüm denetimi (GitHub, sadece son sürüm numarası okunur; kapatılabilir) ve kullanıcı başlattığında hız testi (Apple sunucuları).
-- Pano geçmişi yalnızca bellekte tutulur, şifre yöneticilerinden gelen kopyalar kaydedilmez, ekran kilitlenince silinir.
+- Pano geçmişi yalnızca bu Mac'te tutulur: metinler bellekte, görseller yalnızca senin hesabının okuyabildiği geçici bir önbellek klasöründe durur. Şifre yöneticilerinden gelen kopyalar kaydedilmez; geçmiş ekran kilitlenince, uygulama kapanınca ve yeniden açılınca silinir.
 - Ada, ekran paylaşımı ve kayıtlarda varsayılan olarak gizlenir.
 
 ## Notlar

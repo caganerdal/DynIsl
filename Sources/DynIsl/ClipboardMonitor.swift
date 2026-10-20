@@ -82,6 +82,10 @@ final class ClipboardMonitor: ObservableObject {
         resume()
     }
 
+    nonisolated static func wipeStore() {
+        try? FileManager.default.removeItem(at: storeDir)
+    }
+
     private func pause() {
         timer?.invalidate()
         timer = nil

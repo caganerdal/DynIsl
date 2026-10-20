@@ -403,6 +403,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func cleanUpBeforeExit() {
+        ClipboardMonitor.wipeStore()
         model.speedTest.cancel()
     }
 
