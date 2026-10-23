@@ -259,7 +259,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func keepAwakeFor(_ sender: NSMenuItem) {
-        model.keepAwake.start(minutes: KeepAwake.durations[sender.tag].minutes)
+        model.keepAwake.start(KeepAwake.durations[sender.tag].value)
     }
     @objc private func keepAwakeOff() { model.keepAwake.stop() }
 
@@ -281,7 +281,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard menu === keepAwakeMenu else { return }
         let k = model.keepAwake
         for it in menu.items where it.action == #selector(keepAwakeFor(_:)) {
-            it.state = k.isActive && KeepAwake.durations[it.tag].minutes == k.minutes ? .on : .off
+            it.state = k.isActive && KeepAwake.durations[it.tag].value == k.duration ? .on : .off
         }
         if let off = menu.items.last {
             off.title = k.remainingText.map { String(localized: "Kapat (\($0))") } ?? (k.isActive ? String(localized: "Kapat") : String(localized: "Kapalı"))
@@ -403,6 +403,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func cleanUpBeforeExit() {
+        model.keepAwake.stop()
         ClipboardMonitor.wipeStore()
         model.speedTest.cancel()
     }

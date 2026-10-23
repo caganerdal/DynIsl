@@ -107,6 +107,12 @@ final class IslandModel: ObservableObject {
             if self.settings.chargeAnimation { self.showCharging(level) } else { self.showActivity(fallback) }
         }
         batteryInfo.start()
+        bag.append(battery.$level.combineLatest(battery.$isPluggedIn).sink { [weak self] level, plugged in
+            DispatchQueue.main.async {
+                guard let self, self.battery.hasBattery else { return }
+                self.keepAwake.checkBattery(level: level, onBattery: !plugged)
+            }
+        })
         keepAwake.onChange = { [weak self] a in self?.showActivity(a, duration: 2) }
         bluetooth.onActivity = { [weak self] a in
             guard let self, self.settings.notifyBluetooth else { return }
