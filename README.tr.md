@@ -23,7 +23,8 @@
 - **Sunum modu:** Keynote ya da PowerPoint sunumunda ve ekran yansıtılırken bildirimleri susturur, masaüstü simgelerini gizler; menü çubuğundan elle de açılır.
 - **Vurgu rengi:** macOS rengi, çalan şarkının rengi ya da kendi seçtiğin renk.
 - **Ada kedisi:** ada boşken çentiğin yanında uyur, müzik çalınca dans eder, pil azalınca yorulur, Mac zorlanınca terler.
-- **Zamanlayıcı** ve `island` terminal komutuyla kendi bildirimlerin.
+- **Zamanlayıcı**.
+- **AI kullanımı:** Claude aboneliğinin 5 saatlik ve haftalık limitleri ile açılma saatleri; Claude Code token kullanımı gün, proje ve modele göre; limite yaklaşınca uyarı.
 
 ### Sistem Paneli
 - İşlemci (çekirdek bazında), grafik işlemcisi, bellek, depolama, ağ ve Wi-Fi, pil sağlığı, ekranlar, Bluetooth cihazları, işlemler.
@@ -93,21 +94,10 @@ Her izin isteğe bağlıdır; verilmezse ilgili özellik çalışmaz, geri kalan
 | Erişilebilirlik | Ses ve parlaklık tuşlarını yakalayıp kendi göstergesini göstermek (sadece medya/parlaklık tuşlarını dinler) |
 | Tam Disk Erişimi | Etkin Odak modunu okumak (macOS bu bilgiyi korumalı bir klasörde tutuyor) |
 
-## Terminal komutu
-
-Kurulumla birlikte `~/.local/bin/island` komutu eklenir. Bu klasör `PATH`'inizde değilse `~/.zshrc` dosyasına `export PATH="$HOME/.local/bin:$PATH"` satırını ekleyin.
-
-```bash
-island "Build bitti"
-island -s "Testler geçti"
-island -e "Deploy başarısız"
-island run npm test
-```
-
 ## Gizlilik
 
 - Her şey bilgisayarda çalışır; analiz, ölçüm ve kayıtlar cihazdan çıkmaz.
-- İnternete yalnızca şu durumlarda bağlanılır: hava durumu ([Open-Meteo](https://open-meteo.com), yuvarlanmış konumla), Spotify kapak görseli, günde bir kez yeni sürüm denetimi (GitHub, sadece son sürüm numarası okunur; kapatılabilir) ve kullanıcı başlattığında hız testi (Apple sunucuları).
+- İnternete yalnızca şu durumlarda bağlanılır: hava durumu ([Open-Meteo](https://open-meteo.com), yuvarlanmış konumla), Spotify kapak görseli, günde bir kez yeni sürüm denetimi (GitHub, sadece son sürüm numarası okunur; kapatılabilir) ve kullanıcı başlattığında hız testi (Apple sunucuları). Claude Code kuruluysa AI sekmesi 5 dakikada bir `/usage` komutunu çalıştırır; bu istek senin Claude Code oturumunla Anthropic'e gider ve token harcamaz. Claude Code kayıtları yalnızca token sayıları için bilgisayarda okunur; sohbet içeriği okunmaz.
 - Pano geçmişi yalnızca bu Mac'te tutulur: metinler bellekte, görseller yalnızca senin hesabının okuyabildiği geçici bir önbellek klasöründe durur. Şifre yöneticilerinden gelen kopyalar kaydedilmez; geçmiş ekran kilitlenince, uygulama kapanınca ve yeniden açılınca silinir.
 - Ada, ekran paylaşımı ve kayıtlarda varsayılan olarak gizlenir.
 

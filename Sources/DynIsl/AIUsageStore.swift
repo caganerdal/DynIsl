@@ -14,6 +14,8 @@ final class AIUsageStore: ObservableObject {
     @Published private(set) var linked = false
     @Published private(set) var linkMessage: String?
     @Published private(set) var scanning = false
+    @Published private(set) var polling = false
+    @Published private(set) var pollProblem: String?
     @Published var alertsEnabled: Bool { didSet { UserDefaults.standard.set(alertsEnabled, forKey: "aiUsageAlerts") } }
 
     var onChange: ((IslandActivity) -> Void)?
@@ -27,6 +29,8 @@ final class AIUsageStore: ObservableObject {
     private var resetTimer: Timer?
     private var refreshTimer: Timer?
     private var announcedReset: Date?
+    private var lastPoll = Date.distantPast
+    private let pollQueue = DispatchQueue(label: "local.dynamicisland.ai-poll", qos: .utility)
 
     init() {
         UserDefaults.standard.register(defaults: ["aiUsageAlerts": true])
@@ -40,23 +44,88 @@ final class AIUsageStore: ObservableObject {
             MainActor.assumeIsolated { self?.scheduleReset() }
         }
         scheduleReset()
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.pollLimits()
+                self?.refresh()
+            }
         }
-        refreshTimer?.tolerance = 120
+        refreshTimer?.tolerance = 60
         refresh(force: true)
+        pollLimits(force: true)
     }
 
     var fiveHour: LimitWindow? { AIUsageRules.effective(limits?.fiveHour, now: Date()) }
     var sevenDay: LimitWindow? { AIUsageRules.effective(limits?.sevenDay, now: Date()) }
 
     func reloadLimits() {
-        guard let new = CLI.readUsage(), new != limits else { return }
+        guard let new = CLI.readUsage() else { return }
+        apply(new)
+        refresh()
+    }
+
+    private func apply(_ new: ClaudeLimits) {
+        guard new != limits else { return }
         let alerts = AIUsageRules.alerts(old: limits, new: new)
         limits = new
         scheduleReset()
         if alertsEnabled, let a = alerts.last { announce(a) }
-        refresh()
+    }
+
+    nonisolated static func findClaude() -> String? {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return ["\(home)/.local/bin/claude", "/opt/homebrew/bin/claude", "/usr/local/bin/claude", "\(home)/.claude/local/claude"]
+            .first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    func pollLimits(force: Bool = false) {
+        guard !polling, force || Date().timeIntervalSince(lastPoll) > 60 else { return }
+        guard let claude = Self.findClaude() else {
+            pollProblem = String(localized: "Claude Code bulunamadı")
+            return
+        }
+        polling = true
+        lastPoll = Date()
+        let workDir = CLI.usageURL.deletingLastPathComponent().appendingPathComponent("claude-usage")
+        pollQueue.async {
+            let result = Self.runUsage(claude, in: workDir)
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self.polling = false
+                    guard let fresh = result else {
+                        self.pollProblem = String(localized: "Claude Code'dan limit alınamadı")
+                        return
+                    }
+                    self.pollProblem = nil
+                    let merged = AIUsageRules.merge(old: self.limits, new: fresh)
+                    CLI.writeUsage(merged)
+                    self.apply(merged)
+                }
+            }
+        }
+    }
+
+    nonisolated private static func runUsage(_ claude: String, in dir: URL) -> ClaudeLimits? {
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: claude)
+        p.arguments = ["-p", "/usage", "--output-format", "stream-json", "--verbose", "--no-session-persistence",
+                       "--setting-sources", "", "--strict-mcp-config"]
+        p.currentDirectoryURL = dir
+        var env = ProcessInfo.processInfo.environment
+        env["PATH"] = ((env["PATH"].map { [$0] } ?? []) + ["/usr/bin", "/bin", "/usr/sbin", "/sbin", "/opt/homebrew/bin", "/usr/local/bin"]).joined(separator: ":")
+        p.environment = env
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        p.standardInput = FileHandle.nullDevice
+        guard (try? p.run()) != nil else { return nil }
+        let killer = DispatchWorkItem { if p.isRunning { p.terminate() } }
+        DispatchQueue.global().asyncAfter(deadline: .now() + 30, execute: killer)
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        killer.cancel()
+        return AIUsageRules.parseUsageReport(data, now: Date())
     }
 
     func refresh(force: Bool = false) {
@@ -165,7 +234,7 @@ final class AIUsageStore: ObservableObject {
             try writeSettings(out, expected: current)
             linkMessage = String(localized: "Bağlandı. Claude Code'da bir sonraki yanıttan sonra limitler görünür.")
         } catch AIUsageRules.LinkError.foreignStatusLine {
-            linkMessage = String(localized: "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i \"island claude-status\" komutuna aktaran bir satır ekleyebilirsin.")
+            linkMessage = String(localized: "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Limitler yine 5 dakikada bir güncellenir.")
         } catch AIUsageRules.LinkError.invalidSettings {
             linkMessage = String(localized: "~/.claude/settings.json okunamadı (geçersiz JSON); dokunmadım.")
         } catch {

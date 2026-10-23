@@ -97,13 +97,10 @@ if [[ "$1" == "install" ]]; then
   rm -rf "$DEST"
   ditto "$APP" "$DEST"
   echo "Kuruldu: $DEST"
-  mkdir -p "$HOME/.local/bin"
   LINK="$HOME/.local/bin/island"
-  if [[ ! -e "$LINK" && ! -L "$LINK" ]] || [[ "$(readlink "$LINK")" == *"/DynIsl.app/"* ]]; then
-    ln -sf "$DEST/Contents/MacOS/DynIsl" "$LINK"
-    echo "Komut: island  (~/.local/bin/island)"
-  else
-    echo "Uyarı: ~/.local/bin/island zaten başka bir dosya, dokunulmadı"
+  if [[ -L "$LINK" && "$(readlink "$LINK")" == *"/DynIsl.app/"* ]]; then
+    rm "$LINK"
+    echo "Kaldırıldı: eski island komutu (~/.local/bin/island)"
   fi
   open "$DEST"
 else

@@ -58,12 +58,12 @@ struct AICard: View {
         return RingGauge(value: p / 100, label: label,
                          detail: w.map { $0.resetsAt > now && $0.usedPercent > 0 ? resetText($0.resetsAt, now: now) : pc(Int(p.rounded())) } ?? "—",
                          tint: w == nil ? .gray : limitTint(p))
-            .help(w.map { pc(Int($0.usedPercent.rounded())) } ?? String(localized: "Claude Code'a bağlı değil"))
+            .help(w.map { pc(Int($0.usedPercent.rounded())) } ?? String(localized: "Veri yok"))
     }
 
     private func footer(now: Date) -> String {
         guard let l = ai.limits, l.hasData else {
-            return ai.linked ? String(localized: "Claude Code'dan ilk veri bekleniyor") : String(localized: "Limitler için Ayrıntılar'dan bağlan")
+            return ai.pollProblem ?? (ai.polling ? String(localized: "Claude'dan alınıyor…") : String(localized: "Veri yok"))
         }
         return String(localized: "Claude · \(agoText(l.updatedAt, now: now)) güncellendi")
     }
@@ -87,6 +87,7 @@ struct AIUsagePage: View {
         .onAppear {
             ai.refreshLink()
             ai.refresh()
+            ai.pollLimits()
         }
     }
 
@@ -97,22 +98,29 @@ struct AIUsagePage: View {
                 limitBlock(ai.sevenDay, title: String(localized: "Haftalık"), now: now)
                 Spacer()
             }
-            if let l = ai.limits, l.hasData {
-                Text("Son güncelleme: \(agoText(l.updatedAt, now: now))\(l.model.map { " · \($0)" } ?? "")")
-                    .font(.caption).foregroundStyle(.secondary)
+            HStack {
+                if let l = ai.limits, l.hasData {
+                    Text("Son güncelleme: \(agoText(l.updatedAt, now: now))").font(.caption).foregroundStyle(.secondary)
+                }
+                if let p = ai.pollProblem {
+                    Label(p, systemImage: "exclamationmark.triangle.fill").font(.caption).foregroundStyle(.orange)
+                }
+                Spacer()
+                if ai.polling { ProgressView().controlSize(.small) }
+                Button("Yenile") { ai.pollLimits(force: true) }.disabled(ai.polling)
             }
-            Text("Limitler Claude Code çalışırken gelir ve claude.ai ile ortaktır; yalnızca sohbet ediyorsan son bilinen değer gösterilir.")
+            Text("Limitler 5 dakikada bir Claude Code'un /usage komutuyla alınır; token harcamaz, claude.ai ile ortaktır.")
                 .font(.caption).foregroundStyle(.secondary)
             Divider()
             HStack {
                 if ai.linked {
-                    Label("Claude Code'a bağlı", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                    Label("Terminalde anlık güncelleme açık", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     Spacer()
-                    Button("Bağlantıyı kaldır") { ai.disconnect() }
+                    Button("Kapat") { ai.disconnect() }
                 } else {
-                    Label("Claude Code durum çubuğu üzerinden okunur", systemImage: "link").foregroundStyle(.secondary)
+                    Label("Terminaldeki Claude Code'da her yanıtta anlık güncelle", systemImage: "terminal").foregroundStyle(.secondary)
                     Spacer()
-                    Button("Claude Code'a bağla") { ai.connect() }.buttonStyle(.borderedProminent)
+                    Button("Aç") { ai.connect() }
                 }
             }
             .font(.callout)

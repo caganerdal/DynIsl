@@ -226,4 +226,24 @@ struct AIUsageRulesTests {
         let r = try #require(AIUsageRules.parseLogData(Data(logLine.utf8)))
         #expect(r.key == "msg_1:req_1" && r.total == 370)
     }
+
+    private let usageStream = """
+    {"type":"system","subtype":"init"}
+    {"type":"assistant","message":{"usage":{"input_tokens":0}},"usage_report":{"session":{},"rate_limits":{"limits":[{"kind":"session","group":"session","percent":50,"resets_at":"2026-10-23T23:40:00.316682+00:00","severity":"normal","is_active":true},{"kind":"weekly_all","group":"weekly","percent":47,"resets_at":"2026-10-27T19:00:00+00:00","severity":"normal","is_active":false},{"kind":"weekly_scoped","group":"weekly","percent":12,"resets_at":null}]}}}
+    {"type":"result","subtype":"success"}
+    """
+
+    @Test func parsesUsageReport() throws {
+        let l = try #require(AIUsageRules.parseUsageReport(Data(usageStream.utf8), now: now))
+        let iso = ISO8601DateFormatter()
+        #expect(l.fiveHour?.usedPercent == 50)
+        #expect(abs(l.fiveHour!.resetsAt.timeIntervalSince(iso.date(from: "2026-10-23T23:40:00Z")!) - 0.316682) < 0.001)
+        #expect(l.sevenDay == LimitWindow(usedPercent: 47, resetsAt: iso.date(from: "2026-10-27T19:00:00Z")!))
+        #expect(l.updatedAt == now)
+    }
+
+    @Test func usageReportWithoutLimitsIsNil() {
+        #expect(AIUsageRules.parseUsageReport(Data(#"{"type":"assistant","usage_report":{"rate_limits":null}}"#.utf8), now: now) == nil)
+        #expect(AIUsageRules.parseUsageReport(Data("garbage".utf8), now: now) == nil)
+    }
 }

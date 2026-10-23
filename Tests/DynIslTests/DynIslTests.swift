@@ -2,21 +2,6 @@ import Foundation
 import Testing
 @testable import DynIsl
 
-struct SanitizeTests {
-    @Test func replacesControlCharacters() {
-        #expect(IslandModel.sanitize("a\nb\tc", max: 20) == "a b c")
-    }
-
-    @Test func trimsSpaces() {
-        #expect(IslandModel.sanitize("  merhaba  ", max: 20) == "merhaba")
-    }
-
-    @Test func truncatesWithEllipsis() {
-        #expect(IslandModel.sanitize("abcdefghij", max: 5) == "abcd…")
-        #expect(IslandModel.sanitize("abcde", max: 5) == "abcde")
-    }
-}
-
 struct NowPlayingParseTests {
     private func line(_ fields: [String]) -> String { fields.joined(separator: NowPlayingService.sep) }
 

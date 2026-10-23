@@ -284,8 +284,6 @@ charging on hold</string>
 	<string>Connectivity &amp; Power</string>
 	<key>Bağlantı yok ya da test tamamlanamadı</key>
 	<string>No connection, or the test couldn't finish</string>
-	<key>Bağlantıyı kaldır</key>
-	<string>Disconnect</string>
 	<key>Bağlanınca</key>
 	<string>When connected</string>
 	<key>Bağlı</key>
@@ -330,8 +328,6 @@ charging on hold</string>
 	<string>Combined %@.pdf</string>
 	<key>Biten indirmeleri rafa ekle</key>
 	<string>Add finished downloads to the shelf</string>
-	<key>Bitti · %@</key>
-	<string>Done · %@</string>
 	<key>Bitti!</key>
 	<string>Done!</string>
 	<key>Boş</key>
@@ -358,38 +354,30 @@ charging on hold</string>
 	<string>Segmented</string>
 	<key>Bırak ve gönder</key>
 	<string>Drop to send</string>
-	<key>Cevabını bekliyor</key>
-	<string>Waiting for your reply</string>
 	<key>ChatGPT</key>
 	<string>ChatGPT</string>
 	<key>Cihazlar okunuyor…</key>
 	<string>Reading devices…</string>
 	<key>Claude 5 saatlik limit</key>
 	<string>Claude 5-hour limit</string>
-	<key>Claude Code durum çubuğu üzerinden okunur</key>
-	<string>Read through the Claude Code status line</string>
+	<key>Claude Code bulunamadı</key>
+	<string>Claude Code not found</string>
 	<key>Claude Code kullanımı</key>
 	<string>Claude Code usage</string>
-	<key>Claude Code'a bağla</key>
-	<string>Connect to Claude Code</string>
-	<key>Claude Code'a bağlı</key>
-	<string>Connected to Claude Code</string>
-	<key>Claude Code'a bağlı değil</key>
-	<string>Not connected to Claude Code</string>
-	<key>Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i "island claude-status" komutuna aktaran bir satır ekleyebilirsin.</key>
-	<string>Claude Code already has another status line, so I left it alone. You can add a line to your script that pipes stdin to "island claude-status".</string>
-	<key>Claude Code'dan ilk veri bekleniyor</key>
-	<string>Waiting for the first data from Claude Code</string>
+	<key>Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Limitler yine 5 dakikada bir güncellenir.</key>
+	<string>Claude Code already has another status line, so I left it alone. Limits still update every 5 minutes.</string>
+	<key>Claude Code'dan limit alınamadı</key>
+	<string>Couldn't get limits from Claude Code</string>
 	<key>Claude Code'un bu Mac'teki kayıtlarından hesaplanır; önbellekten okunan token'lar dahildir. Sohbet içeriği okunmaz.</key>
 	<string>Calculated from Claude Code's logs on this Mac, including cached tokens. Conversation content is never read.</string>
 	<key>Claude aboneliği</key>
 	<string>Claude plan</string>
-	<key>Claude bitirdi</key>
-	<string>Claude finished</string>
 	<key>Claude haftalık limit</key>
 	<string>Claude weekly limit</string>
 	<key>Claude · %@ güncellendi</key>
 	<string>Claude · updated %@</string>
+	<key>Claude'dan alınıyor…</key>
+	<string>Fetching from Claude…</string>
 	<key>Codex CLI kayıtlarından · %@</key>
 	<string>From Codex CLI logs · %@</string>
 	<key>Dahili</key>
@@ -596,8 +584,6 @@ charging on hold</string>
 	<string>External</string>
 	<key>Harici ekran</key>
 	<string>External display</string>
-	<key>Hata (%d) · %@</key>
-	<string>Error (%d) · %@</string>
 	<key>Hava durumu</key>
 	<string>Weather</string>
 	<key>Hava durumu alınamadı</key>
@@ -738,10 +724,8 @@ charging on hold</string>
 	<string>Limit alerts</string>
 	<key>Limitin açıldı</key>
 	<string>Limit reset</string>
-	<key>Limitler Claude Code çalışırken gelir ve claude.ai ile ortaktır; yalnızca sohbet ediyorsan son bilinen değer gösterilir.</key>
-	<string>Limits arrive while Claude Code is running and are shared with claude.ai; if you only chat, the last known value is shown.</string>
-	<key>Limitler için Ayrıntılar'dan bağlan</key>
-	<string>Connect in Details to see limits</string>
+	<key>Limitler 5 dakikada bir Claude Code'un /usage komutuyla alınır; token harcamaz, claude.ai ile ortaktır.</key>
+	<string>Limits are fetched every 5 minutes with Claude Code's /usage command; it uses no tokens and is shared with claude.ai.</string>
 	<key>Link kopyalandı</key>
 	<string>Link copied</string>
 	<key>Listeyi temizle</key>
@@ -952,8 +936,6 @@ calculating…</string>
 	<string>Health %@</string>
 	<key>Sekmeler</key>
 	<string>Tabs</string>
-	<key>Seni bekliyor</key>
-	<string>Waiting for you</string>
 	<key>Servis önerilir</key>
 	<string>Service recommended</string>
 	<key>Ses</key>
@@ -1016,8 +998,8 @@ calculating…</string>
 	<string>Last 7 days</string>
 	<key>Son açılış %@</key>
 	<string>Last opened %@</string>
-	<key>Son güncelleme: %@%@</key>
-	<string>Last update: %1$@%2$@</string>
+	<key>Son güncelleme: %@</key>
+	<string>Last update: %@</string>
 	<key>Sonra buradan istediğin yere sürükle</key>
 	<string>Then drag them anywhere from here</string>
 	<key>Sonuç</key>
@@ -1106,8 +1088,10 @@ calculating…</string>
 	<string>Responsiveness</string>
 	<key>Terimler</key>
 	<string>Terms</string>
-	<key>Terminal komutu</key>
-	<string>Terminal command</string>
+	<key>Terminalde anlık güncelleme açık</key>
+	<string>Live updates in the terminal are on</string>
+	<key>Terminaldeki Claude Code'da her yanıtta anlık güncelle</key>
+	<string>Update live on every reply in terminal Claude Code</string>
 	<key>Test ~20 sn sürer ve bu sürede bağlantını yoğun kullanır.</key>
 	<string>The test takes ~20 s and uses your connection heavily meanwhile.</string>
 	<key>Testi başlat</key>
@@ -1224,6 +1208,8 @@ calculating…</string>
 	<string>Check for new versions once a day</string>
 	<key>Yeniden tara</key>
 	<string>Rescan</string>
+	<key>Yenile</key>
+	<string>Refresh</string>
 	<key>Yenileme hızı</key>
 	<string>Refresh rate</string>
 	<key>Yonga</key>
@@ -1254,20 +1240,10 @@ calculating…</string>
 	<string>input %1$@ · output %2$@ · cache %3$@</string>
 	<key>hafta</key>
 	<string>week</string>
-	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
-	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
-	<key>island: %@ çalıştırılamadı: %@
-</key>
-	<string>island: couldn't run %@: %@
-</string>
 	<key>kapak kapalıyken de</key>
 	<string>lid closed too</string>
 	<key>kapandı, uyanık tut bitti</key>
 	<string>quit, keep awake ended</string>
-	<key>kullanım: island run &lt;komut&gt; [argümanlar]
-</key>
-	<string>usage: island run &lt;command&gt; [arguments]
-</string>
 	<key>macOS %@%@</key>
 	<string>macOS %@%@</string>
 	<key>macOS gibi (16 kademe)</key>
@@ -1380,8 +1356,6 @@ calculating…</string>
 	<string>Good</string>
 	<key>İyi değil</key>
 	<string>Fair</string>
-	<key>İzin bekliyor</key>
-	<string>Waiting for permission</string>
 	<key>İzin gerekli</key>
 	<string>Permission needed</string>
 	<key>İzin kaldırılmadı.</key>

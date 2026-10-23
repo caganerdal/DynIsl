@@ -31,7 +31,8 @@
 - **Presentation mode:** silences the island and hides desktop icons while Keynote or PowerPoint is presenting or the screen is mirrored.
 - **Accent color:** the macOS accent, the current song's color, or your own.
 - **Island cat:** sleeps next to the notch, dances to music, gets tired on low battery and sweats when the Mac is under load.
-- **Timer**, and an `island` command for your own notifications from the terminal (including Claude Code hooks).
+- **Timer**.
+- **AI usage:** your Claude plan limits (5-hour and weekly) with reset times, plus Claude Code token usage by day, project and model, with alerts near the limit.
 
 ### System dashboard
 - CPU (per core), GPU, memory, storage, network and Wi-Fi, battery health, displays, Bluetooth devices and processes, with search and Quit / Force Quit.
@@ -89,23 +90,10 @@ Every permission is optional. Without it, only the related feature is off.
 | Accessibility | Catching volume and brightness keys to show the island's HUD (only media and brightness keys) |
 | Full Disk Access | Reading the active Focus mode (macOS keeps it in a protected folder) |
 
-## Terminal command
-
-Installing adds `~/.local/bin/island`. If that folder isn't in your `PATH`, add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`.
-
-```bash
-island "Build finished"
-island -s "Tests passed"
-island -e "Deploy failed"
-island run npm test
-```
-
-Only your own `island` command can post to the island: each notification carries a per-user key that the app checks.
-
 ## Privacy
 
 - Everything runs on your Mac; analytics, measurements and history never leave it.
-- The app only connects to the internet for weather ([Open-Meteo](https://open-meteo.com), with a rounded location), Spotify artwork, a daily update check (GitHub, reads the latest version number only; can be turned off) and speed tests you start (Apple servers).
+- The app only connects to the internet for weather ([Open-Meteo](https://open-meteo.com), with a rounded location), Spotify artwork, a daily update check (GitHub, reads the latest version number only; can be turned off) and speed tests you start (Apple servers). If Claude Code is installed, the AI tab runs its `/usage` command every 5 minutes; that request goes to Anthropic through your own Claude Code login and uses no tokens. Claude Code logs are read locally for token counts only; conversation content is never read.
 - Clipboard history stays on this Mac: text in memory, images in a temporary cache folder only your account can read. Copies from password managers are skipped, and the history is cleared when the screen locks, when the app quits and when it starts.
 - The island is hidden from screen sharing and recordings by default.
 

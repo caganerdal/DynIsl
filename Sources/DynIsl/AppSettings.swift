@@ -324,7 +324,6 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         (String(localized: "Gizlilik"), "hideFromCapture", .features),
         (String(localized: "Rehber"), "about", .general),
         (String(localized: "Sorun bildir…"), "about", .general),
-        (String(localized: "Terminal komutu"), "terminal", .features),
         (String(localized: "Erişilebilirlik"), "permAccessibility", .permissions),
         (String(localized: "Tam Disk Erişimi"), "permFocus", .permissions),
         (String(localized: "Konum"), "permLocation", .permissions),
@@ -761,13 +760,6 @@ private struct SettingsView: View {
             Section("Gizlilik") {
                 Toggle("Ekran paylaşımı ve kayıtlarda adayı gizle", isOn: $settings.hideFromCapture)
                     .settingAnchor("hideFromCapture")
-            }
-            Section("Terminal komutu") {
-                Text("island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test")
-                    .font(.system(.caption, design: .monospaced))
-                    .textSelection(.enabled)
-                    .foregroundStyle(.secondary)
-                    .settingAnchor("terminal")
             }
         }
         .formStyle(.grouped)

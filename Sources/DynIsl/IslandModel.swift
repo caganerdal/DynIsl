@@ -84,7 +84,6 @@ final class IslandModel: ObservableObject {
     let settings = AppSettings()
 
     private var activityWork: DispatchWorkItem?
-    private var lastCLISound = Date.distantPast
     private var countdown: Timer?
     private var bag: [Any] = []
 
@@ -277,37 +276,15 @@ final class IslandModel: ObservableObject {
             self?.system.isVisible = expanded && tab == .system
             self?.media.isVisible = expanded && tab == .media
             self?.batteryInfo.isVisible = expanded && tab == .battery
-            if expanded && tab == .ai { self?.aiUsage.refresh() }
+            if expanded && tab == .ai {
+                self?.aiUsage.refresh()
+                self?.aiUsage.pollLimits()
+            }
         })
         bag.append(settings.$hiddenTabs.sink { [weak self] hidden in
             if let self, hidden.contains(self.tab) { self.tab = .media }
         })
 
-        let cliToken = CLI.token(create: true)
-        DistributedNotificationCenter.default().addObserver(
-            forName: CLI.notificationName, object: nil, queue: .main
-        ) { [weak self] note in
-            guard let info = note.userInfo, let cliToken, info["token"] as? String == cliToken else { return }
-            let icon = (info["icon"] as? String).flatMap {
-                $0.count <= 64 && NSImage(systemSymbolName: $0, accessibilityDescription: nil) != nil ? $0 : nil
-            } ?? "terminal.fill"
-            let activity = IslandActivity(
-                icon: icon,
-                tint: Self.color(named: info["tint"] as? String ?? "white"),
-                title: Self.sanitize(info["title"] as? String ?? "Terminal", max: 40),
-                trailing: Self.sanitize(info["message"] as? String ?? "", max: 80)
-            )
-            let duration = min(max(info["duration"] as? Double ?? 4, 1), 15)
-            let sound = info["sound"] as? Bool ?? false
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                self.showActivity(activity, duration: duration)
-                if sound, Date().timeIntervalSince(self.lastCLISound) > 3 {
-                    self.lastCLISound = Date()
-                    NSSound(named: "Glass")?.play()
-                }
-            }
-        }
         airdrop.onResult = { [weak self] ok, count in
             if ok {
                 self?.showActivity(.init(icon: "checkmark.circle.fill", tint: .blue, title: "AirDrop", trailing: String(localized: "\(count) dosya gitti")))
@@ -443,26 +420,6 @@ final class IslandModel: ObservableObject {
         isExpanded = value
         if value, isFileDragging { tab = .shelf }
         if value { shelf.prune() }
-    }
-
-    nonisolated static func sanitize(_ s: String, max: Int) -> String {
-        let clean = String(s.unicodeScalars.map { CharacterSet.controlCharacters.contains($0) ? " " : Character($0) })
-            .trimmingCharacters(in: .whitespaces)
-        return clean.count > max ? String(clean.prefix(max - 1)) + "…" : clean
-    }
-
-    nonisolated static func color(named name: String) -> Color {
-        switch name.lowercased() {
-        case "green", "yeşil": return .green
-        case "red", "kırmızı": return .red
-        case "orange", "turuncu": return .orange
-        case "yellow", "sarı": return .yellow
-        case "blue", "mavi": return .blue
-        case "purple", "mor": return .purple
-        case "pink", "pembe": return .pink
-        case "teal": return .teal
-        default: return .white
-        }
     }
 
     func showCharging(_ level: Int) {

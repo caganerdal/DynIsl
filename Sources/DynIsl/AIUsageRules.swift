@@ -47,6 +47,30 @@ enum AIUsageRules {
         (any as? NSNumber)?.doubleValue
     }
 
+    static func parseUsageReport(_ data: Data, now: Date) -> ClaudeLimits? {
+        for line in data.split(separator: 0x0A) where line.range(of: Data("usage_report".utf8)) != nil {
+            guard let json = (try? JSONSerialization.jsonObject(with: Data(line))) as? [String: Any],
+                  let report = json["usage_report"] as? [String: Any],
+                  let rows = (report["rate_limits"] as? [String: Any])?["limits"] as? [[String: Any]] else { continue }
+            func row(_ kind: String) -> LimitWindow? {
+                guard let r = rows.first(where: { $0["kind"] as? String == kind }), let p = number(r["percent"]),
+                      let at = preciseDate(r["resets_at"] as? String) else { return nil }
+                return LimitWindow(usedPercent: p, resetsAt: at)
+            }
+            let l = ClaudeLimits(fiveHour: row("session"), sevenDay: row("weekly_all"), model: nil, updatedAt: now)
+            return l.hasData ? l : nil
+        }
+        return nil
+    }
+
+    static func preciseDate(_ s: String?) -> Date? {
+        guard let s else { return nil }
+        guard let dot = s.firstIndex(of: "."),
+              let end = s[dot...].firstIndex(where: { !$0.isNumber && $0 != "." }) else { return date(s) }
+        let fraction = Double("0" + s[dot..<end]) ?? 0
+        return iso.date(from: String(s[..<dot]) + String(s[end...])).map { $0.addingTimeInterval(fraction) }
+    }
+
     static func statusLine(_ l: ClaudeLimits, five: String = "5s", week: String = "hafta",
                            percent: (Double) -> String = { "%\(Int($0.rounded()))" }) -> String {
         var parts: [String] = []

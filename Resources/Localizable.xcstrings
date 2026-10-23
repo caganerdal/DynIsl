@@ -1699,16 +1699,6 @@
         }
       }
     },
-    "Bağlantıyı kaldır": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disconnect"
-          }
-        }
-      }
-    },
     "Bağlanınca": {
       "localizations": {
         "en": {
@@ -1929,16 +1919,6 @@
         }
       }
     },
-    "Bitti · %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done · %@"
-          }
-        }
-      }
-    },
     "Bitti!": {
       "localizations": {
         "en": {
@@ -2069,16 +2049,6 @@
         }
       }
     },
-    "Cevabını bekliyor": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Waiting for your reply"
-          }
-        }
-      }
-    },
     "ChatGPT": {
       "localizations": {
         "en": {
@@ -2109,12 +2079,12 @@
         }
       }
     },
-    "Claude Code durum çubuğu üzerinden okunur": {
+    "Claude Code bulunamadı": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read through the Claude Code status line"
+            "value": "Claude Code not found"
           }
         }
       }
@@ -2129,52 +2099,22 @@
         }
       }
     },
-    "Claude Code'a bağla": {
+    "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Limitler yine 5 dakikada bir güncellenir.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect to Claude Code"
+            "value": "Claude Code already has another status line, so I left it alone. Limits still update every 5 minutes."
           }
         }
       }
     },
-    "Claude Code'a bağlı": {
+    "Claude Code'dan limit alınamadı": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connected to Claude Code"
-          }
-        }
-      }
-    },
-    "Claude Code'a bağlı değil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not connected to Claude Code"
-          }
-        }
-      }
-    },
-    "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i \"island claude-status\" komutuna aktaran bir satır ekleyebilirsin.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude Code already has another status line, so I left it alone. You can add a line to your script that pipes stdin to \"island claude-status\"."
-          }
-        }
-      }
-    },
-    "Claude Code'dan ilk veri bekleniyor": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Waiting for the first data from Claude Code"
+            "value": "Couldn't get limits from Claude Code"
           }
         }
       }
@@ -2199,16 +2139,6 @@
         }
       }
     },
-    "Claude bitirdi": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claude finished"
-          }
-        }
-      }
-    },
     "Claude haftalık limit": {
       "localizations": {
         "en": {
@@ -2225,6 +2155,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Claude · updated %@"
+          }
+        }
+      }
+    },
+    "Claude'dan alınıyor…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fetching from Claude…"
           }
         }
       }
@@ -3259,16 +3199,6 @@
         }
       }
     },
-    "Hata (%d) · %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Error (%d) · %@"
-          }
-        }
-      }
-    },
     "Hava durumu": {
       "localizations": {
         "en": {
@@ -3969,22 +3899,12 @@
         }
       }
     },
-    "Limitler Claude Code çalışırken gelir ve claude.ai ile ortaktır; yalnızca sohbet ediyorsan son bilinen değer gösterilir.": {
+    "Limitler 5 dakikada bir Claude Code'un /usage komutuyla alınır; token harcamaz, claude.ai ile ortaktır.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Limits arrive while Claude Code is running and are shared with claude.ai; if you only chat, the last known value is shown."
-          }
-        }
-      }
-    },
-    "Limitler için Ayrıntılar'dan bağlan": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect in Details to see limits"
+            "value": "Limits are fetched every 5 minutes with Claude Code's /usage command; it uses no tokens and is shared with claude.ai."
           }
         }
       }
@@ -5019,16 +4939,6 @@
         }
       }
     },
-    "Seni bekliyor": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Waiting for you"
-          }
-        }
-      }
-    },
     "Servis önerilir": {
       "localizations": {
         "en": {
@@ -5339,12 +5249,12 @@
         }
       }
     },
-    "Son güncelleme: %@%@": {
+    "Son güncelleme: %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last update: %1$@%2$@"
+            "value": "Last update: %@"
           }
         }
       }
@@ -5789,12 +5699,22 @@
         }
       }
     },
-    "Terminal komutu": {
+    "Terminalde anlık güncelleme açık": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terminal command"
+            "value": "Live updates in the terminal are on"
+          }
+        }
+      }
+    },
+    "Terminaldeki Claude Code'da her yanıtta anlık güncelle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update live on every reply in terminal Claude Code"
           }
         }
       }
@@ -6379,6 +6299,16 @@
         }
       }
     },
+    "Yenile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        }
+      }
+    },
     "Yenileme hızı": {
       "localizations": {
         "en": {
@@ -6529,26 +6459,6 @@
         }
       }
     },
-    "island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "island \"Build done\" · island -s \"Tests passed\" · island run npm test"
-          }
-        }
-      }
-    },
-    "island: %@ çalıştırılamadı: %@\n": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "island: couldn't run %@: %@\n"
-          }
-        }
-      }
-    },
     "kapak kapalıyken de": {
       "localizations": {
         "en": {
@@ -6565,16 +6475,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "quit, keep awake ended"
-          }
-        }
-      }
-    },
-    "kullanım: island run <komut> [argümanlar]\n": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "usage: island run <command> [arguments]\n"
           }
         }
       }
@@ -7135,16 +7035,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fair"
-          }
-        }
-      }
-    },
-    "İzin bekliyor": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Waiting for permission"
           }
         }
       }
