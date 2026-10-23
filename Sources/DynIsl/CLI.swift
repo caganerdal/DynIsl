@@ -137,18 +137,21 @@ enum CLI {
         }
         let old = readUsage()
         let merged = AIUsageRules.merge(old: old, new: new)
-        if merged != old, let out = try? JSONEncoder().encode(merged) {
-            try? FileManager.default.createDirectory(at: usageURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if (try? out.write(to: usageURL, options: .atomic)) != nil {
-                try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: usageURL.path)
-                DistributedNotificationCenter.default().postNotificationName(
-                    usageNotificationName, object: nil, userInfo: ["token": token(create: false) ?? ""], deliverImmediately: true)
+        if AIUsageRules.shouldWrite(old: old, new: merged), let out = try? JSONEncoder().encode(merged) {
+            let dir = usageURL.deletingLastPathComponent()
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            let tmp = dir.appendingPathComponent(".ai-usage-\(getpid()).json")
+            if FileManager.default.createFile(atPath: tmp.path, contents: out, attributes: [.posixPermissions: 0o600]),
+               rename(tmp.path, usageURL.path) == 0 {
+                DistributedNotificationCenter.default().postNotificationName(usageNotificationName, object: nil, userInfo: nil, deliverImmediately: true)
+            } else {
+                try? FileManager.default.removeItem(at: tmp)
             }
         }
         var shown = merged
         shown.fiveHour = AIUsageRules.effective(merged.fiveHour, now: now)
         shown.sevenDay = AIUsageRules.effective(merged.sevenDay, now: now)
-        print(AIUsageRules.statusLine(shown))
+        print(AIUsageRules.statusLine(shown, five: String(localized: "5s"), week: String(localized: "hafta"), percent: { pc(Int($0.rounded())) }))
         return 0
     }
 

@@ -152,6 +152,10 @@ Click: System Dashboard</string>
 	<string>5-hour</string>
 	<key>5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit açılınca adada haber verir.</key>
 	<string>Shows an alert on the island when the 5-hour limit reaches %1$@ and %2$@, the weekly limit reaches %3$@, and when the limit resets.</string>
+	<key>5S</key>
+	<string>5H</string>
+	<key>5s</key>
+	<string>5h</string>
 	<key>6 ay</key>
 	<string>6 months</string>
 	<key>7 gün: %@</key>
@@ -1248,6 +1252,8 @@ calculating…</string>
 	<string>display may sleep</string>
 	<key>girdi %@ · çıktı %@ · önbellek %@</key>
 	<string>input %1$@ · output %2$@ · cache %3$@</string>
+	<key>hafta</key>
+	<string>week</string>
 	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
 	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
 	<key>island: %@ çalıştırılamadı: %@

@@ -10,6 +10,7 @@ struct ClaudeLimits: Codable, Equatable {
     var sevenDay: LimitWindow?
     var model: String?
     var updatedAt: Date
+    var hasData: Bool { fiveHour != nil || sevenDay != nil }
 }
 
 struct UsageRecord: Equatable {
@@ -46,10 +47,11 @@ enum AIUsageRules {
         (any as? NSNumber)?.doubleValue
     }
 
-    static func statusLine(_ l: ClaudeLimits) -> String {
+    static func statusLine(_ l: ClaudeLimits, five: String = "5s", week: String = "hafta",
+                           percent: (Double) -> String = { "%\(Int($0.rounded()))" }) -> String {
         var parts: [String] = []
-        if let w = l.fiveHour { parts.append("5s %\(Int(w.usedPercent.rounded()))") }
-        if let w = l.sevenDay { parts.append("hafta %\(Int(w.usedPercent.rounded()))") }
+        if let w = l.fiveHour { parts.append("\(five) \(percent(w.usedPercent))") }
+        if let w = l.sevenDay { parts.append("\(week) \(percent(w.usedPercent))") }
         return parts.isEmpty ? (l.model ?? "Claude") : parts.joined(separator: " · ")
     }
 
@@ -59,6 +61,12 @@ enum AIUsageRules {
                                 model: new.model ?? old?.model, updatedAt: new.updatedAt)
         }
         return ClaudeLimits(fiveHour: old.fiveHour, sevenDay: old.sevenDay, model: new.model ?? old.model, updatedAt: old.updatedAt)
+    }
+
+    static func shouldWrite(old: ClaudeLimits?, new: ClaudeLimits) -> Bool {
+        guard let old else { return true }
+        return old.fiveHour != new.fiveHour || old.sevenDay != new.sevenDay || old.model != new.model
+            || new.updatedAt.timeIntervalSince(old.updatedAt) >= 30
     }
 
     static func effective(_ w: LimitWindow?, now: Date) -> LimitWindow? {
@@ -104,8 +112,15 @@ enum AIUsageRules {
     }
 
     static func parseLogLine(_ line: Substring) -> UsageRecord? {
-        guard line.contains("\"assistant\""), line.contains("\"usage\""),
-              let json = (try? JSONSerialization.jsonObject(with: Data(line.utf8))) as? [String: Any],
+        parseLogData(Data(line.utf8))
+    }
+
+    private static let assistantMarker = Data("\"assistant\"".utf8)
+    private static let usageMarker = Data("\"usage\"".utf8)
+
+    static func parseLogData(_ line: Data) -> UsageRecord? {
+        guard line.range(of: assistantMarker) != nil, line.range(of: usageMarker) != nil,
+              let json = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any],
               json["type"] as? String == "assistant",
               let message = json["message"] as? [String: Any],
               let usage = message["usage"] as? [String: Any],
@@ -121,8 +136,33 @@ enum AIUsageRules {
         return record.total > 0 ? record : nil
     }
 
+    private static let appExecutableSuffix = ".app/Contents/MacOS/DynIsl"
+
+    static func linkCommand(executable: String) -> String {
+        "'" + executable.replacingOccurrences(of: "'", with: "'\\''") + "' " + statusCommandSuffix
+    }
+
+    static func executablePath(fromCommand command: String) -> String? {
+        let tail = "' " + statusCommandSuffix
+        guard command.hasPrefix("'"), command.hasSuffix(tail) else { return nil }
+        let inner = command.dropFirst().dropLast(tail.count)
+        guard !inner.replacingOccurrences(of: "'\\''", with: "").contains("'") else { return nil }
+        return inner.replacingOccurrences(of: "'\\''", with: "'")
+    }
+
+    static func isOwnCommand(_ command: String) -> Bool {
+        executablePath(fromCommand: command)?.hasSuffix(appExecutableSuffix) == true
+    }
+
+    static func shouldRelink(current: String, executable: String, exists: (String) -> Bool) -> Bool {
+        guard let old = executablePath(fromCommand: current), old.hasSuffix(appExecutableSuffix),
+              executable.hasSuffix(appExecutableSuffix), !executable.contains("/AppTranslocation/"),
+              old != executable else { return false }
+        return !exists(old)
+    }
+
     private static func isOwn(_ statusLine: Any?) -> Bool {
-        ((statusLine as? [String: Any])?["command"] as? String)?.hasSuffix(" " + statusCommandSuffix) == true
+        ((statusLine as? [String: Any])?["command"] as? String).map(isOwnCommand) == true
     }
 
     static func statusCommand(settings: Data) -> String? {

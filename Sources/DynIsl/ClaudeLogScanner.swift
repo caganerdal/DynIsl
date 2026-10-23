@@ -54,12 +54,13 @@ final class ClaudeLogScanner {
     }
 
     @discardableResult
-    func scan(now: Date) -> Bool {
+    func scan(now: Date, checkpointEvery interval: TimeInterval = 5, checkpoint: ((ScanState) -> Void)? = nil) -> Bool {
         let cutoff = calendar.startOfDay(for: calendar.date(byAdding: .day, value: -Self.keepDays, to: now) ?? now)
         var changed = false
         let keys: [URLResourceKey] = [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey]
         guard let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: keys) else { return false }
         var present = Set<String>()
+        var lastCheckpoint = Date()
         for case let url as URL in walker where url.pathExtension == "jsonl" {
             guard let v = try? url.resourceValues(forKeys: Set(keys)), v.isRegularFile == true else { continue }
             let path = url.path
@@ -68,35 +69,46 @@ final class ClaudeLogScanner {
             var offset = state.offsets[path] ?? 0
             if offset == 0, state.offsets[path] == nil, let m = v.contentModificationDate, m < cutoff {
                 state.offsets[path] = size
+                changed = true
                 continue
             }
             if size < offset { offset = 0 }
-            guard size > offset else { continue }
-            if read(url, from: offset, cutoff: cutoff, newOffset: &offset) { changed = true }
+            guard size > offset || state.offsets[path] != offset else { continue }
+            read(url, from: offset, cutoff: cutoff, newOffset: &offset)
+            if state.offsets[path] != offset { changed = true }
             state.offsets[path] = offset
+            if let checkpoint, Date().timeIntervalSince(lastCheckpoint) >= interval {
+                checkpoint(state)
+                lastCheckpoint = Date()
+            }
         }
+        let known = state.offsets.count
         state.offsets = state.offsets.filter { present.contains($0.key) }
+        if state.offsets.count != known { changed = true }
         let before = state.buckets.count
         state.buckets = state.buckets.filter { $0.key.day >= cutoff }
         state.seen = state.seen.filter { $0.value >= cutoff }
         return changed || state.buckets.count != before
     }
 
-    private func read(_ url: URL, from start: UInt64, cutoff: Date, newOffset: inout UInt64) -> Bool {
-        guard let h = try? FileHandle(forReadingFrom: url) else { return false }
+    private func read(_ url: URL, from start: UInt64, cutoff: Date, newOffset: inout UInt64) {
+        guard let h = try? FileHandle(forReadingFrom: url) else { return }
         defer { try? h.close() }
-        guard (try? h.seek(toOffset: start)) != nil else { return false }
+        guard (try? h.seek(toOffset: start)) != nil else { return }
         var offset = start
         var carry = Data()
-        var changed = false
         while true {
             let more: Bool = autoreleasepool {
                 guard let data = try? h.read(upToCount: Self.chunk), !data.isEmpty else { return false }
+                guard let newline = data.lastIndex(of: 0x0A) else {
+                    carry.append(data)
+                    return true
+                }
                 carry.append(data)
-                guard let last = carry.lastIndex(of: 0x0A) else { return true }
+                let last = carry.index(carry.startIndex, offsetBy: carry.count - (data.endIndex - newline))
                 let complete = carry[carry.startIndex...last]
                 for line in complete.split(separator: 0x0A, omittingEmptySubsequences: true) where line.range(of: Self.marker) != nil {
-                    if ingest(line, cutoff: cutoff) { changed = true }
+                    ingest(Data(line), cutoff: cutoff)
                 }
                 offset += UInt64(complete.count)
                 carry = Data(carry[carry.index(after: last)...])
@@ -105,12 +117,11 @@ final class ClaudeLogScanner {
             if !more { break }
         }
         newOffset = offset
-        return changed
     }
 
+    @discardableResult
     private func ingest(_ line: Data, cutoff: Date) -> Bool {
-        guard let text = String(data: line, encoding: .utf8), let r = AIUsageRules.parseLogLine(Substring(text)),
-              r.date >= cutoff, state.seen[r.key] == nil else { return false }
+        guard let r = AIUsageRules.parseLogData(line), r.date >= cutoff, state.seen[r.key] == nil else { return false }
         state.seen[r.key] = r.date
         let key = UsageBucketKey(day: calendar.startOfDay(for: r.date), project: r.project, model: r.model)
         state.buckets[key, default: UsageTotals()].add(r)

@@ -28,7 +28,7 @@ struct AICard: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             HStack(alignment: .center, spacing: 18) {
-                ring(ai.fiveHour, label: "5S", now: context.date)
+                ring(ai.fiveHour, label: String(localized: "5S"), now: context.date)
                 ring(ai.sevenDay, label: String(localized: "HFT"), now: context.date)
                 Rectangle().fill(.white.opacity(0.12)).frame(width: 1)
                 VStack(alignment: .leading, spacing: 5) {
@@ -62,7 +62,7 @@ struct AICard: View {
     }
 
     private func footer(now: Date) -> String {
-        guard let l = ai.limits else {
+        guard let l = ai.limits, l.hasData else {
             return ai.linked ? String(localized: "Claude Code'dan ilk veri bekleniyor") : String(localized: "Limitler için Ayrıntılar'dan bağlan")
         }
         return String(localized: "Claude · \(agoText(l.updatedAt, now: now)) güncellendi")
@@ -97,7 +97,7 @@ struct AIUsagePage: View {
                 limitBlock(ai.sevenDay, title: String(localized: "Haftalık"), now: now)
                 Spacer()
             }
-            if let l = ai.limits {
+            if let l = ai.limits, l.hasData {
                 Text("Son güncelleme: \(agoText(l.updatedAt, now: now))\(l.model.map { " · \($0)" } ?? "")")
                     .font(.caption).foregroundStyle(.secondary)
             }

@@ -111,4 +111,23 @@ struct ClaudeLogScannerTests {
         s.scan(now: now)
         #expect(s.summary(now: now).models.map(\.name) == ["claude-opus-5-5", "claude-sonnet-5-5"])
     }
+
+    @Test func offsetOnlyProgressCountsAsChange() throws {
+        let root = try tempRoot()
+        let f = root.appendingPathComponent("proj/a.jsonl")
+        try write(f, [line(id: "m1")])
+        let s = ClaudeLogScanner(root: root, calendar: cal)
+        s.scan(now: now)
+        try append(f, #"{"type":"user","message":{"content":"x"}}"# + "\n")
+        #expect(s.scan(now: now))
+    }
+
+    @Test func checkpointsDuringLongScan() throws {
+        let root = try tempRoot()
+        for i in 0..<3 { try write(root.appendingPathComponent("proj/\(i).jsonl"), [line(id: "m\(i)")]) }
+        let s = ClaudeLogScanner(root: root, calendar: cal)
+        var saves = 0
+        s.scan(now: now, checkpointEvery: 0) { _ in saves += 1 }
+        #expect(saves == 3)
+    }
 }

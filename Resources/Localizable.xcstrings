@@ -1049,6 +1049,26 @@
         }
       }
     },
+    "5S": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5H"
+          }
+        }
+      }
+    },
+    "5s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5h"
+          }
+        }
+      }
+    },
     "6 ay": {
       "localizations": {
         "en": {
@@ -6495,6 +6515,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "input %1$@ · output %2$@ · cache %3$@"
+          }
+        }
+      }
+    },
+    "hafta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "week"
           }
         }
       }

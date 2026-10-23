@@ -111,7 +111,7 @@ struct AIUsageRulesTests {
     }
 
     @Test func connectAcceptsOwnExistingStatusLine() throws {
-        let own = Data(#"{"statusLine":{"type":"command","command":"/old/island claude-status"}}"#.utf8)
+        let own = Data(#"{"statusLine":{"type":"command","command":"'/old/DynIsl.app/Contents/MacOS/DynIsl' claude-status"}}"#.utf8)
         let out = try AIUsageRules.connect(settings: own, command: "/new/island claude-status")
         let d = try #require(try JSONSerialization.jsonObject(with: out) as? [String: Any])
         #expect((d["statusLine"] as? [String: Any])?["command"] as? String == "/new/island claude-status")
@@ -123,13 +123,13 @@ struct AIUsageRulesTests {
     }
 
     @Test func linkedStatus() {
-        #expect(AIUsageRules.isLinked(settings: Data(#"{"statusLine":{"command":"/a/island claude-status"}}"#.utf8)))
+        #expect(AIUsageRules.isLinked(settings: Data(#"{"statusLine":{"command":"'/a/DynIsl.app/Contents/MacOS/DynIsl' claude-status"}}"#.utf8)))
         #expect(!AIUsageRules.isLinked(settings: Data(#"{"statusLine":{"command":"x.sh"}}"#.utf8)))
         #expect(!AIUsageRules.isLinked(settings: nil))
     }
 
     @Test func disconnectRemovesOnlyOwnStatusLine() throws {
-        let own = Data(#"{"statusLine":{"type":"command","command":"/a/island claude-status"},"model":"opus"}"#.utf8)
+        let own = Data(#"{"statusLine":{"type":"command","command":"'/a/DynIsl.app/Contents/MacOS/DynIsl' claude-status"},"model":"opus"}"#.utf8)
         let out = try #require(AIUsageRules.disconnect(settings: own))
         let d = try #require(try JSONSerialization.jsonObject(with: out) as? [String: Any])
         #expect(d["statusLine"] == nil && d["model"] as? String == "opus")
@@ -162,5 +162,68 @@ struct AIUsageRulesTests {
 
     @Test func newWindowStartsFromZero() {
         #expect(AIUsageRules.alerts(old: limits(90, 10), new: limits(85, 10, fiveReset: 5 * 3600)) == [.fiveHour(80)])
+    }
+
+    @Test func ownCommandIsOnlyTheQuotedAppForm() {
+        #expect(AIUsageRules.isOwnCommand("'/Applications/DynIsl.app/Contents/MacOS/DynIsl' claude-status"))
+        #expect(AIUsageRules.isOwnCommand("'/a b/build/DynIsl.app/Contents/MacOS/DynIsl' claude-status"))
+        #expect(!AIUsageRules.isOwnCommand("island claude-status"))
+        #expect(!AIUsageRules.isOwnCommand("tee /tmp/x | '/Applications/DynIsl.app/Contents/MacOS/DynIsl' claude-status"))
+        #expect(!AIUsageRules.isOwnCommand("'/x/island' claude-status"))
+    }
+
+    @Test func connectRefusesUserWrittenIslandCommand() {
+        let user = Data(#"{"statusLine":{"type":"command","command":"island claude-status"}}"#.utf8)
+        #expect(throws: AIUsageRules.LinkError.foreignStatusLine) {
+            try AIUsageRules.connect(settings: user, command: "'/Applications/DynIsl.app/Contents/MacOS/DynIsl' claude-status")
+        }
+    }
+
+    @Test func executablePathFromCommand() {
+        #expect(AIUsageRules.executablePath(fromCommand: "'/a b/it'\\''s/DynIsl.app/Contents/MacOS/DynIsl' claude-status") == "/a b/it's/DynIsl.app/Contents/MacOS/DynIsl")
+        #expect(AIUsageRules.executablePath(fromCommand: "island claude-status") == nil)
+    }
+
+    @Test func linkCommandQuotesPath() {
+        let c = AIUsageRules.linkCommand(executable: "/a b/it's/DynIsl.app/Contents/MacOS/DynIsl")
+        #expect(AIUsageRules.isOwnCommand(c))
+        #expect(AIUsageRules.executablePath(fromCommand: c) == "/a b/it's/DynIsl.app/Contents/MacOS/DynIsl")
+    }
+
+    @Test func autoUpdateOnlyWhenOldTargetIsGone() {
+        let old = AIUsageRules.linkCommand(executable: "/old/DynIsl.app/Contents/MacOS/DynIsl")
+        let new = "/Applications/DynIsl.app/Contents/MacOS/DynIsl"
+        #expect(AIUsageRules.shouldRelink(current: old, executable: new, exists: { _ in false }))
+        #expect(!AIUsageRules.shouldRelink(current: old, executable: new, exists: { _ in true }))
+        #expect(!AIUsageRules.shouldRelink(current: AIUsageRules.linkCommand(executable: new), executable: new, exists: { _ in false }))
+        #expect(!AIUsageRules.shouldRelink(current: old, executable: "/private/var/folders/x/AppTranslocation/U/d/DynIsl.app/Contents/MacOS/DynIsl", exists: { _ in false }))
+        #expect(!AIUsageRules.shouldRelink(current: old, executable: "/x/.build/debug/DynIsl", exists: { _ in false }))
+        #expect(!AIUsageRules.shouldRelink(current: "island claude-status", executable: new, exists: { _ in false }))
+    }
+
+    @Test func statusLineUsesGivenLabels() {
+        let l = limits(23.5, 41.2)
+        #expect(AIUsageRules.statusLine(l, five: "5h", week: "week", percent: { "\(Int($0.rounded()))%" }) == "5h 24% · week 41%")
+    }
+
+    @Test func skipsRedundantWrites() {
+        let old = limits(20, 40)
+        var same = old
+        same.updatedAt = now.addingTimeInterval(10)
+        #expect(!AIUsageRules.shouldWrite(old: old, new: same))
+        same.updatedAt = now.addingTimeInterval(45)
+        #expect(AIUsageRules.shouldWrite(old: old, new: same))
+        #expect(AIUsageRules.shouldWrite(old: old, new: limits(21, 40)))
+        #expect(AIUsageRules.shouldWrite(old: nil, new: old))
+    }
+
+    @Test func emptyLimitsHaveNoData() {
+        #expect(!ClaudeLimits(fiveHour: nil, sevenDay: nil, model: "x", updatedAt: now).hasData)
+        #expect(limits(1, nil).hasData)
+    }
+
+    @Test func parsesLogData() throws {
+        let r = try #require(AIUsageRules.parseLogData(Data(logLine.utf8)))
+        #expect(r.key == "msg_1:req_1" && r.total == 370)
     }
 }

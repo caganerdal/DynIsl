@@ -26,16 +26,18 @@ final class AIUsageStore: ObservableObject {
     private var lastScan = Date.distantPast
     private var resetTimer: Timer?
     private var refreshTimer: Timer?
+    private var announcedReset: Date?
 
     init() {
         UserDefaults.standard.register(defaults: ["aiUsageAlerts": true])
         alertsEnabled = UserDefaults.standard.bool(forKey: "aiUsageAlerts")
         limits = CLI.readUsage()
         refreshLink()
-        let token = CLI.token(create: true)
-        DistributedNotificationCenter.default().addObserver(forName: CLI.usageNotificationName, object: nil, queue: .main) { [weak self] note in
-            guard let token, note.userInfo?["token"] as? String == token else { return }
+        DistributedNotificationCenter.default().addObserver(forName: CLI.usageNotificationName, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reloadLimits() }
+        }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.scheduleReset() }
         }
         scheduleReset()
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: true) { [weak self] _ in
@@ -68,14 +70,14 @@ final class AIUsageStore: ObservableObject {
         queue.async {
             let s = existing ?? ClaudeLogScanner(root: root, state: Self.loadState(cacheURL))
             let now = Date()
-            if s.scan(now: now) || existing == nil { Self.saveState(s.state, to: cacheURL) }
+            if s.scan(now: now, checkpoint: { Self.saveState($0, to: cacheURL) }) { Self.saveState(s.state, to: cacheURL) }
             let summary = s.summary(now: now)
             let codex = Self.readCodex(codexRoot, now: now)
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     self.scanner = s
                     self.summary = summary
-                    self.codex = codex
+                    self.codex = codex ?? self.codex
                     self.scanning = false
                 }
             }
@@ -86,50 +88,69 @@ final class AIUsageStore: ObservableObject {
         switch a {
         case .fiveHour(let t):
             onChange?(.init(icon: "sparkle", tint: t >= 95 ? .red : .orange, title: String(localized: "Claude 5 saatlik limit"),
-                            trailing: "%\(Int(t))", ring: t / 100))
+                            trailing: pc(Int(t)), ring: t / 100))
         case .sevenDay(let t):
             onChange?(.init(icon: "sparkle", tint: .orange, title: String(localized: "Claude haftalık limit"),
-                            trailing: "%\(Int(t))", ring: t / 100))
+                            trailing: pc(Int(t)), ring: t / 100))
         }
     }
 
     private func scheduleReset() {
         resetTimer?.invalidate()
         resetTimer = nil
-        guard let w = limits?.fiveHour, w.usedPercent >= AIUsageRules.fiveHourThresholds[0], w.resetsAt > Date() else { return }
-        resetTimer = Timer.scheduledTimer(withTimeInterval: w.resetsAt.timeIntervalSinceNow + 1, repeats: false) { [weak self] _ in
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                self.objectWillChange.send()
-                if self.alertsEnabled {
-                    self.onChange?(.init(icon: "sparkle", tint: .green, title: "Claude", trailing: String(localized: "Limitin açıldı")))
-                }
-            }
+        guard let w = limits?.fiveHour, w.usedPercent >= AIUsageRules.fiveHourThresholds[0], announcedReset != w.resetsAt else { return }
+        let wait = w.resetsAt.timeIntervalSinceNow
+        if wait <= 0 {
+            if wait > -900 { announceReset(w.resetsAt) }
+            return
+        }
+        resetTimer = Timer.scheduledTimer(withTimeInterval: wait + 1, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated { self?.announceReset(w.resetsAt) }
         }
     }
 
-    var linkCommand: String {
-        let exe = Bundle.main.executablePath ?? "island"
-        return "'" + exe.replacingOccurrences(of: "'", with: "'\\''") + "' claude-status"
+    private func announceReset(_ at: Date) {
+        guard announcedReset != at else { return }
+        announcedReset = at
+        objectWillChange.send()
+        if alertsEnabled {
+            onChange?(.init(icon: "sparkle", tint: .green, title: "Claude", trailing: String(localized: "Limitin açıldı")))
+        }
     }
 
+    private var executable: String { Bundle.main.executablePath ?? "island" }
+    var linkCommand: String { AIUsageRules.linkCommand(executable: executable) }
+    private var settingsTarget: URL { settingsURL.resolvingSymlinksInPath() }
+
     func refreshLink() {
-        let current = try? Data(contentsOf: settingsURL)
+        let current = try? Data(contentsOf: settingsTarget)
         linked = AIUsageRules.isLinked(settings: current)
-        guard linked, let current, AIUsageRules.statusCommand(settings: current) != linkCommand,
+        guard linked, let current, let command = AIUsageRules.statusCommand(settings: current),
+              AIUsageRules.shouldRelink(current: command, executable: executable, exists: { FileManager.default.isExecutableFile(atPath: $0) }),
               let out = try? AIUsageRules.connect(settings: current, command: linkCommand) else { return }
-        try? out.write(to: settingsURL, options: .atomic)
+        backup(current)
+        try? writeSettings(out, expected: current)
+    }
+
+    private func backup(_ data: Data) {
+        let url = settingsURL.appendingPathExtension("dynisl-backup")
+        guard !FileManager.default.fileExists(atPath: url.path) else { return }
+        try? data.write(to: url)
+    }
+
+    private func writeSettings(_ out: Data, expected: Data?) throws {
+        let target = settingsTarget
+        guard (try? Data(contentsOf: target)) == expected else { throw CocoaError(.fileWriteUnknown) }
+        try out.write(to: target, options: .atomic)
     }
 
     func connect() {
-        let current = try? Data(contentsOf: settingsURL)
+        let current = try? Data(contentsOf: settingsTarget)
         do {
             let out = try AIUsageRules.connect(settings: current, command: linkCommand)
             try FileManager.default.createDirectory(at: settingsURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if let current {
-                try current.write(to: settingsURL.appendingPathExtension("dynisl-backup"), options: .atomic)
-            }
-            try out.write(to: settingsURL, options: .atomic)
+            if let current { backup(current) }
+            try writeSettings(out, expected: current)
             linkMessage = String(localized: "Bağlandı. Claude Code'da bir sonraki yanıttan sonra limitler görünür.")
         } catch AIUsageRules.LinkError.foreignStatusLine {
             linkMessage = String(localized: "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i \"island claude-status\" komutuna aktaran bir satır ekleyebilirsin.")
@@ -142,9 +163,9 @@ final class AIUsageStore: ObservableObject {
     }
 
     func disconnect() {
-        guard let current = try? Data(contentsOf: settingsURL), let out = AIUsageRules.disconnect(settings: current) else { return }
+        guard let current = try? Data(contentsOf: settingsTarget), let out = AIUsageRules.disconnect(settings: current) else { return }
         do {
-            try out.write(to: settingsURL, options: .atomic)
+            try writeSettings(out, expected: current)
             linkMessage = nil
         } catch {
             linkMessage = String(localized: "Ayar dosyası yazılamadı.")
@@ -166,19 +187,23 @@ final class AIUsageStore: ObservableObject {
 
     nonisolated private static func readCodex(_ root: URL, now: Date) -> CodexLimits? {
         guard let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.contentModificationDateKey]) else { return nil }
-        var newest: (URL, Date)?
+        var files: [(URL, Date)] = []
         for case let url as URL in walker where url.pathExtension == "jsonl" {
-            guard let m = try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate else { continue }
-            if newest == nil || m > newest!.1 { newest = (url, m) }
+            if let m = try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate { files.append((url, m)) }
         }
-        guard let (url, modified) = newest, let h = try? FileHandle(forReadingFrom: url) else { return nil }
-        defer { try? h.close() }
-        let size = (try? h.seekToEnd()) ?? 0
-        try? h.seek(toOffset: size > 262_144 ? size - 262_144 : 0)
-        guard let data = try? h.readToEnd(), let text = String(data: data, encoding: .utf8) else { return nil }
-        for line in text.split(separator: "\n").reversed() {
-            if let r = AIUsageRules.parseCodex(line, now: modified) {
-                return CodexLimits(primary: r.primary, secondary: r.secondary, updatedAt: modified)
+        for (url, modified) in files.sorted(by: { $0.1 > $1.1 }).prefix(5) {
+            guard let h = try? FileHandle(forReadingFrom: url) else { continue }
+            defer { try? h.close() }
+            let size = (try? h.seekToEnd()) ?? 0
+            let start = size > 262_144 ? size - 262_144 : 0
+            try? h.seek(toOffset: start)
+            guard let data = try? h.readToEnd() else { continue }
+            var lines = String(decoding: data, as: UTF8.self).split(separator: "\n")
+            if start > 0, !lines.isEmpty { lines.removeFirst() }
+            for line in lines.reversed() {
+                if let r = AIUsageRules.parseCodex(line, now: modified) {
+                    return CodexLimits(primary: r.primary, secondary: r.secondary, updatedAt: modified)
+                }
             }
         }
         return nil
