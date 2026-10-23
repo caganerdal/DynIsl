@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import UniformTypeIdentifiers
 
 struct IslandView: View {
@@ -16,6 +15,8 @@ struct IslandView: View {
         let size = shown == .zero ? model.currentSize : shown
         let motion = settings.islandMotion
         let speed = settings.animationSpeed
+        let calm = settings.calmMotion
+        let mainAnimation: Animation = calm ? .easeOut(duration: 0.18) : motion.main(speed)
         let expanded = model.state == .expanded
         let top: CGFloat = expanded ? 14 : 6
         let compactHUD = hud.current.map { settings.hudStyle(for: $0.kind).isCompact } ?? false
@@ -35,7 +36,7 @@ struct IslandView: View {
 
             content
                 .padding(.horizontal, expanded ? 28 : 14)
-                .transition(.opacity.combined(with: .scale(scale: motion.contentScale, anchor: .top)))
+                .transition(!calm && motion == .jelly ? .opacity.combined(with: .scale(scale: motion.contentScale, anchor: .top)) : .opacity)
                 .id(model.state)
                 .frame(width: size.width, height: size.height, alignment: .top)
                 .clipShape(NotchShape(topRadius: top, bottomRadius: bottom))
@@ -46,11 +47,11 @@ struct IslandView: View {
             if !expanded, model.state != .peek, model.state != .hud { model.setExpanded(true) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .animation(motion.main(speed), value: model.state)
+        .animation(mainAnimation, value: model.state)
         .onAppear { shown = model.currentSize }
         .onChange(of: model.currentSize) { old, new in
-            withAnimation(motion.height(speed, growing: new.height > old.height)) { shown.height = new.height }
-            withAnimation(motion.width(speed, growing: new.height > old.height || (new.height == old.height && new.width > old.width))) {
+            withAnimation(calm ? mainAnimation : motion.height(speed, growing: new.height > old.height)) { shown.height = new.height }
+            withAnimation(calm ? mainAnimation : motion.width(speed, growing: new.height > old.height || (new.height == old.height && new.width > old.width))) {
                 shown.width = new.width
             }
         }

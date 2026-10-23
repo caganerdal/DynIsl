@@ -1179,6 +1179,16 @@
         }
       }
     },
+    "Animasyonlar kısa bir geçişe iner, işlemci ve pil daha az kullanılır. macOS'ta Hareketi Azalt ya da Düşük Güç Modu açıkken kendiliğinden devreye girer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animations become a short fade, using less CPU and battery. Turns on automatically when Reduce Motion or Low Power Mode is on in macOS."
+          }
+        }
+      }
+    },
     "Apple Music": {
       "localizations": {
         "en": {
@@ -1325,6 +1335,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mostly clear"
+          }
+        }
+      }
+    },
+    "Az hareket": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reduce motion"
           }
         }
       }

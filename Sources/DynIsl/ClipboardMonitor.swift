@@ -111,13 +111,23 @@ final class ClipboardMonitor: ObservableObject {
         let front = NSWorkspace.shared.frontmostApplication
         if let id = front?.bundleIdentifier, Self.passwordApps.contains(id) { return }
         let source = front?.localizedName
-        let item: ClipItem
-        if let s = pb.string(forType: .string), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            items.removeAll { if case .text(let t) = $0.content { return t == s }; return false }
-            item = ClipItem(content: .text(s), date: Date(), sourceApp: source)
+        let change = pb.changeCount
+        if types.contains(.string) {
+            encoder.async { [weak self] in
+                let pb = NSPasteboard.general
+                guard pb.changeCount == change, let s = pb.string(forType: .string),
+                      !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                let text = s.count > 100_000 ? String(s.prefix(100_000)) : s
+                DispatchQueue.main.async {
+                    MainActor.assumeIsolated {
+                        guard let self else { return }
+                        self.items.removeAll { if case .text(let t) = $0.content { return t == text }; return false }
+                        self.insert(ClipItem(content: .text(text), date: Date(), sourceApp: source))
+                    }
+                }
+            }
         } else if types.contains(.tiff) || types.contains(.png) {
             let type: NSPasteboard.PasteboardType = types.contains(.png) ? .png : .tiff
-            let change = pb.changeCount
             encoder.async { [weak self] in
                 let pb = NSPasteboard.general
                 guard pb.changeCount == change, let data = pb.data(forType: type),
@@ -128,11 +138,7 @@ final class ClipboardMonitor: ObservableObject {
                     }
                 }
             }
-            return
-        } else {
-            return
         }
-        insert(item)
     }
 
     private func insert(_ item: ClipItem) {

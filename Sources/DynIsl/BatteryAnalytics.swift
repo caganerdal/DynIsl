@@ -45,7 +45,11 @@ final class BatteryAnalytics: ObservableObject {
         loadHistory()
         readLive()
         record()
+        refreshHealth()
         reschedule()
+        healthTimer = Timer.repeating(every: 6 * 3600) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refreshHealth() }
+        }
         sampleTimer = Timer.repeating(every: 300) { [weak self] _ in
             MainActor.assumeIsolated { self?.readLive(); self?.record() }
         }
@@ -101,11 +105,46 @@ final class BatteryAnalytics: ObservableObject {
             set(\.designCapacity, (bd["DesignCapacity"] as? NSNumber)?.intValue ?? designCapacity)
             set(\.fullCapacity, (bd["NominalChargeCapacity"] as? NSNumber)?.intValue ?? fullCapacity)
         }
-        if let h = wearFromDesign {
-            let pct = min(h, 100)
-            set(\.healthPercent, pct)
-            let failed = (int("PermanentFailureStatus") ?? 0) != 0
-            set(\.condition, failed || pct < 80 ? String(localized: "Servis önerilir") : String(localized: "Normal"))
+        if !healthFromSystem, let h = wearFromDesign {
+            set(\.healthPercent, min(h, 100))
+        }
+    }
+
+    private var healthFromSystem = false
+    private var healthTimer: Timer?
+
+    private func refreshHealth() {
+        DispatchQueue.global(qos: .utility).async {
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+            p.arguments = ["-json", "SPPowerDataType"]
+            let pipe = Pipe()
+            p.standardOutput = pipe
+            p.standardError = FileHandle.nullDevice
+            guard (try? p.run()) != nil else { return }
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            p.waitUntilExit()
+            let items = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["SPPowerDataType"] as? [[String: Any]] ?? []
+            let health = items.compactMap { $0["sppower_battery_health_info"] as? [String: Any] }.first
+            let pct = (health?["sppower_battery_health_maximum_capacity"] as? String).flatMap { Int($0.filter(\.isNumber)) }
+            let cond = health?["sppower_battery_health"] as? String
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    guard let pct else { return }
+                    self.healthFromSystem = true
+                    self.set(\.healthPercent, pct)
+                    self.set(\.condition, cond.map(Self.translateCondition))
+                }
+            }
+        }
+    }
+
+    private nonisolated static func translateCondition(_ c: String) -> String {
+        switch c.lowercased() {
+        case "good", "normal": return String(localized: "Normal")
+        case "fair": return String(localized: "İyi değil")
+        case "poor", "service recommended", "check battery": return String(localized: "Servis önerilir")
+        default: return c
         }
     }
 

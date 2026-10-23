@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import UniformTypeIdentifiers
 
 struct ExpandedView: View {
@@ -67,12 +66,12 @@ struct ExpandedView: View {
             }
             .frame(maxHeight: .infinity)
             .id(model.tab)
-            .transition(.asymmetric(
-                insertion: .offset(x: forward ? 36 : -36).combined(with: .opacity),
-                removal: .offset(x: forward ? -36 : 36).combined(with: .opacity)
+            .transition(settings.calmMotion ? .opacity : .asymmetric(
+                insertion: .offset(x: forward ? 24 : -24).combined(with: .opacity),
+                removal: .opacity
             ))
         }
-        .animation(settings.spring(0.32, 1), value: model.tab)
+        .animation(settings.calmMotion ? .easeOut(duration: 0.12) : .easeOut(duration: 0.22 * settings.animationSpeed), value: model.tab)
         .foregroundStyle(.white)
     }
 }

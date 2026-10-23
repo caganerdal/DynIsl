@@ -93,6 +93,7 @@ final class IslandModel: ObservableObject {
         }
 
         details.onSample = { [weak self] in self?.system.ingest($0) }
+        settings.watchSystemCalm()
 
         battery.onActivity = { [weak self] a in
             guard let self else { return }

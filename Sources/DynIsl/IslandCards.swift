@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import UniformTypeIdentifiers
 
 struct SystemCard: View {
@@ -124,28 +123,8 @@ struct BatteryCard: View {
                 }
                 let data = b.last24h
                 if data.count >= 2 {
-                    Chart(data, id: \.date) { s in
-                        AreaMark(x: .value("Saat", s.date), y: .value("Seviye", s.level))
-                            .foregroundStyle(LinearGradient(colors: [.green.opacity(0.5), .green.opacity(0.02)],
-                                                            startPoint: .top, endPoint: .bottom))
-                            .interpolationMethod(.monotone)
-                        LineMark(x: .value("Saat", s.date), y: .value("Seviye", s.level))
-                            .foregroundStyle(.green)
-                            .interpolationMethod(.monotone)
-                    }
-                    .chartYScale(domain: 0...100)
-                    .chartYAxis {
-                        AxisMarks(values: [0, 50, 100]) { v in
-                            AxisGridLine().foregroundStyle(.white.opacity(0.1))
-                            AxisValueLabel { Text("\(v.as(Int.self) ?? 0)").font(.system(size: 8)) }
-                        }
-                    }
-                    .chartXAxis {
-                        AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
-                            AxisValueLabel(format: .dateTime.hour()).font(.system(size: 8))
-                        }
-                    }
-                    .frame(maxHeight: .infinity)
+                    BatteryGraph(samples: data)
+                        .frame(maxHeight: .infinity)
                 } else {
                     Text("Grafik için veri toplanıyor — birkaç saat içinde dolacak")
                         .font(.system(size: 11)).foregroundStyle(.secondary)
@@ -637,5 +616,49 @@ struct Pill: View {
                 .foregroundStyle(tint)
         }
         .buttonStyle(.pressable)
+    }
+}
+
+struct BatteryGraph: View {
+    let samples: [BatterySample]
+
+    var body: some View {
+        Canvas { ctx, size in
+            guard let first = samples.first?.date, let last = samples.last?.date, last > first else { return }
+            let plot = CGRect(x: 0, y: 4, width: size.width - 22, height: size.height - 18)
+            let span = last.timeIntervalSince(first)
+            func point(_ s: BatterySample) -> CGPoint {
+                CGPoint(x: plot.minX + plot.width * s.date.timeIntervalSince(first) / span,
+                        y: plot.maxY - plot.height * CGFloat(min(max(s.level, 0), 100)) / 100)
+            }
+            for v in [0, 50, 100] {
+                let y = plot.maxY - plot.height * CGFloat(v) / 100
+                var line = Path()
+                line.move(to: CGPoint(x: plot.minX, y: y))
+                line.addLine(to: CGPoint(x: plot.maxX, y: y))
+                ctx.stroke(line, with: .color(.white.opacity(0.1)), lineWidth: 0.5)
+                ctx.draw(Text("\(v)").font(.system(size: 8)).foregroundStyle(.secondary),
+                         at: CGPoint(x: plot.maxX + 4, y: y), anchor: .leading)
+            }
+            var line = Path()
+            line.addLines(samples.map(point))
+            var area = line
+            area.addLine(to: CGPoint(x: plot.maxX, y: plot.maxY))
+            area.addLine(to: CGPoint(x: plot.minX, y: plot.maxY))
+            area.closeSubpath()
+            ctx.fill(area, with: .linearGradient(Gradient(colors: [.green.opacity(0.5), .green.opacity(0.02)]),
+                                                 startPoint: CGPoint(x: 0, y: plot.minY), endPoint: CGPoint(x: 0, y: plot.maxY)))
+            ctx.stroke(line, with: .color(.green), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
+            let cal = Calendar.current
+            var tick = cal.dateInterval(of: .hour, for: first)?.end ?? first
+            while tick < last {
+                let x = plot.minX + plot.width * tick.timeIntervalSince(first) / span
+                if cal.component(.hour, from: tick) % 6 == 0, x > 10, x < plot.maxX - 10 {
+                    ctx.draw(Text(tick, format: .dateTime.hour()).font(.system(size: 8)).foregroundStyle(.secondary),
+                             at: CGPoint(x: x, y: plot.maxY + 8), anchor: .center)
+                }
+                tick = tick.addingTimeInterval(3600)
+            }
+        }
     }
 }

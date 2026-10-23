@@ -180,6 +180,8 @@ charging on hold</string>
 	<string>Main display (menu bar)</string>
 	<key>Animasyon hızı</key>
 	<string>Animation speed</string>
+	<key>Animasyonlar kısa bir geçişe iner, işlemci ve pil daha az kullanılır. macOS'ta Hareketi Azalt ya da Düşük Güç Modu açıkken kendiliğinden devreye girer.</key>
+	<string>Animations become a short fade, using less CPU and battery. Turns on automatically when Reduce Motion or Low Power Mode is on in macOS.</string>
 	<key>Apple Music</key>
 	<string>Apple Music</string>
 	<key>Apple Silicon'da GPU belleği sistem belleğiyle paylaşılır (birleşik bellek).</key>
@@ -210,6 +212,8 @@ charging on hold</string>
 	<string>Details ›</string>
 	<key>Az bulutlu</key>
 	<string>Mostly clear</string>
+	<key>Az hareket</key>
+	<string>Reduce motion</string>
 	<key>Aç</key>
 	<string>Open</string>
 	<key>Açık</key>

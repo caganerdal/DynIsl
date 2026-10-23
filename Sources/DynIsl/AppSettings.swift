@@ -52,6 +52,10 @@ final class AppSettings: ObservableObject {
     @Published var equalizerStyle: EqualizerStyle { didSet { d.set(equalizerStyle.rawValue, forKey: "equalizerStyle") } }
     @Published var activityStyle: ActivityStyle { didSet { d.set(activityStyle.rawValue, forKey: "activityStyle") } }
     @Published var islandMotion: IslandMotion { didSet { d.set(islandMotion.rawValue, forKey: "islandMotion") } }
+    @Published var reduceMotion: Bool { didSet { d.set(reduceMotion, forKey: "reduceMotion") } }
+    @Published private(set) var systemCalm = false
+    var calmMotion: Bool { reduceMotion || systemCalm }
+    private var calmObservers: [NSObjectProtocol] = []
     @Published var accentMode: AccentMode { didSet { d.set(accentMode.rawValue, forKey: "accentMode") } }
     @Published var accentHex: String { didSet { d.set(accentHex, forKey: "accentHex") } }
     @Published var presentationAuto: Bool { didSet { d.set(presentationAuto, forKey: "presentationAuto") } }
@@ -117,6 +121,7 @@ final class AppSettings: ObservableObject {
         equalizerStyle = EqualizerStyle(rawValue: d.string(forKey: "equalizerStyle") ?? "") ?? .bars
         activityStyle = ActivityStyle(rawValue: d.string(forKey: "activityStyle") ?? "") ?? .slide
         islandMotion = IslandMotion(rawValue: d.string(forKey: "islandMotion") ?? "") ?? .classic
+        reduceMotion = d.bool(forKey: "reduceMotion")
         accentMode = AccentMode(rawValue: d.string(forKey: "accentMode") ?? "") ?? .classic
         accentHex = d.string(forKey: "accentHex") ?? "0A84FF"
         presentationAuto = d.bool(forKey: "presentationAuto")
@@ -142,7 +147,22 @@ final class AppSettings: ObservableObject {
     }
 
     func spring(_ response: Double, _ damping: Double) -> Animation {
-        .spring(response: response * animationSpeed, dampingFraction: damping)
+        calmMotion ? .easeOut(duration: 0.15) : .spring(response: response * animationSpeed, dampingFraction: damping)
+    }
+
+    func watchSystemCalm() {
+        let update = { [weak self] in
+            guard let self else { return }
+            let calm = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion || ProcessInfo.processInfo.isLowPowerModeEnabled
+            if calm != self.systemCalm { self.systemCalm = calm }
+        }
+        update()
+        calmObservers.append(NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil, queue: .main
+        ) { _ in MainActor.assumeIsolated { update() } })
+        calmObservers.append(NotificationCenter.default.addObserver(
+            forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main
+        ) { _ in MainActor.assumeIsolated { update() } })
     }
 
     func setLaunchAtLogin(_ on: Bool) {
@@ -249,6 +269,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         (String(localized: "Yeni sürümleri günde bir kez denetle"), "checkUpdates", .general),
         (String(localized: "Vurgu rengi"), "accentMode", .appearance),
         (String(localized: "Açılış animasyonu"), "islandMotion", .appearance),
+        (String(localized: "Az hareket"), "reduceMotion", .appearance),
         (String(localized: "Bildirim girişi"), "activityStyle", .appearance),
         (String(localized: "Ekolayzer"), "equalizerStyle", .appearance),
         (String(localized: "Şarj animasyonu"), "chargeAnimation", .appearance),
@@ -535,6 +556,10 @@ private struct SettingsView: View {
                     .settingAnchor("islandMotion")
                     Button("Dene") { model.previewAppearance() }
                 }
+                Toggle("Az hareket", isOn: $settings.reduceMotion)
+                    .settingAnchor("reduceMotion")
+                Text("Animasyonlar kısa bir geçişe iner, işlemci ve pil daha az kullanılır. macOS'ta Hareketi Azalt ya da Düşük Güç Modu açıkken kendiliğinden devreye girer.")
+                    .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Picker("Bildirim girişi", selection: $settings.activityStyle) {
                         ForEach(ActivityStyle.allCases) { Text($0.title).tag($0) }
