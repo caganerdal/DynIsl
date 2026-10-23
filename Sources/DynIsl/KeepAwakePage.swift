@@ -10,6 +10,14 @@ struct KeepAwakePage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if lid.recoveryNeeded {
+                Card(title: "Uyku kapalı kaldı", icon: "exclamationmark.triangle.fill", tint: .orange) {
+                    Text("DynIsl beklenmedik şekilde kapandığı için Mac'in uyku ayarı kapalı kaldı. Mac kapak kapalıyken bile uyumayacak.")
+                        .font(.callout)
+                    Button("Uykuyu yeniden aç…") { Task { _ = await lid.restoreSleepWithAdmin() } }
+                        .buttonStyle(.borderedProminent)
+                }
+            }
             TimelineView(.periodic(from: .now, by: 30)) { _ in statusCard }
             Card(title: "Süre", icon: "timer", tint: .orange) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 8)], spacing: 8) {
@@ -106,6 +114,7 @@ struct KeepAwakePage: View {
                     Task {
                         let ok = await lid.install()
                         permissionMessage = ok ? nil : String(localized: "İzin verilmedi.")
+                        if ok { keepAwake.reapply() }
                     }
                 }
             }

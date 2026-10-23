@@ -26,6 +26,14 @@ struct KeepAwakeRulesTests {
         #expect(KeepAwakeRules.endDate(for: .until(date(23, 7)), now: date(23, 23), calendar: cal) == date(24, 7))
     }
 
+    @Test func untilUsesClockTimeEvenIfPickerDateIsTomorrow() {
+        #expect(KeepAwakeRules.endDate(for: .until(date(24, 23)), now: date(23, 22, 30), calendar: cal) == date(23, 23))
+    }
+
+    @Test func untilWithStaleDateMeansNextOccurrence() {
+        #expect(KeepAwakeRules.endDate(for: .until(date(20, 9)), now: date(23, 12), calendar: cal) == date(24, 9))
+    }
+
     @Test func indefiniteHasNoEnd() {
         #expect(KeepAwakeRules.endDate(for: .indefinite, now: date(23, 12), calendar: cal) == nil)
         #expect(KeepAwakeRules.endDate(for: .whileApp("com.apple.Safari"), now: date(23, 12), calendar: cal) == nil)

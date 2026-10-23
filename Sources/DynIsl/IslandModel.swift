@@ -107,6 +107,16 @@ final class IslandModel: ObservableObject {
             if self.settings.chargeAnimation { self.showCharging(level) } else { self.showActivity(fallback) }
         }
         batteryInfo.start()
+        keepAwake.batteryState = { [weak self] in
+            guard let self, self.battery.hasBattery else { return nil }
+            return (self.battery.level, !self.battery.isPluggedIn)
+        }
+        if keepAwake.lid.recoveryNeeded {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                self?.showActivity(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: String(localized: "Uyku kapalı kaldı"),
+                                         trailing: String(localized: "Uyanık Tut'tan düzelt")), duration: 6)
+            }
+        }
         bag.append(battery.$level.combineLatest(battery.$isPluggedIn).sink { [weak self] level, plugged in
             DispatchQueue.main.async {
                 guard let self, self.battery.hasBattery else { return }

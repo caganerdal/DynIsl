@@ -12,10 +12,16 @@ final class KeepAwake: ObservableObject {
     @Published private(set) var lidError = false
     @Published var allowDisplaySleep: Bool { didSet { d.set(allowDisplaySleep, forKey: "keepAwakeAllowDisplaySleep"); reapplyIfActive() } }
     @Published var lidClosedMode: Bool { didSet { d.set(lidClosedMode, forKey: "keepAwakeLidMode"); reapplyIfActive() } }
-    @Published var batteryThreshold: Int { didSet { d.set(batteryThreshold, forKey: "keepAwakeBatteryThreshold") } }
+    @Published var batteryThreshold: Int {
+        didSet {
+            d.set(batteryThreshold, forKey: "keepAwakeBatteryThreshold")
+            if let s = batteryState?() { checkBattery(level: s.level, onBattery: s.onBattery) }
+        }
+    }
 
     let lid = LidSleepControl()
     var onChange: ((IslandActivity) -> Void)?
+    var batteryState: (() -> (level: Int, onBattery: Bool)?)?
 
     private let d = UserDefaults.standard
     private var assertions: [IOPMAssertionID] = []
@@ -42,6 +48,12 @@ final class KeepAwake: ObservableObject {
             onChange?(.init(icon: "app.dashed", tint: .orange, title: String(localized: "Uyanık tut"), trailing: String(localized: "Uygulama açık değil")))
             return
         }
+        if let s = batteryState?(), s.level > 0,
+           KeepAwakeRules.shouldStopForBattery(level: s.level, onBattery: s.onBattery, threshold: batteryThreshold) {
+            onChange?(.init(icon: "battery.25percent", tint: .red, title: String(localized: "Pil azaldı"),
+                            trailing: String(localized: "Önce şarja tak")))
+            return
+        }
         applyAssertions()
         guard !assertions.isEmpty else { return }
         isActive = true
@@ -56,8 +68,13 @@ final class KeepAwake: ObservableObject {
             }
         }
         watchApp(duration)
-        onChange?(.init(icon: lidActive ? "laptopcomputer" : "cup.and.saucer.fill", tint: .orange, title: String(localized: "Uyanık tut"),
-                        trailing: Self.label(duration)))
+        if lidError {
+            onChange?(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: String(localized: "Kapak modu açılamadı"),
+                            trailing: String(localized: "Normal uyanık tut açık")))
+        } else {
+            onChange?(.init(icon: lidActive ? "laptopcomputer" : "cup.and.saucer.fill", tint: .orange, title: String(localized: "Uyanık tut"),
+                            trailing: Self.label(duration)))
+        }
     }
 
     func stop(reason: StopReason = .user) {
@@ -68,6 +85,7 @@ final class KeepAwake: ObservableObject {
         releaseAssertions()
         if lidActive { lid.setDisabled(false) }
         lidActive = false
+        lidError = false
         isActive = false
         endDate = nil
         let app = { if case .whileApp(let id) = self.duration { return Self.appName(id) }; return nil }()
@@ -139,6 +157,8 @@ final class KeepAwake: ObservableObject {
             lidError = false
         }
     }
+
+    func reapply() { reapplyIfActive() }
 
     private func reapplyIfActive() {
         guard isActive else { lidError = false; return }

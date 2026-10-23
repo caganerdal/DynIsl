@@ -15,7 +15,9 @@ enum KeepAwakeRules {
         case .minutes(let m):
             return now.addingTimeInterval(TimeInterval(m * 60))
         case .until(let t):
-            return t > now ? t : calendar.date(byAdding: .day, value: 1, to: t)
+            let hm = calendar.dateComponents([.hour, .minute], from: t)
+            return calendar.nextDate(after: now, matching: DateComponents(hour: hm.hour, minute: hm.minute, second: 0),
+                                     matchingPolicy: .nextTime)
         }
     }
 

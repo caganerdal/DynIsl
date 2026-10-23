@@ -295,8 +295,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         for it in menu.items {
             if it.action == #selector(toggleDisplaySleep) { it.state = k.allowDisplaySleep ? .on : .off }
             if it.action == #selector(toggleLidMode) {
-                it.state = k.lidClosedMode && k.lid.isInstalled ? .on : .off
-                it.title = k.lid.isInstalled ? String(localized: "Kapak kapalıyken de") : String(localized: "Kapak kapalıyken de (izin gerekli)…")
+                it.state = k.lidClosedMode && k.lid.isInstalled && !k.lidError ? .on : .off
+                it.title = !k.lid.isInstalled || k.lidError ? String(localized: "Kapak kapalıyken de (izin gerekli)…") : String(localized: "Kapak kapalıyken de")
             }
         }
         if let off = menu.items.last {

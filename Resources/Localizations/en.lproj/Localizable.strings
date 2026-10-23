@@ -380,6 +380,8 @@ charging on hold</string>
 	<string>DynIsl</string>
 	<key>DynIsl Ayarları</key>
 	<string>DynIsl Settings</string>
+	<key>DynIsl beklenmedik şekilde kapandığı için Mac'in uyku ayarı kapalı kaldı. Mac kapak kapalıyken bile uyumayacak.</key>
+	<string>DynIsl quit unexpectedly, so your Mac's sleep setting stayed off. Your Mac won't sleep, even with the lid closed.</string>
 	<key>DynIsl'a hoş geldin</key>
 	<string>Welcome to DynIsl</string>
 	<key>DynIsl'ı Gizle</key>
@@ -578,6 +580,8 @@ charging on hold</string>
 	<string>Awake even with the lid closed</string>
 	<key>Kapak kapalıyken de uyanık tut</key>
 	<string>Stay awake with the lid closed</string>
+	<key>Kapak modu açılamadı</key>
+	<string>Lid mode failed</string>
 	<key>Kapak modu açılamadı. İzni yeniden vermeyi dene.</key>
 	<string>Couldn't turn on lid mode. Try granting permission again.</string>
 	<key>Kapalı</key>
@@ -728,6 +732,8 @@ charging on hold</string>
 	<string>Dots</string>
 	<key>Normal</key>
 	<string>Normal</string>
+	<key>Normal uyanık tut açık</key>
+	<string>Normal keep awake is on</string>
 	<key>Odak</key>
 	<string>Focus</string>
 	<key>Odak için Tam Disk Erişimi</key>
@@ -1040,6 +1046,8 @@ calculating…</string>
 	<string>Awake</string>
 	<key>Uyanık Tut</key>
 	<string>Keep Awake</string>
+	<key>Uyanık Tut'tan düzelt</key>
+	<string>Fix it in Keep Awake</string>
 	<key>Uyanık tut</key>
 	<string>Keep Awake</string>
 	<key>Uyanık tut kapandı</key>
@@ -1062,6 +1070,10 @@ calculating…</string>
 	<string>Couldn't quit the app</string>
 	<key>Uyku</key>
 	<string>Sleep</string>
+	<key>Uyku kapalı kaldı</key>
+	<string>Sleep stayed off</string>
+	<key>Uykuyu yeniden aç…</key>
+	<string>Turn sleep back on…</string>
 	<key>Vazgeç</key>
 	<string>Cancel</string>
 	<key>Veri toplanıyor — ilk birkaç saatten sonra grafik dolacak.</key>
@@ -1224,6 +1236,8 @@ calculating…</string>
 	<string>Measuring… %lld s</string>
 	<key>Önbellek</key>
 	<string>Cached</string>
+	<key>Önce şarja tak</key>
+	<string>Plug in first</string>
 	<key>Özel</key>
 	<string>Custom</string>
 	<key>Özellikler</key>

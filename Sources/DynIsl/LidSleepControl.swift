@@ -4,6 +4,7 @@ import AppKit
 final class LidSleepControl: ObservableObject {
     @Published private(set) var isInstalled = false
     @Published private(set) var working = false
+    @Published private(set) var recoveryNeeded = false
 
     nonisolated static let sudoersPath = "/etc/sudoers.d/dynisl"
     private static let engagedKey = "lidSleepEngaged"
@@ -59,7 +60,19 @@ final class LidSleepControl: ObservableObject {
 
     func recoverIfNeeded() {
         guard UserDefaults.standard.bool(forKey: Self.engagedKey) else { return }
-        if !setDisabled(false) { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
+        if !setDisabled(false) {
+            if currentlyDisabled() { recoveryNeeded = true } else { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
+        }
+    }
+
+    func restoreSleepWithAdmin() async -> Bool {
+        let ok = await runAsAdmin("/usr/bin/pmset -a disablesleep 0")
+        if ok, !currentlyDisabled() {
+            UserDefaults.standard.removeObject(forKey: Self.engagedKey)
+            recoveryNeeded = false
+            return true
+        }
+        return false
     }
 
     private func runAsAdmin(_ command: String) async -> Bool {

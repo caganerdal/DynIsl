@@ -2179,6 +2179,16 @@
         }
       }
     },
+    "DynIsl beklenmedik şekilde kapandığı için Mac'in uyku ayarı kapalı kaldı. Mac kapak kapalıyken bile uyumayacak.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DynIsl quit unexpectedly, so your Mac's sleep setting stayed off. Your Mac won't sleep, even with the lid closed."
+          }
+        }
+      }
+    },
     "DynIsl'a hoş geldin": {
       "localizations": {
         "en": {
@@ -3169,6 +3179,16 @@
         }
       }
     },
+    "Kapak modu açılamadı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lid mode failed"
+          }
+        }
+      }
+    },
     "Kapak modu açılamadı. İzni yeniden vermeyi dene.": {
       "localizations": {
         "en": {
@@ -3915,6 +3935,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Normal"
+          }
+        }
+      }
+    },
+    "Normal uyanık tut açık": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal keep awake is on"
           }
         }
       }
@@ -5459,6 +5489,16 @@
         }
       }
     },
+    "Uyanık Tut'tan düzelt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix it in Keep Awake"
+          }
+        }
+      }
+    },
     "Uyanık tut": {
       "localizations": {
         "en": {
@@ -5565,6 +5605,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sleep"
+          }
+        }
+      }
+    },
+    "Uyku kapalı kaldı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep stayed off"
+          }
+        }
+      }
+    },
+    "Uykuyu yeniden aç…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn sleep back on…"
           }
         }
       }
@@ -6355,6 +6415,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cached"
+          }
+        }
+      }
+    },
+    "Önce şarja tak": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plug in first"
           }
         }
       }
