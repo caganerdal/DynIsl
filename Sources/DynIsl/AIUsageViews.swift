@@ -7,9 +7,16 @@ func tokens(_ n: Int) -> String {
 
 func resetText(_ date: Date, now: Date = Date()) -> String {
     let m = max(Int(date.timeIntervalSince(now) / 60), 0)
-    if m < 60 { return String(localized: "\(m) dk sonra açılır") }
-    if m < 24 * 60 { return String(localized: "\(m / 60) sa \(m % 60) dk sonra açılır") }
-    return String(localized: "\(date.formatted(.dateTime.weekday(.abbreviated).hour().minute().locale(appLocale))) açılır")
+    if m < 60 { return String(localized: "\(m) dk sonra yenilenir") }
+    if m < 24 * 60 { return String(localized: "\(m / 60) sa \(m % 60) dk sonra yenilenir") }
+    return String(localized: "\(date.formatted(.dateTime.weekday(.abbreviated).hour().minute().locale(appLocale))) yenilenir")
+}
+
+func shortReset(_ date: Date, now: Date = Date()) -> String {
+    let m = max(Int(date.timeIntervalSince(now) / 60), 0)
+    if m < 60 { return String(localized: "\(m) dk") }
+    if m < 24 * 60 { return String(localized: "\(m / 60) sa \(m % 60) dk") }
+    return date.formatted(.dateTime.weekday(.abbreviated).hour().minute().locale(appLocale))
 }
 
 func agoText(_ date: Date, now: Date = Date()) -> String {
@@ -28,8 +35,8 @@ struct AICard: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             HStack(alignment: .center, spacing: 18) {
-                ring(ai.fiveHour, label: String(localized: "5S"), now: context.date)
-                ring(ai.sevenDay, label: String(localized: "HFT"), now: context.date)
+                ring(ai.fiveHour, name: String(localized: "5 saat"), now: context.date)
+                ring(ai.sevenDay, name: String(localized: "Hafta"), now: context.date)
                 Rectangle().fill(.white.opacity(0.12)).frame(width: 1)
                 VStack(alignment: .leading, spacing: 5) {
                     HStack {
@@ -53,12 +60,12 @@ struct AICard: View {
         }
     }
 
-    private func ring(_ w: LimitWindow?, label: String, now: Date) -> some View {
+    private func ring(_ w: LimitWindow?, name: String, now: Date) -> some View {
         let p = w?.usedPercent ?? 0
-        return RingGauge(value: p / 100, label: label,
-                         detail: w.map { $0.resetsAt > now && $0.usedPercent > 0 ? resetText($0.resetsAt, now: now) : pc(Int(p.rounded())) } ?? "—",
+        return RingGauge(value: p / 100, label: w == nil ? "—" : pc(Int(p.rounded())),
+                         detail: w.map { $0.resetsAt > now ? "\(name) · \(shortReset($0.resetsAt, now: now))" : name } ?? name,
                          tint: w == nil ? .gray : limitTint(p))
-            .help(w.map { pc(Int($0.usedPercent.rounded())) } ?? String(localized: "Veri yok"))
+            .help(w.map { $0.resetsAt > now ? resetText($0.resetsAt, now: now) : String(localized: "Yenilendi") } ?? String(localized: "Veri yok"))
     }
 
     private func footer(now: Date) -> String {
@@ -128,7 +135,7 @@ struct AIUsagePage: View {
                 Text(m).font(.caption).foregroundStyle(.secondary)
             }
             Toggle("Limit uyarıları", isOn: $ai.alertsEnabled)
-            Text("5 saatlik limit \(pc(80)) ve \(pc(95)) olunca, haftalık limit \(pc(90)) olunca ve limit açılınca adada haber verir.")
+            Text("5 saatlik limit \(pc(80)) ve \(pc(95)) olunca, haftalık limit \(pc(90)) olunca ve limit yenilenince adada haber verir.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }
@@ -146,7 +153,7 @@ struct AIUsagePage: View {
             .frame(width: 72, height: 72)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.headline)
-                Text(w.map { $0.resetsAt > now ? resetText($0.resetsAt, now: now) : String(localized: "Açıldı") } ?? String(localized: "Veri yok"))
+                Text(w.map { $0.resetsAt > now ? resetText($0.resetsAt, now: now) : String(localized: "Yenilendi") } ?? String(localized: "Veri yok"))
                     .font(.callout).foregroundStyle(.secondary)
             }
         }

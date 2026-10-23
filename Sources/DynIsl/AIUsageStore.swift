@@ -183,7 +183,7 @@ final class AIUsageStore: ObservableObject {
         announcedReset = at
         objectWillChange.send()
         if alertsEnabled {
-            onChange?(.init(icon: "sparkle", tint: .green, title: "Claude", trailing: String(localized: "Limitin açıldı")))
+            onChange?(.init(icon: "sparkle", tint: .green, title: "Claude", trailing: String(localized: "Limitin yenilendi")))
         }
     }
 

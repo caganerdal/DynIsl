@@ -34,14 +34,14 @@ Click: System Dashboard</string>
 	<string>%@ (%lld)</string>
 	<key>%@ / saat</key>
 	<string>%@ / hour</string>
-	<key>%@ açılır</key>
-	<string>Resets %@</string>
 	<key>%@ saatine kadar</key>
 	<string>until %@</string>
 	<key>%@ sunumu</key>
 	<string>%@ presentation</string>
 	<key>%@ uygulamasından zorla çıkış yaptırılsın mı?</key>
 	<string>Force quit %@?</string>
+	<key>%@ yenilenir</key>
+	<string>Resets %@</string>
 	<key>%@ yer açılacak. Çöp Sepeti boşaltılana kadar geri alabilirsin.</key>
 	<string>This frees up %@. You can undo until the Trash is emptied.</string>
 	<key>%@ yer kazanıldı</key>
@@ -74,7 +74,7 @@ Click: System Dashboard</string>
 	<string>%lld min left</string>
 	<key>%lld dk sonra</key>
 	<string>in %lld min</string>
-	<key>%lld dk sonra açılır</key>
+	<key>%lld dk sonra yenilenir</key>
 	<string>Resets in %lld min</string>
 	<key>%lld dosya (%@) %lld klasöre düzenlendi</key>
 	<string>Organized %lld files (%@) into %lld folders</string>
@@ -94,7 +94,7 @@ Click: System Dashboard</string>
 	<string>%lld h %lld min</string>
 	<key>%lld sa %lld dk kaldı</key>
 	<string>%lld h %lld min left</string>
-	<key>%lld sa %lld dk sonra açılır</key>
+	<key>%lld sa %lld dk sonra yenilenir</key>
 	<string>Resets in %lld h %lld min</string>
 	<key>%lld saattir %@</key>
 	<string>%2$@ for %1$lld hours</string>
@@ -148,12 +148,12 @@ Click: System Dashboard</string>
 	<string>4 hours</string>
 	<key>5 dk</key>
 	<string>5 min</string>
+	<key>5 saat</key>
+	<string>5 hours</string>
 	<key>5 saatlik</key>
 	<string>5-hour</string>
-	<key>5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit açılınca adada haber verir.</key>
+	<key>5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit yenilenince adada haber verir.</key>
 	<string>Shows an alert on the island when the 5-hour limit reaches %1$@ and %2$@, the weekly limit reaches %3$@, and when the limit resets.</string>
-	<key>5S</key>
-	<string>5H</string>
 	<key>5s</key>
 	<string>5h</string>
 	<key>6 ay</key>
@@ -258,8 +258,6 @@ charging on hold</string>
 	<string>Space to free</string>
 	<key>Açılacak yer %@</key>
 	<string>Frees up %@</string>
-	<key>Açıldı</key>
-	<string>Reset</string>
 	<key>Açılış animasyonu</key>
 	<string>Opening animation</string>
 	<key>AĞ</key>
@@ -574,8 +572,8 @@ charging on hold</string>
 	<string>Power</string>
 	<key>Güç çekişi</key>
 	<string>Power draw</string>
-	<key>HFT</key>
-	<string>WK</string>
+	<key>Hafta</key>
+	<string>Week</string>
 	<key>Haftalık</key>
 	<string>Weekly</string>
 	<key>Halka</key>
@@ -722,7 +720,7 @@ charging on hold</string>
 	<string>Short-term</string>
 	<key>Limit uyarıları</key>
 	<string>Limit alerts</string>
-	<key>Limitin açıldı</key>
+	<key>Limitin yenilendi</key>
 	<string>Limit reset</string>
 	<key>Limitler 5 dakikada bir Claude Code'un /usage komutuyla alınır; token harcamaz, claude.ai ile ortaktır.</key>
 	<string>Limits are fetched every 5 minutes with Claude Code's /usage command; it uses no tokens and is shared with claude.ai.</string>
@@ -1212,6 +1210,8 @@ calculating…</string>
 	<string>Refresh</string>
 	<key>Yenileme hızı</key>
 	<string>Refresh rate</string>
+	<key>Yenilendi</key>
+	<string>Reset</string>
 	<key>Yonga</key>
 	<string>Chip</string>
 	<key>Yük %@</key>

@@ -151,16 +151,6 @@
         }
       }
     },
-    "%@ açılır": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resets %@"
-          }
-        }
-      }
-    },
     "%@ saatine kadar": {
       "localizations": {
         "en": {
@@ -187,6 +177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Force quit %@?"
+          }
+        }
+      }
+    },
+    "%@ yenilenir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets %@"
           }
         }
       }
@@ -351,7 +351,7 @@
         }
       }
     },
-    "%lld dk sonra açılır": {
+    "%lld dk sonra yenilenir": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -627,7 +627,7 @@
         }
       }
     },
-    "%lld sa %lld dk sonra açılır": {
+    "%lld sa %lld dk sonra yenilenir": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1029,6 +1029,16 @@
         }
       }
     },
+    "5 saat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 hours"
+          }
+        }
+      }
+    },
     "5 saatlik": {
       "localizations": {
         "en": {
@@ -1039,22 +1049,12 @@
         }
       }
     },
-    "5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit açılınca adada haber verir.": {
+    "5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit yenilenince adada haber verir.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Shows an alert on the island when the 5-hour limit reaches %1$@ and %2$@, the weekly limit reaches %3$@, and when the limit resets."
-          }
-        }
-      }
-    },
-    "5S": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5H"
           }
         }
       }
@@ -1565,16 +1565,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Frees up %@"
-          }
-        }
-      }
-    },
-    "Açıldı": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reset"
           }
         }
       }
@@ -3149,12 +3139,12 @@
         }
       }
     },
-    "HFT": {
+    "Hafta": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WK"
+            "value": "Week"
           }
         }
       }
@@ -3889,7 +3879,7 @@
         }
       }
     },
-    "Limitin açıldı": {
+    "Limitin yenilendi": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6315,6 +6305,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Refresh rate"
+          }
+        }
+      }
+    },
+    "Yenilendi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
           }
         }
       }
