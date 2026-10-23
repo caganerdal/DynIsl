@@ -16,7 +16,7 @@ enum IslandState: Equatable {
 }
 
 enum IslandTab: String, CaseIterable, Equatable {
-    case media, calendar, shelf, clipboard, system, battery
+    case media, calendar, shelf, clipboard, system, battery, ai
 
     var title: String {
         switch self {
@@ -26,6 +26,7 @@ enum IslandTab: String, CaseIterable, Equatable {
         case .clipboard: return String(localized: "Pano")
         case .system: return String(localized: "Sistem")
         case .battery: return String(localized: "Pil")
+        case .ai: return String(localized: "AI kullanımı")
         }
     }
 
@@ -37,6 +38,7 @@ enum IslandTab: String, CaseIterable, Equatable {
         case .clipboard: return "doc.on.clipboard.fill"
         case .system: return "gauge.with.dots.needle.67percent"
         case .battery: return "battery.75percent"
+        case .ai: return "sparkle"
         }
     }
 }
@@ -73,6 +75,7 @@ final class IslandModel: ObservableObject {
     let hud = HUDController()
     let desktopCleaner = DesktopCleaner()
     let keepAwake = KeepAwake()
+    let aiUsage = AIUsageStore()
     let network = NetworkWatcher()
     let updates = UpdateChecker()
     let presentation = PresentationMode()
@@ -124,6 +127,7 @@ final class IslandModel: ObservableObject {
             }
         })
         keepAwake.onChange = { [weak self] a in self?.showActivity(a, duration: 2) }
+        aiUsage.onChange = { [weak self] a in self?.showActivity(a, duration: 4) }
         bluetooth.onActivity = { [weak self] a in
             guard let self, self.settings.notifyBluetooth else { return }
             self.showActivity(a)
@@ -273,6 +277,7 @@ final class IslandModel: ObservableObject {
             self?.system.isVisible = expanded && tab == .system
             self?.media.isVisible = expanded && tab == .media
             self?.batteryInfo.isVisible = expanded && tab == .battery
+            if expanded && tab == .ai { self?.aiUsage.refresh() }
         })
         bag.append(settings.$hiddenTabs.sink { [weak self] hidden in
             if let self, hidden.contains(self.tab) { self.tab = .media }
@@ -644,7 +649,7 @@ extension View {
             .environmentObject(m.weather).environmentObject(m.system).environmentObject(m.batteryInfo)
             .environmentObject(m.details).environmentObject(m.speedTest).environmentObject(m.alerts)
             .environmentObject(m.hud).environmentObject(m.desktopCleaner)
-            .environmentObject(m.keepAwake).environmentObject(m.keepAwake.lid).environmentObject(m.updates).environmentObject(m.presentation)
+            .environmentObject(m.keepAwake).environmentObject(m.keepAwake.lid).environmentObject(m.aiUsage).environmentObject(m.updates).environmentObject(m.presentation)
             .environmentObject(m.downloadsCleaner).environmentObject(m.settings)
     }
 }

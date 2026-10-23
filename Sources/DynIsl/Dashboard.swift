@@ -68,7 +68,7 @@ enum DashboardWindow {
 }
 
 enum DashboardPage: String, CaseIterable, Identifiable {
-    case overview, cpu, gpu, memory, storage, network, battery, keepAwake, displays, bluetooth, processes, desktop, downloads, convert
+    case overview, cpu, gpu, memory, storage, network, battery, keepAwake, displays, bluetooth, processes, aiUsage, desktop, downloads, convert
     var id: String { rawValue }
 
     var title: String {
@@ -81,6 +81,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .network: return String(localized: "Ağ")
         case .battery: return String(localized: "Pil")
         case .keepAwake: return String(localized: "Uyanık Tut")
+        case .aiUsage: return String(localized: "AI Kullanımı")
         case .displays: return String(localized: "Ekranlar")
         case .bluetooth: return "Bluetooth"
         case .processes: return String(localized: "İşlemler")
@@ -100,6 +101,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .network: return "network"
         case .battery: return "battery.75percent"
         case .keepAwake: return "cup.and.saucer.fill"
+        case .aiUsage: return "sparkle"
         case .displays: return "display"
         case .bluetooth: return "dot.radiowaves.left.and.right"
         case .processes: return "list.bullet.rectangle.fill"
@@ -119,6 +121,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .network: return .cyan
         case .battery: return .green
         case .keepAwake: return .orange
+        case .aiUsage: return .orange
         case .displays: return .indigo
         case .bluetooth: return .blue
         case .processes: return .pink
@@ -145,6 +148,7 @@ struct DashboardView: View {
                     }
                     Section("Yazılım") {
                         row(.processes)
+                        row(.aiUsage)
                         row(.desktop)
                         row(.downloads)
                         row(.convert)
@@ -195,6 +199,7 @@ struct DashboardView: View {
         case .network: NetworkPage()
         case .battery: BatteryPage()
         case .keepAwake: KeepAwakePage()
+        case .aiUsage: AIUsagePage()
         case .displays: DisplaysPage()
         case .bluetooth: BluetoothPage()
         case .processes: ProcessesPage()

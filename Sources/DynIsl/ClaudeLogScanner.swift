@@ -89,15 +89,20 @@ final class ClaudeLogScanner {
         var offset = start
         var carry = Data()
         var changed = false
-        while let data = try? h.read(upToCount: Self.chunk), !data.isEmpty {
-            carry.append(data)
-            guard let last = carry.lastIndex(of: 0x0A) else { continue }
-            let complete = carry[carry.startIndex...last]
-            for line in complete.split(separator: 0x0A, omittingEmptySubsequences: true) where line.range(of: Self.marker) != nil {
-                if ingest(line, cutoff: cutoff) { changed = true }
+        while true {
+            let more: Bool = autoreleasepool {
+                guard let data = try? h.read(upToCount: Self.chunk), !data.isEmpty else { return false }
+                carry.append(data)
+                guard let last = carry.lastIndex(of: 0x0A) else { return true }
+                let complete = carry[carry.startIndex...last]
+                for line in complete.split(separator: 0x0A, omittingEmptySubsequences: true) where line.range(of: Self.marker) != nil {
+                    if ingest(line, cutoff: cutoff) { changed = true }
+                }
+                offset += UInt64(complete.count)
+                carry = Data(carry[carry.index(after: last)...])
+                return true
             }
-            offset += UInt64(complete.count)
-            carry = Data(carry[carry.index(after: last)...])
+            if !more { break }
         }
         newOffset = offset
         return changed

@@ -62,6 +62,8 @@ struct ExpandedView: View {
                     SystemCard()
                 case .battery:
                     BatteryCard()
+                case .ai:
+                    AICard()
                 }
             }
             .frame(maxHeight: .infinity)

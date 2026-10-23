@@ -125,6 +125,10 @@ enum AIUsageRules {
         ((statusLine as? [String: Any])?["command"] as? String)?.hasSuffix(" " + statusCommandSuffix) == true
     }
 
+    static func statusCommand(settings: Data) -> String? {
+        ((try? JSONSerialization.jsonObject(with: settings)) as? [String: Any]).flatMap { ($0["statusLine"] as? [String: Any])?["command"] as? String }
+    }
+
     static func isLinked(settings: Data?) -> Bool {
         guard let settings, let d = (try? JSONSerialization.jsonObject(with: settings)) as? [String: Any] else { return false }
         return isOwn(d["statusLine"])

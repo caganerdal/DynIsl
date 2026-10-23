@@ -109,16 +109,16 @@ final class AIUsageStore: ObservableObject {
     }
 
     var linkCommand: String {
-        let island = home.appendingPathComponent(".local/bin/island")
-        if (try? FileManager.default.destinationOfSymbolicLink(atPath: island.path))?.contains("/DynIsl.app/") == true {
-            return "\"$HOME/.local/bin/island\" claude-status"
-        }
         let exe = Bundle.main.executablePath ?? "island"
         return "'" + exe.replacingOccurrences(of: "'", with: "'\\''") + "' claude-status"
     }
 
     func refreshLink() {
-        linked = AIUsageRules.isLinked(settings: try? Data(contentsOf: settingsURL))
+        let current = try? Data(contentsOf: settingsURL)
+        linked = AIUsageRules.isLinked(settings: current)
+        guard linked, let current, AIUsageRules.statusCommand(settings: current) != linkCommand,
+              let out = try? AIUsageRules.connect(settings: current, command: linkCommand) else { return }
+        try? out.write(to: settingsURL, options: .atomic)
     }
 
     func connect() {

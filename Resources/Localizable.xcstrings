@@ -151,6 +151,16 @@
         }
       }
     },
+    "%@ açılır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets %@"
+          }
+        }
+      }
+    },
     "%@ saatine kadar": {
       "localizations": {
         "en": {
@@ -337,6 +347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "in %lld min"
+          }
+        }
+      }
+    },
+    "%lld dk sonra açılır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets in %lld min"
           }
         }
       }
@@ -603,6 +623,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld h %lld min left"
+          }
+        }
+      }
+    },
+    "%lld sa %lld dk sonra açılır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets in %lld h %lld min"
           }
         }
       }
@@ -999,6 +1029,26 @@
         }
       }
     },
+    "5 saatlik": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5-hour"
+          }
+        }
+      }
+    },
+    "5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit açılınca adada haber verir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows an alert on the island when the 5-hour limit reaches %1$@ and %2$@, the weekly limit reaches %3$@, and when the limit resets."
+          }
+        }
+      }
+    },
     "6 ay": {
       "localizations": {
         "en": {
@@ -1009,12 +1059,42 @@
         }
       }
     },
+    "7 gün: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 days: %@"
+          }
+        }
+      }
+    },
     "8 saat": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "8 hours"
+          }
+        }
+      }
+    },
+    "AI Kullanımı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Usage"
+          }
+        }
+      }
+    },
+    "AI kullanımı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI usage"
           }
         }
       }
@@ -1299,6 +1379,16 @@
         }
       }
     },
+    "Ayar dosyası yazılamadı.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't write the settings file."
+          }
+        }
+      }
+    },
     "Ayarlar": {
       "localizations": {
         "en": {
@@ -1459,6 +1549,16 @@
         }
       }
     },
+    "Açıldı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        }
+      }
+    },
     "Açılış animasyonu": {
       "localizations": {
         "en": {
@@ -1499,6 +1599,16 @@
         }
       }
     },
+    "BUGÜN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TODAY"
+          }
+        }
+      }
+    },
     "Baskı yüksek": {
       "localizations": {
         "en": {
@@ -1515,6 +1625,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connected"
+          }
+        }
+      }
+    },
+    "Bağlandı. Claude Code'da bir sonraki yanıttan sonra limitler görünür.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected. Limits appear after Claude Code's next reply."
           }
         }
       }
@@ -1559,6 +1679,16 @@
         }
       }
     },
+    "Bağlantıyı kaldır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        }
+      }
+    },
     "Bağlanınca": {
       "localizations": {
         "en": {
@@ -1575,6 +1705,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connected"
+          }
+        }
+      }
+    },
+    "Bağlı değil. ChatGPT aboneliğinin limitleri yalnızca Codex CLI kullanıldığında onun kayıtlarından okunabiliyor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected. ChatGPT plan limits can only be read from Codex CLI logs when you use Codex CLI."
           }
         }
       }
@@ -1839,6 +1979,16 @@
         }
       }
     },
+    "Bugün": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
     "Bugün pilde": {
       "localizations": {
         "en": {
@@ -1909,6 +2059,16 @@
         }
       }
     },
+    "ChatGPT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ChatGPT"
+          }
+        }
+      }
+    },
     "Cihazlar okunuyor…": {
       "localizations": {
         "en": {
@@ -1919,12 +2079,142 @@
         }
       }
     },
+    "Claude 5 saatlik limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude 5-hour limit"
+          }
+        }
+      }
+    },
+    "Claude Code durum çubuğu üzerinden okunur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read through the Claude Code status line"
+          }
+        }
+      }
+    },
+    "Claude Code kullanımı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code usage"
+          }
+        }
+      }
+    },
+    "Claude Code'a bağla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to Claude Code"
+          }
+        }
+      }
+    },
+    "Claude Code'a bağlı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to Claude Code"
+          }
+        }
+      }
+    },
+    "Claude Code'a bağlı değil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected to Claude Code"
+          }
+        }
+      }
+    },
+    "Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i \"island claude-status\" komutuna aktaran bir satır ekleyebilirsin.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code already has another status line, so I left it alone. You can add a line to your script that pipes stdin to \"island claude-status\"."
+          }
+        }
+      }
+    },
+    "Claude Code'dan ilk veri bekleniyor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the first data from Claude Code"
+          }
+        }
+      }
+    },
+    "Claude Code'un bu Mac'teki kayıtlarından hesaplanır; önbellekten okunan token'lar dahildir. Sohbet içeriği okunmaz.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calculated from Claude Code's logs on this Mac, including cached tokens. Conversation content is never read."
+          }
+        }
+      }
+    },
+    "Claude aboneliği": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude plan"
+          }
+        }
+      }
+    },
     "Claude bitirdi": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Claude finished"
+          }
+        }
+      }
+    },
+    "Claude haftalık limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude weekly limit"
+          }
+        }
+      }
+    },
+    "Claude · %@ güncellendi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude · updated %@"
+          }
+        }
+      }
+    },
+    "Codex CLI kayıtlarından · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From Codex CLI logs · %@"
           }
         }
       }
@@ -2419,6 +2709,16 @@
         }
       }
     },
+    "En çok: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most: %@"
+          }
+        }
+      }
+    },
     "Erişilebilirlik": {
       "localizations": {
         "en": {
@@ -2515,6 +2815,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Advanced"
+          }
+        }
+      }
+    },
+    "Gemini": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini"
+          }
+        }
+      }
+    },
+    "Gemini aboneliğinin limitleri için resmî bir veri kaynağı yok. Google bir yol sunduğunda burada görünecek.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There's no official source for Gemini plan limits. It will appear here once Google offers one."
           }
         }
       }
@@ -2759,6 +3079,16 @@
         }
       }
     },
+    "Gün": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        }
+      }
+    },
     "Güncelle": {
       "localizations": {
         "en": {
@@ -2855,6 +3185,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Power draw"
+          }
+        }
+      }
+    },
+    "HFT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WK"
+          }
+        }
+      }
+    },
+    "Haftalık": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly"
           }
         }
       }
@@ -3569,6 +3919,56 @@
         }
       }
     },
+    "Kısa dönem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short-term"
+          }
+        }
+      }
+    },
+    "Limit uyarıları": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit alerts"
+          }
+        }
+      }
+    },
+    "Limitin açıldı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit reset"
+          }
+        }
+      }
+    },
+    "Limitler Claude Code çalışırken gelir ve claude.ai ile ortaktır; yalnızca sohbet ediyorsan son bilinen değer gösterilir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limits arrive while Claude Code is running and are shared with claude.ai; if you only chat, the last known value is shown."
+          }
+        }
+      }
+    },
+    "Limitler için Ayrıntılar'dan bağlan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect in Details to see limits"
+          }
+        }
+      }
+    },
     "Link kopyalandı": {
       "localizations": {
         "en": {
@@ -3825,6 +4225,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Model identifier"
+          }
+        }
+      }
+    },
+    "Modeller (7 gün)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Models (7 days)"
           }
         }
       }
@@ -4325,6 +4735,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "When battery is low (20% and 10%)"
+          }
+        }
+      }
+    },
+    "Projeler (7 gün)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projects (7 days)"
           }
         }
       }
@@ -4879,12 +5299,32 @@
         }
       }
     },
+    "Son 7 gün": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 7 days"
+          }
+        }
+      }
+    },
     "Son açılış %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Last opened %@"
+          }
+        }
+      }
+    },
+    "Son güncelleme: %@%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last update: %1$@%2$@"
           }
         }
       }
@@ -5359,6 +5799,16 @@
         }
       }
     },
+    "Token": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tokens"
+          }
+        }
+      }
+    },
     "Toplam": {
       "localizations": {
         "en": {
@@ -5645,6 +6095,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Collecting data — the chart fills in after the first few hours."
+          }
+        }
+      }
+    },
+    "Veri yok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No data"
           }
         }
       }
@@ -6029,6 +6489,16 @@
         }
       }
     },
+    "girdi %@ · çıktı %@ · önbellek %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "input %1$@ · output %2$@ · cache %3$@"
+          }
+        }
+      }
+    },
     "island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test": {
       "localizations": {
         "en": {
@@ -6189,6 +6659,16 @@
         }
       }
     },
+    "token": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tokens"
+          }
+        }
+      }
+    },
     "v": {
       "localizations": {
         "en": {
@@ -6205,6 +6685,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "in ~%lld min"
+          }
+        }
+      }
+    },
+    "~/.claude/settings.json okunamadı (geçersiz JSON); dokunmadım.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read ~/.claude/settings.json (invalid JSON); left it untouched."
           }
         }
       }
@@ -6955,6 +7445,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Until"
+          }
+        }
+      }
+    },
+    "şimdi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "just now"
           }
         }
       }

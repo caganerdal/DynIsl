@@ -117,6 +117,11 @@ struct AIUsageRulesTests {
         #expect((d["statusLine"] as? [String: Any])?["command"] as? String == "/new/island claude-status")
     }
 
+    @Test func readsStatusCommand() {
+        #expect(AIUsageRules.statusCommand(settings: Data(#"{"statusLine":{"command":"/a/island claude-status"}}"#.utf8)) == "/a/island claude-status")
+        #expect(AIUsageRules.statusCommand(settings: Data("{}".utf8)) == nil)
+    }
+
     @Test func linkedStatus() {
         #expect(AIUsageRules.isLinked(settings: Data(#"{"statusLine":{"command":"/a/island claude-status"}}"#.utf8)))
         #expect(!AIUsageRules.isLinked(settings: Data(#"{"statusLine":{"command":"x.sh"}}"#.utf8)))

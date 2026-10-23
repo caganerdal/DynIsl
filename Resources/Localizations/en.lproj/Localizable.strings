@@ -34,6 +34,8 @@ Click: System Dashboard</string>
 	<string>%@ (%lld)</string>
 	<key>%@ / saat</key>
 	<string>%@ / hour</string>
+	<key>%@ açılır</key>
+	<string>Resets %@</string>
 	<key>%@ saatine kadar</key>
 	<string>until %@</string>
 	<key>%@ sunumu</key>
@@ -72,6 +74,8 @@ Click: System Dashboard</string>
 	<string>%lld min left</string>
 	<key>%lld dk sonra</key>
 	<string>in %lld min</string>
+	<key>%lld dk sonra açılır</key>
+	<string>Resets in %lld min</string>
 	<key>%lld dosya (%@) %lld klasöre düzenlendi</key>
 	<string>Organized %lld files (%@) into %lld folders</string>
 	<key>%lld dosya düzenlendi, %lld dosya taşınamadı (açık ya da kilitli olabilir)</key>
@@ -90,6 +94,8 @@ Click: System Dashboard</string>
 	<string>%lld h %lld min</string>
 	<key>%lld sa %lld dk kaldı</key>
 	<string>%lld h %lld min left</string>
+	<key>%lld sa %lld dk sonra açılır</key>
+	<string>Resets in %lld h %lld min</string>
 	<key>%lld saattir %@</key>
 	<string>%2$@ for %1$lld hours</string>
 	<key>%lld sn</key>
@@ -142,10 +148,20 @@ Click: System Dashboard</string>
 	<string>4 hours</string>
 	<key>5 dk</key>
 	<string>5 min</string>
+	<key>5 saatlik</key>
+	<string>5-hour</string>
+	<key>5 saatlik limit %@ ve %@ olunca, haftalık limit %@ olunca ve limit açılınca adada haber verir.</key>
+	<string>Shows an alert on the island when the 5-hour limit reaches %1$@ and %2$@, the weekly limit reaches %3$@, and when the limit resets.</string>
 	<key>6 ay</key>
 	<string>6 months</string>
+	<key>7 gün: %@</key>
+	<string>7 days: %@</string>
 	<key>8 saat</key>
 	<string>8 hours</string>
+	<key>AI Kullanımı</key>
+	<string>AI Usage</string>
+	<key>AI kullanımı</key>
+	<string>AI usage</string>
 	<key>Ada</key>
 	<string>Island</string>
 	<key>Ada açılır: müzik, takvim, raf, pano, sistem ve pil sekmeleri.</key>
@@ -204,6 +220,8 @@ charging on hold</string>
 	<string>Archives</string>
 	<key>Atla</key>
 	<string>Skip</string>
+	<key>Ayar dosyası yazılamadı.</key>
+	<string>Couldn't write the settings file.</string>
 	<key>Ayarlar</key>
 	<string>Settings</string>
 	<key>Ayarlarda ara</key>
@@ -236,6 +254,8 @@ charging on hold</string>
 	<string>Space to free</string>
 	<key>Açılacak yer %@</key>
 	<string>Frees up %@</string>
+	<key>Açıldı</key>
+	<string>Reset</string>
 	<key>Açılış animasyonu</key>
 	<string>Opening animation</string>
 	<key>AĞ</key>
@@ -244,10 +264,14 @@ charging on hold</string>
 	<string>Network</string>
 	<key>Ağ adını görmek için macOS konum izni gerekiyor.</key>
 	<string>macOS needs location permission to show the network name.</string>
+	<key>BUGÜN</key>
+	<string>TODAY</string>
 	<key>Baskı yüksek</key>
 	<string>High pressure</string>
 	<key>Bağlandı</key>
 	<string>Connected</string>
+	<key>Bağlandı. Claude Code'da bir sonraki yanıttan sonra limitler görünür.</key>
+	<string>Connected. Limits appear after Claude Code's next reply.</string>
 	<key>Bağlantı hızı</key>
 	<string>Link speed</string>
 	<key>Bağlantı koptu</key>
@@ -256,10 +280,14 @@ charging on hold</string>
 	<string>Connectivity &amp; Power</string>
 	<key>Bağlantı yok ya da test tamamlanamadı</key>
 	<string>No connection, or the test couldn't finish</string>
+	<key>Bağlantıyı kaldır</key>
+	<string>Disconnect</string>
 	<key>Bağlanınca</key>
 	<string>When connected</string>
 	<key>Bağlı</key>
 	<string>Connected</string>
+	<key>Bağlı değil. ChatGPT aboneliğinin limitleri yalnızca Codex CLI kullanıldığında onun kayıtlarından okunabiliyor.</key>
+	<string>Not connected. ChatGPT plan limits can only be read from Codex CLI logs when you use Codex CLI.</string>
 	<key>Başla</key>
 	<string>Get Started</string>
 	<key>Başlat</key>
@@ -312,6 +340,8 @@ charging on hold</string>
 	<string>Nothing unopened for this long ✨</string>
 	<key>Bu süredir açılmamış öğeler listelenir</key>
 	<string>Lists items not opened for this long</string>
+	<key>Bugün</key>
+	<string>Today</string>
 	<key>Bugün pilde</key>
 	<string>On battery today</string>
 	<key>Bugün pilde %@</key>
@@ -326,10 +356,38 @@ charging on hold</string>
 	<string>Drop to send</string>
 	<key>Cevabını bekliyor</key>
 	<string>Waiting for your reply</string>
+	<key>ChatGPT</key>
+	<string>ChatGPT</string>
 	<key>Cihazlar okunuyor…</key>
 	<string>Reading devices…</string>
+	<key>Claude 5 saatlik limit</key>
+	<string>Claude 5-hour limit</string>
+	<key>Claude Code durum çubuğu üzerinden okunur</key>
+	<string>Read through the Claude Code status line</string>
+	<key>Claude Code kullanımı</key>
+	<string>Claude Code usage</string>
+	<key>Claude Code'a bağla</key>
+	<string>Connect to Claude Code</string>
+	<key>Claude Code'a bağlı</key>
+	<string>Connected to Claude Code</string>
+	<key>Claude Code'a bağlı değil</key>
+	<string>Not connected to Claude Code</string>
+	<key>Claude Code'da zaten başka bir durum çubuğu var; üzerine yazmadım. Kendi betiğinin sonuna stdin'i "island claude-status" komutuna aktaran bir satır ekleyebilirsin.</key>
+	<string>Claude Code already has another status line, so I left it alone. You can add a line to your script that pipes stdin to "island claude-status".</string>
+	<key>Claude Code'dan ilk veri bekleniyor</key>
+	<string>Waiting for the first data from Claude Code</string>
+	<key>Claude Code'un bu Mac'teki kayıtlarından hesaplanır; önbellekten okunan token'lar dahildir. Sohbet içeriği okunmaz.</key>
+	<string>Calculated from Claude Code's logs on this Mac, including cached tokens. Conversation content is never read.</string>
+	<key>Claude aboneliği</key>
+	<string>Claude plan</string>
 	<key>Claude bitirdi</key>
 	<string>Claude finished</string>
+	<key>Claude haftalık limit</key>
+	<string>Claude weekly limit</string>
+	<key>Claude · %@ güncellendi</key>
+	<string>Claude · updated %@</string>
+	<key>Codex CLI kayıtlarından · %@</key>
+	<string>From Codex CLI logs · %@</string>
 	<key>Dahili</key>
 	<string>Internal</string>
 	<key>Dahili ekran</key>
@@ -428,6 +486,8 @@ charging on hold</string>
 	<string>High %lld° · Low %lld°</string>
 	<key>En çok kaynak kullananlar</key>
 	<string>Top resource users</string>
+	<key>En çok: %@</key>
+	<string>Most: %@</string>
 	<key>Erişilebilirlik</key>
 	<string>Accessibility</string>
 	<key>Erişilebilirlik (ses ve parlaklık tuşları)</key>
@@ -448,6 +508,10 @@ charging on hold</string>
 	<string>Latency</string>
 	<key>Gelişmiş</key>
 	<string>Advanced</string>
+	<key>Gemini</key>
+	<string>Gemini</string>
+	<key>Gemini aboneliğinin limitleri için resmî bir veri kaynağı yok. Google bir yol sunduğunda burada görünecek.</key>
+	<string>There's no official source for Gemini plan limits. It will appear here once Google offers one.</string>
 	<key>Genel</key>
 	<string>General</string>
 	<key>Genel Bakış</key>
@@ -496,6 +560,8 @@ charging on hold</string>
 	<string>Show</string>
 	<key>Gösterge stili</key>
 	<string>Indicator style</string>
+	<key>Gün</key>
+	<string>Day</string>
 	<key>Güncelle</key>
 	<string>Update</string>
 	<key>Güncelleme</key>
@@ -516,6 +582,10 @@ charging on hold</string>
 	<string>Power</string>
 	<key>Güç çekişi</key>
 	<string>Power draw</string>
+	<key>HFT</key>
+	<string>WK</string>
+	<key>Haftalık</key>
+	<string>Weekly</string>
 	<key>Halka</key>
 	<string>Ring</string>
 	<key>Harici</key>
@@ -658,6 +728,16 @@ charging on hold</string>
 	<string>Bridge</string>
 	<key>Küçült</key>
 	<string>Minimize</string>
+	<key>Kısa dönem</key>
+	<string>Short-term</string>
+	<key>Limit uyarıları</key>
+	<string>Limit alerts</string>
+	<key>Limitin açıldı</key>
+	<string>Limit reset</string>
+	<key>Limitler Claude Code çalışırken gelir ve claude.ai ile ortaktır; yalnızca sohbet ediyorsan son bilinen değer gösterilir.</key>
+	<string>Limits arrive while Claude Code is running and are shared with claude.ai; if you only chat, the last known value is shown.</string>
+	<key>Limitler için Ayrıntılar'dan bağlan</key>
+	<string>Connect in Details to see limits</string>
 	<key>Link kopyalandı</key>
 	<string>Link copied</string>
 	<key>Listeyi temizle</key>
@@ -710,6 +790,8 @@ charging on hold</string>
 	<string>Minimal</string>
 	<key>Model kimliği</key>
 	<string>Model identifier</string>
+	<key>Modeller (7 gün)</key>
+	<string>Models (7 days)</string>
 	<key>Mükemmel</key>
 	<string>Excellent</string>
 	<key>Müzik</key>
@@ -814,6 +896,8 @@ calculating…</string>
 	<string>Average drain on battery</string>
 	<key>Pili azalınca (%20 ve %10)</key>
 	<string>When battery is low (20% and 10%)</string>
+	<key>Projeler (7 gün)</key>
+	<string>Projects (7 days)</string>
 	<key>Raf</key>
 	<string>Shelf</string>
 	<key>Raf ve AirDrop</key>
@@ -924,8 +1008,12 @@ calculating…</string>
 	<string>Left</string>
 	<key>Son 48 saat</key>
 	<string>Last 48 hours</string>
+	<key>Son 7 gün</key>
+	<string>Last 7 days</string>
 	<key>Son açılış %@</key>
 	<string>Last opened %@</string>
+	<key>Son güncelleme: %@%@</key>
+	<string>Last update: %1$@%2$@</string>
 	<key>Sonra buradan istediğin yere sürükle</key>
 	<string>Then drag them anywhere from here</string>
 	<key>Sonuç</key>
@@ -1020,6 +1108,8 @@ calculating…</string>
 	<string>The test takes ~20 s and uses your connection heavily meanwhile.</string>
 	<key>Testi başlat</key>
 	<string>Start Test</string>
+	<key>Token</key>
+	<string>Tokens</string>
 	<key>Toplam</key>
 	<string>Total</string>
 	<key>Toplam %@</key>
@@ -1078,6 +1168,8 @@ calculating…</string>
 	<string>Cancel</string>
 	<key>Veri toplanıyor — ilk birkaç saatten sonra grafik dolacak.</key>
 	<string>Collecting data — the chart fills in after the first few hours.</string>
+	<key>Veri yok</key>
+	<string>No data</string>
 	<key>Verildi</key>
 	<string>Granted</string>
 	<key>Verimlilik çekirdekleri</key>
@@ -1154,6 +1246,8 @@ calculating…</string>
 	<string>Force Quit</string>
 	<key>ekran kapanabilir</key>
 	<string>display may sleep</string>
+	<key>girdi %@ · çıktı %@ · önbellek %@</key>
+	<string>input %1$@ · output %2$@ · cache %3$@</string>
 	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
 	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
 	<key>island: %@ çalıştırılamadı: %@
@@ -1190,10 +1284,14 @@ calculating…</string>
 	<string>last known</string>
 	<key>t</key>
 	<string>t</string>
+	<key>token</key>
+	<string>tokens</string>
 	<key>v</key>
 	<string>v</string>
 	<key>~%lld dk sonra</key>
 	<string>in ~%lld min</string>
+	<key>~/.claude/settings.json okunamadı (geçersiz JSON); dokunmadım.</key>
+	<string>Couldn't read ~/.claude/settings.json (invalid JSON); left it untouched.</string>
 	<key>Çalan şarkı, AirPods, şarj, toplantılar ve daha fazlası çentikte.</key>
 	<string>Now playing, AirPods, charging, meetings and more, right in the notch.</string>
 	<key>Çalan şarkının rengi</key>
@@ -1346,6 +1444,8 @@ full in %@</string>
 	<string>Current full capacity</string>
 	<key>Şu saate kadar</key>
 	<string>Until</string>
+	<key>şimdi</key>
+	<string>just now</string>
 	<key>–</key>
 	<string>–</string>
 	<key>“%@” bulunamadı</key>
