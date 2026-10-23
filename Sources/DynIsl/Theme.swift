@@ -101,12 +101,19 @@ struct PageScroll<Content: View, Bar: View>: View {
     }
 
     var body: some View {
+        if Bar.self == EmptyView.self {
+            scroll
+        } else {
+            scroll.safeAreaInset(edge: .bottom, spacing: 0) { bar }
+        }
+    }
+
+    private var scroll: some View {
         ScrollView {
             content
                 .padding(24)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { bar }
     }
 }
 
