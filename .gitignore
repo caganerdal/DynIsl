@@ -6,3 +6,4 @@ DerivedData/
 *.app
 *.dmg
 .DS_Store
+.superpowers/
