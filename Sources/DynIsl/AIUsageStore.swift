@@ -135,14 +135,26 @@ final class AIUsageStore: ObservableObject {
     private func backup(_ data: Data) {
         let url = settingsURL.appendingPathExtension("dynisl-backup")
         guard !FileManager.default.fileExists(atPath: url.path) else { return }
-        try? data.write(to: url)
+        FileManager.default.createFile(atPath: url.path, contents: data, attributes: [.posixPermissions: 0o600])
     }
 
     private func writeSettings(_ out: Data, expected: Data?) throws {
-        let target = settingsTarget
-        guard (try? Data(contentsOf: target)) == expected else { throw CocoaError(.fileWriteUnknown) }
-        try out.write(to: target, options: .atomic)
+        try Self.writePreservingMode(out, to: settingsTarget, expected: expected)
     }
+
+    nonisolated static func writePreservingMode(_ out: Data, to target: URL, expected: Data?) throws {
+        guard (try? Data(contentsOf: target)) == expected else { throw CocoaError(.fileWriteUnknown) }
+        let mode = (try? FileManager.default.attributesOfItem(atPath: target.path)[.posixPermissions] as? NSNumber)?.int16Value ?? 0o600
+        let tmp = target.deletingLastPathComponent().appendingPathComponent(".\(target.lastPathComponent).dynisl-\(getpid())")
+        guard FileManager.default.createFile(atPath: tmp.path, contents: out, attributes: [.posixPermissions: mode]) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        guard rename(tmp.path, target.path) == 0 else {
+            try? FileManager.default.removeItem(at: tmp)
+            throw CocoaError(.fileWriteUnknown)
+        }
+    }
+
 
     func connect() {
         let current = try? Data(contentsOf: settingsTarget)
@@ -180,8 +192,10 @@ final class AIUsageStore: ObservableObject {
     nonisolated private static func saveState(_ state: ScanState, to url: URL) {
         guard let data = try? JSONEncoder().encode(state) else { return }
         try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if (try? data.write(to: url, options: .atomic)) != nil {
-            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        let tmp = url.deletingLastPathComponent().appendingPathComponent(".\(url.lastPathComponent).tmp")
+        if FileManager.default.createFile(atPath: tmp.path, contents: data, attributes: [.posixPermissions: 0o600]),
+           rename(tmp.path, url.path) != 0 {
+            try? FileManager.default.removeItem(at: tmp)
         }
     }
 
