@@ -3,6 +3,9 @@ import Security
 
 enum CLI {
     static let notificationName = Notification.Name("local.dynamicisland.notify")
+    static let usageNotificationName = Notification.Name("local.dynamicisland.ai-usage")
+    static let usageURL = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/DynamicIsland/ai-usage.json")
 
     private static let tokenURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/DynamicIsland/cli-token")
@@ -22,7 +25,7 @@ enum CLI {
         var args = Array(CommandLine.arguments.dropFirst())
         let invokedAsIsland = (CommandLine.arguments.first as NSString?)?.lastPathComponent == "island"
         args.removeAll { $0.hasPrefix("-psn_") || $0.hasPrefix("-NS") || $0 == "YES" }
-        guard invokedAsIsland || args.first.map(["notify", "run", "claude-hook", "-h", "--help"].contains) == true else {
+        guard invokedAsIsland || args.first.map(["notify", "run", "claude-hook", "claude-status", "-h", "--help"].contains) == true else {
             return nil
         }
         if args.first == "notify" { args.removeFirst() }
@@ -35,6 +38,8 @@ enum CLI {
             return run(Array(args.dropFirst()))
         case "claude-hook":
             return claudeHook()
+        case "claude-status":
+            return claudeStatus()
         default:
             return notify(args)
         }
@@ -119,6 +124,34 @@ enum CLI {
         return 0
     }
 
+    static func readUsage() -> ClaudeLimits? {
+        (try? Data(contentsOf: usageURL)).flatMap { try? JSONDecoder().decode(ClaudeLimits.self, from: $0) }
+    }
+
+    private static func claudeStatus() -> Int32 {
+        let data = FileHandle.standardInput.readDataToEndOfFile()
+        let now = Date()
+        guard let new = AIUsageRules.parseStatus(data, now: now) else {
+            print("Claude")
+            return 0
+        }
+        let old = readUsage()
+        let merged = AIUsageRules.merge(old: old, new: new)
+        if merged != old, let out = try? JSONEncoder().encode(merged) {
+            try? FileManager.default.createDirectory(at: usageURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            if (try? out.write(to: usageURL, options: .atomic)) != nil {
+                try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: usageURL.path)
+                DistributedNotificationCenter.default().postNotificationName(
+                    usageNotificationName, object: nil, userInfo: ["token": token(create: false) ?? ""], deliverImmediately: true)
+            }
+        }
+        var shown = merged
+        shown.fiveHour = AIUsageRules.effective(merged.fiveHour, now: now)
+        shown.sevenDay = AIUsageRules.effective(merged.sevenDay, now: now)
+        print(AIUsageRules.statusLine(shown))
+        return 0
+    }
+
     private static func shorten(_ msg: String) -> String {
         let m = msg.lowercased()
         if m.contains("permission") { return String(localized: "İzin bekliyor") }
@@ -145,6 +178,7 @@ enum CLI {
       island -i <SF Symbol> -c <renk> "mesaj"
       island -d 6 --sound "mesaj"        6 sn göster, ses çal
       island run <komut...>              komutu çalıştır, bitince bildir
+      island claude-status               Claude Code durum çubuğu (limitleri adaya iletir)
 
     renkler: white green red orange yellow blue purple pink teal
     """

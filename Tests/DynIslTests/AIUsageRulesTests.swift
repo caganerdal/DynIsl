@@ -83,6 +83,11 @@ struct AIUsageRulesTests {
         #expect(AIUsageRules.parseLogLine(#"{"type":"assistant","mess"#) == nil)
     }
 
+    @Test func ignoresZeroUsageSyntheticLines() {
+        let l = #"{"type":"assistant","requestId":"r","timestamp":"2026-10-23T10:00:00Z","cwd":"/p/x","message":{"id":"m","model":"<synthetic>","usage":{"input_tokens":0,"output_tokens":0,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}"#
+        #expect(AIUsageRules.parseLogLine(Substring(l)) == nil)
+    }
+
     @Test func connectAddsStatusLineAndKeepsOtherKeys() throws {
         let original = Data(#"{"hooks":{"Stop":[]},"model":"opus"}"#.utf8)
         let out = try AIUsageRules.connect(settings: original, command: "/x/island claude-status")
@@ -132,5 +137,25 @@ struct AIUsageRulesTests {
         #expect(r.primary == LimitWindow(usedPercent: 12, resetsAt: Date(timeIntervalSince1970: 1_800_003_600)))
         #expect(r.secondary == LimitWindow(usedPercent: 30.5, resetsAt: now.addingTimeInterval(7200)))
         #expect(AIUsageRules.parseCodex(#"{"type":"event_msg","payload":{"type":"agent_message"}}"#, now: now) == nil)
+    }
+
+    private func limits(_ five: Double?, _ week: Double?, fiveReset: TimeInterval = 3600) -> ClaudeLimits {
+        ClaudeLimits(fiveHour: five.map { LimitWindow(usedPercent: $0, resetsAt: now.addingTimeInterval(fiveReset)) },
+                     sevenDay: week.map { LimitWindow(usedPercent: $0, resetsAt: now.addingTimeInterval(86400)) },
+                     model: nil, updatedAt: now)
+    }
+
+    @Test func alertsOnThresholdCrossing() {
+        #expect(AIUsageRules.alerts(old: limits(70, 50), new: limits(82, 50)) == [.fiveHour(80)])
+        #expect(AIUsageRules.alerts(old: limits(82, 85), new: limits(96, 91)) == [.fiveHour(95), .sevenDay(90)])
+        #expect(AIUsageRules.alerts(old: limits(82, 50), new: limits(84, 50)) == [])
+    }
+
+    @Test func noAlertsOnFirstReading() {
+        #expect(AIUsageRules.alerts(old: nil, new: limits(99, 99)) == [])
+    }
+
+    @Test func newWindowStartsFromZero() {
+        #expect(AIUsageRules.alerts(old: limits(90, 10), new: limits(85, 10, fiveReset: 5 * 3600)) == [.fiveHour(80)])
     }
 }

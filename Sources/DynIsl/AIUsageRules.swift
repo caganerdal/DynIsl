@@ -66,6 +66,27 @@ enum AIUsageRules {
         return w.resetsAt <= now ? LimitWindow(usedPercent: 0, resetsAt: w.resetsAt) : w
     }
 
+    enum UsageAlert: Equatable { case fiveHour(Double), sevenDay(Double) }
+
+    static let fiveHourThresholds: [Double] = [80, 95]
+    static let sevenDayThresholds: [Double] = [90]
+
+    static func alerts(old: ClaudeLimits?, new: ClaudeLimits) -> [UsageAlert] {
+        guard let old else { return [] }
+        func previous(_ o: LimitWindow?, _ n: LimitWindow) -> Double {
+            guard let o, abs(o.resetsAt.timeIntervalSince(n.resetsAt)) < 600 else { return 0 }
+            return o.usedPercent
+        }
+        var out: [UsageAlert] = []
+        if let n = new.fiveHour, let t = crossed(previous: previous(old.fiveHour, n), current: n.usedPercent, thresholds: fiveHourThresholds) {
+            out.append(.fiveHour(t))
+        }
+        if let n = new.sevenDay, let t = crossed(previous: previous(old.sevenDay, n), current: n.usedPercent, thresholds: sevenDayThresholds) {
+            out.append(.sevenDay(t))
+        }
+        return out
+    }
+
     static func crossed(previous: Double, current: Double, thresholds: [Double]) -> Double? {
         thresholds.filter { previous < $0 && current >= $0 }.max()
     }
@@ -91,12 +112,13 @@ enum AIUsageRules {
               let date = date(json["timestamp"] as? String) else { return nil }
         let id = message["id"] as? String ?? json["uuid"] as? String ?? ""
         let cwd = json["cwd"] as? String ?? ""
-        return UsageRecord(key: "\(id):\(json["requestId"] as? String ?? "")", date: date,
+        let record = UsageRecord(key: "\(id):\(json["requestId"] as? String ?? "")", date: date,
                            project: cwd.isEmpty ? "?" : (cwd as NSString).lastPathComponent,
                            model: message["model"] as? String ?? "?",
                            input: usage["input_tokens"] as? Int ?? 0, output: usage["output_tokens"] as? Int ?? 0,
                            cacheRead: usage["cache_read_input_tokens"] as? Int ?? 0,
                            cacheWrite: usage["cache_creation_input_tokens"] as? Int ?? 0)
+        return record.total > 0 ? record : nil
     }
 
     private static func isOwn(_ statusLine: Any?) -> Bool {
