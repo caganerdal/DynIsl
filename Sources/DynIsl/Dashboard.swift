@@ -68,7 +68,7 @@ enum DashboardWindow {
 }
 
 enum DashboardPage: String, CaseIterable, Identifiable {
-    case overview, cpu, gpu, memory, storage, network, battery, displays, bluetooth, processes, desktop, downloads, convert
+    case overview, cpu, gpu, memory, storage, network, battery, keepAwake, displays, bluetooth, processes, desktop, downloads, convert
     var id: String { rawValue }
 
     var title: String {
@@ -80,6 +80,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .storage: return String(localized: "Depolama")
         case .network: return String(localized: "Ağ")
         case .battery: return String(localized: "Pil")
+        case .keepAwake: return String(localized: "Uyanık Tut")
         case .displays: return String(localized: "Ekranlar")
         case .bluetooth: return "Bluetooth"
         case .processes: return String(localized: "İşlemler")
@@ -98,6 +99,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .storage: return "internaldrive.fill"
         case .network: return "network"
         case .battery: return "battery.75percent"
+        case .keepAwake: return "cup.and.saucer.fill"
         case .displays: return "display"
         case .bluetooth: return "dot.radiowaves.left.and.right"
         case .processes: return "list.bullet.rectangle.fill"
@@ -116,6 +118,7 @@ enum DashboardPage: String, CaseIterable, Identifiable {
         case .storage: return .teal
         case .network: return .cyan
         case .battery: return .green
+        case .keepAwake: return .orange
         case .displays: return .indigo
         case .bluetooth: return .blue
         case .processes: return .pink
@@ -138,7 +141,7 @@ struct DashboardView: View {
                         ForEach([DashboardPage.overview, .cpu, .gpu, .memory, .storage]) { row($0) }
                     }
                     Section("Bağlantı ve güç") {
-                        ForEach([DashboardPage.network, .battery, .displays, .bluetooth]) { row($0) }
+                        ForEach([DashboardPage.network, .battery, .keepAwake, .displays, .bluetooth]) { row($0) }
                     }
                     Section("Yazılım") {
                         row(.processes)
@@ -191,6 +194,7 @@ struct DashboardView: View {
         case .storage: StoragePage()
         case .network: NetworkPage()
         case .battery: BatteryPage()
+        case .keepAwake: KeepAwakePage()
         case .displays: DisplaysPage()
         case .bluetooth: BluetoothPage()
         case .processes: ProcessesPage()

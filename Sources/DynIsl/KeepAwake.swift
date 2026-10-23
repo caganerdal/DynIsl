@@ -102,7 +102,7 @@ final class KeepAwake: ObservableObject {
         switch duration {
         case .indefinite: return String(localized: "Süresiz")
         case .minutes(let m): return m >= 60 ? String(localized: "\(m / 60) sa") : String(localized: "\(m) dk")
-        case .until(let t): return String(localized: "\(t.formatted(date: .omitted, time: .shortened))'e kadar")
+        case .until(let t): return String(localized: "\(t.formatted(date: .omitted, time: .shortened)) saatine kadar")
         case .whileApp(let id): return appName(id) ?? String(localized: "Uygulama açıkken")
         }
     }
@@ -118,7 +118,7 @@ final class KeepAwake: ObservableObject {
         for type in types {
             var id: IOPMAssertionID = 0
             if IOPMAssertionCreateWithName(type as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                           "DynIsl: Uyanık tut" as CFString, &id) == kIOReturnSuccess {
+                                           "DynIsl Keep Awake" as CFString, &id) == kIOReturnSuccess {
                 assertions.append(id)
             }
         }

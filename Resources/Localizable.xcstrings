@@ -151,6 +151,16 @@
         }
       }
     },
+    "%@ saatine kadar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "until %@"
+          }
+        }
+      }
+    },
     "%@ sunumu": {
       "localizations": {
         "en": {
@@ -879,6 +889,16 @@
         }
       }
     },
+    "15 dakika": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 minutes"
+          }
+        }
+      }
+    },
     "15 dk": {
       "localizations": {
         "en": {
@@ -985,6 +1005,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "6 months"
+          }
+        }
+      }
+    },
+    "8 saat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8 hours"
           }
         }
       }
@@ -1329,6 +1359,16 @@
         }
       }
     },
+    "Ayrıntılar…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details…"
+          }
+        }
+      }
+    },
     "Az bulutlu": {
       "localizations": {
         "en": {
@@ -1549,6 +1589,16 @@
         }
       }
     },
+    "Başlat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
     "Başlıyor": {
       "localizations": {
         "en": {
@@ -1665,6 +1715,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Info"
+          }
+        }
+      }
+    },
+    "Bir kez yönetici izni gerekiyor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs administrator permission once"
           }
         }
       }
@@ -2275,6 +2335,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Screenshot preview"
+          }
+        }
+      }
+    },
+    "Ekran kapanabilir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow display sleep"
           }
         }
       }
@@ -3059,6 +3129,56 @@
         }
       }
     },
+    "Kapak kapalıyken de": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also with lid closed"
+          }
+        }
+      }
+    },
+    "Kapak kapalıyken de (izin gerekli)…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also with lid closed (permission needed)…"
+          }
+        }
+      }
+    },
+    "Kapak kapalıyken de uyanık": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake even with the lid closed"
+          }
+        }
+      }
+    },
+    "Kapak kapalıyken de uyanık tut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay awake with the lid closed"
+          }
+        }
+      }
+    },
+    "Kapak modu açılamadı. İzni yeniden vermeyi dene.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn on lid mode. Try granting permission again."
+          }
+        }
+      }
+    },
     "Kapalı": {
       "localizations": {
         "en": {
@@ -3449,6 +3569,16 @@
         }
       }
     },
+    "Mac normal şekilde uyuyabilir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac can sleep normally"
+          }
+        }
+      }
+    },
     "Mac pili ve şarj": {
       "localizations": {
         "en": {
@@ -3465,6 +3595,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep the Mac from sleeping"
+          }
+        }
+      }
+    },
+    "Mac çalışmaya devam eder, ekran macOS ayarına göre kararır; enerji tasarrufu sağlar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac keeps running while the display sleeps as macOS normally would, saving energy."
           }
         }
       }
@@ -4049,6 +4189,16 @@
         }
       }
     },
+    "Pil azaldı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery low"
+          }
+        }
+      }
+    },
     "Pil gücü": {
       "localizations": {
         "en": {
@@ -4085,6 +4235,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Battery health %@"
+          }
+        }
+      }
+    },
+    "Pil şu seviyenin altına düşünce kapat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off when battery falls below"
           }
         }
       }
@@ -4519,6 +4679,16 @@
         }
       }
     },
+    "Seçenekler": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options"
+          }
+        }
+      }
+    },
     "Seçili": {
       "localizations": {
         "en": {
@@ -4819,6 +4989,16 @@
         }
       }
     },
+    "Süre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        }
+      }
+    },
     "Süre doldu": {
       "localizations": {
         "en": {
@@ -4835,6 +5015,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Indefinitely"
+          }
+        }
+      }
+    },
+    "Süresiz başlat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start indefinitely"
           }
         }
       }
@@ -5249,12 +5439,42 @@
         }
       }
     },
+    "Uyanık": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake"
+          }
+        }
+      }
+    },
+    "Uyanık Tut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Awake"
+          }
+        }
+      }
+    },
     "Uyanık tut": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Keep Awake"
+          }
+        }
+      }
+    },
+    "Uyanık tut kapandı": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep awake turned off"
           }
         }
       }
@@ -5279,12 +5499,52 @@
         }
       }
     },
+    "Uygulama açık değil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App isn't running"
+          }
+        }
+      }
+    },
+    "Uygulama açık kaldıkça": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While an app is open"
+          }
+        }
+      }
+    },
+    "Uygulama açıkken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While app is open"
+          }
+        }
+      }
+    },
     "Uygulama kapat": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Quit an app"
+          }
+        }
+      }
+    },
+    "Uygulama seç": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose app"
           }
         }
       }
@@ -5415,6 +5675,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "To let you know about upcoming meetings."
+          }
+        }
+      }
+    },
+    "Yalnızca pildeyken geçerli. Kapak kapalıyken Mac çantada ısınabilir; bu sınır pilin bitmesini ve aşırı ısınmayı önler.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only applies on battery. With the lid closed a Mac in a bag can get hot; this limit keeps the battery from draining and the Mac from overheating."
           }
         }
       }
@@ -5689,6 +5959,16 @@
         }
       }
     },
+    "ekran kapanabilir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "display may sleep"
+          }
+        }
+      }
+    },
     "island \"Build bitti\" · island -s \"Testler geçti\" · island run npm test": {
       "localizations": {
         "en": {
@@ -5705,6 +5985,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "island: couldn't run %@: %@\n"
+          }
+        }
+      }
+    },
+    "kapak kapalıyken de": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lid closed too"
+          }
+        }
+      }
+    },
+    "kapandı, uyanık tut bitti": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "quit, keep awake ended"
           }
         }
       }
@@ -5755,6 +6055,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS accent color"
+          }
+        }
+      }
+    },
+    "macOS şifre penceresi açılır. Sisteme yalnızca uykuyu açıp kapatma komutu eklenir; izin buradan tamamen kaldırılabilir.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS asks for your password. Only the command that turns sleep on and off is allowed; you can remove the permission here at any time."
           }
         }
       }
@@ -6269,6 +6579,26 @@
         }
       }
     },
+    "İzin verildi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission granted"
+          }
+        }
+      }
+    },
+    "İzin verilmedi.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission wasn't granted."
+          }
+        }
+      }
+    },
     "İzin ver…": {
       "localizations": {
         "en": {
@@ -6285,6 +6615,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permissions"
+          }
+        }
+      }
+    },
+    "İzni kaldır": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove permission"
           }
         }
       }
@@ -6529,6 +6869,16 @@
         }
       }
     },
+    "Şu saate kadar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until"
+          }
+        }
+      }
+    },
     "–": {
       "localizations": {
         "en": {
@@ -6575,6 +6925,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "☕ Awake"
+          }
+        }
+      }
+    },
+    "💻 Uyanık": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💻 Awake"
           }
         }
       }

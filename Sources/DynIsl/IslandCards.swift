@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct SystemCard: View {
     @EnvironmentObject private var keepAwake: KeepAwake
+    @EnvironmentObject private var battery: BatteryMonitor
     @EnvironmentObject var model: IslandModel
     @EnvironmentObject var sys: SystemMonitor
 
@@ -18,9 +19,12 @@ struct SystemCard: View {
                     .foregroundStyle(.cyan)
                 Label(SystemMonitor.formatBytes(sys.upBytesPerSec, perSecond: true), systemImage: "arrow.up")
                     .foregroundStyle(.purple)
-                Pill(keepAwake.isActive ? "☕ Uyanık" : "Uyanık tut",
-                     tint: keepAwake.isActive ? .orange : .gray) { keepAwake.toggle() }
-                    .help(keepAwake.remainingText ?? String(localized: "Mac uykuya girmesin"))
+                Pill(keepAwake.isActive ? (keepAwake.lidActive ? "💻 Uyanık" : "☕ Uyanık") : "Uyanık tut",
+                     tint: !keepAwake.isActive ? .gray : keepAwake.lidActive && battery.hasBattery && !battery.isPluggedIn ? .red : .orange) { keepAwake.toggle() }
+                    .help(keepAwake.lidActive ? String(localized: "Kapak kapalıyken de uyanık") : keepAwake.remainingText ?? String(localized: "Mac uykuya girmesin"))
+                if keepAwake.isActive, let r = keepAwake.remainingText {
+                    Text(r).font(.system(size: 9)).foregroundStyle(.secondary).lineLimit(1)
+                }
             }
             .font(.system(size: 12, weight: .medium).monospacedDigit())
             .frame(width: 96, alignment: .leading)

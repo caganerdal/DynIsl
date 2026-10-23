@@ -34,6 +34,8 @@ Click: System Dashboard</string>
 	<string>%@ (%lld)</string>
 	<key>%@ / saat</key>
 	<string>%@ / hour</string>
+	<key>%@ saatine kadar</key>
+	<string>until %@</string>
 	<key>%@ sunumu</key>
 	<string>%@ presentation</string>
 	<key>%@ uygulamasından zorla çıkış yaptırılsın mı?</key>
@@ -118,6 +120,8 @@ Click: System Dashboard</string>
 	<string>10 min</string>
 	<key>10 sn zamanlayıcı</key>
 	<string>10 s timer</string>
+	<key>15 dakika</key>
+	<string>15 minutes</string>
 	<key>15 dk</key>
 	<string>15 min</string>
 	<key>2 saat</key>
@@ -140,6 +144,8 @@ Click: System Dashboard</string>
 	<string>5 min</string>
 	<key>6 ay</key>
 	<string>6 months</string>
+	<key>8 saat</key>
+	<string>8 hours</string>
 	<key>Ada</key>
 	<string>Island</string>
 	<key>Ada açılır: müzik, takvim, raf, pano, sistem ve pil sekmeleri.</key>
@@ -210,6 +216,8 @@ charging on hold</string>
 	<string>Set Up…</string>
 	<key>Ayrıntılar ›</key>
 	<string>Details ›</string>
+	<key>Ayrıntılar…</key>
+	<string>Details…</string>
 	<key>Az bulutlu</key>
 	<string>Mostly clear</string>
 	<key>Az hareket</key>
@@ -254,6 +262,8 @@ charging on hold</string>
 	<string>Connected</string>
 	<key>Başla</key>
 	<string>Get Started</string>
+	<key>Başlat</key>
+	<string>Start</string>
 	<key>Başlıyor</key>
 	<string>Starting</string>
 	<key>Belgeler</key>
@@ -278,6 +288,8 @@ charging on hold</string>
 	<string>Test Notifications</string>
 	<key>Bilgi</key>
 	<string>Info</string>
+	<key>Bir kez yönetici izni gerekiyor</key>
+	<string>Needs administrator permission once</string>
 	<key>Bir sorun mu var?</key>
 	<string>Something wrong?</string>
 	<key>Bir uygulama işlemciyi uzun süre yorarsa</key>
@@ -400,6 +412,8 @@ charging on hold</string>
 	<string>Screenshot</string>
 	<key>Ekran görüntüsü önizlemesi</key>
 	<string>Screenshot preview</string>
+	<key>Ekran kapanabilir</key>
+	<string>Allow display sleep</string>
 	<key>Ekran paylaşımı ve kayıtlarda adayı gizle</key>
 	<string>Hide the island in screen sharing and recordings</string>
 	<key>Ekran yansıtılıyor</key>
@@ -556,6 +570,16 @@ charging on hold</string>
 	<string>Camera and microphone indicator</string>
 	<key>Kanal</key>
 	<string>Channel</string>
+	<key>Kapak kapalıyken de</key>
+	<string>Also with lid closed</string>
+	<key>Kapak kapalıyken de (izin gerekli)…</key>
+	<string>Also with lid closed (permission needed)…</string>
+	<key>Kapak kapalıyken de uyanık</key>
+	<string>Awake even with the lid closed</string>
+	<key>Kapak kapalıyken de uyanık tut</key>
+	<string>Stay awake with the lid closed</string>
+	<key>Kapak modu açılamadı. İzni yeniden vermeyi dene.</key>
+	<string>Couldn't turn on lid mode. Try granting permission again.</string>
 	<key>Kapalı</key>
 	<string>Off</string>
 	<key>Kapandı</key>
@@ -634,10 +658,14 @@ charging on hold</string>
 	<string>Link copied</string>
 	<key>Listeyi temizle</key>
 	<string>Clear List</string>
+	<key>Mac normal şekilde uyuyabilir</key>
+	<string>Your Mac can sleep normally</string>
 	<key>Mac pili ve şarj</key>
 	<string>Mac battery and charging</string>
 	<key>Mac uykuya girmesin</key>
 	<string>Keep the Mac from sleeping</string>
+	<key>Mac çalışmaya devam eder, ekran macOS ayarına göre kararır; enerji tasarrufu sağlar.</key>
+	<string>Your Mac keeps running while the display sleeps as macOS normally would, saving energy.</string>
 	<key>Mac çok sıcak</key>
 	<string>Mac is very hot</string>
 	<key>Mac ısınırsa</key>
@@ -754,6 +782,8 @@ charging on hold</string>
 	<string>Battery %@</string>
 	<key>Pil analizi</key>
 	<string>Battery analysis</string>
+	<key>Pil azaldı</key>
+	<string>Battery low</string>
 	<key>Pil gücü</key>
 	<string>On battery</string>
 	<key>Pil için çıkarabilirsin</key>
@@ -762,6 +792,8 @@ charging on hold</string>
 	<string>If battery health drops below 80%</string>
 	<key>Pil sağlığı %@</key>
 	<string>Battery health %@</string>
+	<key>Pil şu seviyenin altına düşünce kapat</key>
+	<string>Turn off when battery falls below</string>
 	<key>Pilde
 hesaplanıyor…</key>
 	<string>On battery
@@ -852,6 +884,8 @@ calculating…</string>
 	<string>Level</string>
 	<key>Sevmedim (daha az öner)</key>
 	<string>Dislike (suggest less)</string>
+	<key>Seçenekler</key>
+	<string>Options</string>
 	<key>Seçili</key>
 	<string>Selected</string>
 	<key>Seçtiğin süredir açılmamış dosya ve klasörler en büyükten küçüğe listelenir. Varsayılan olarak sadece kurulum dosyaları ve arşivler seçilidir. Hiçbir şey kalıcı olarak silinmez: öğeler Çöp Sepeti'ne gider ve son işlem geri alınabilir.</key>
@@ -912,10 +946,14 @@ calculating…</string>
 	<string>Presentations</string>
 	<key>Swap</key>
 	<string>Swap</string>
+	<key>Süre</key>
+	<string>Duration</string>
 	<key>Süre doldu</key>
 	<string>Time's up</string>
 	<key>Süresiz</key>
 	<string>Indefinitely</string>
+	<key>Süresiz başlat</key>
+	<string>Start indefinitely</string>
 	<key>Sürükle ya da bir işlem seç</key>
 	<string>Drag, or pick an action</string>
 	<key>Sürükle ya da tıkla</key>
@@ -998,14 +1036,28 @@ calculating…</string>
 	<string>Click to copy again</string>
 	<key>Tıklayınca</key>
 	<string>On click</string>
+	<key>Uyanık</key>
+	<string>Awake</string>
+	<key>Uyanık Tut</key>
+	<string>Keep Awake</string>
 	<key>Uyanık tut</key>
 	<string>Keep Awake</string>
+	<key>Uyanık tut kapandı</key>
+	<string>Keep awake turned off</string>
 	<key>Uyarı</key>
 	<string>Warning</string>
 	<key>Uygulama</key>
 	<string>App</string>
+	<key>Uygulama açık değil</key>
+	<string>App isn't running</string>
+	<key>Uygulama açık kaldıkça</key>
+	<string>While an app is open</string>
+	<key>Uygulama açıkken</key>
+	<string>While app is open</string>
 	<key>Uygulama kapat</key>
 	<string>Quit an app</string>
+	<key>Uygulama seç</key>
+	<string>Choose app</string>
 	<key>Uygulamadan çıkış yaptırılamadı</key>
 	<string>Couldn't quit the app</string>
 	<key>Uyku</key>
@@ -1032,6 +1084,8 @@ calculating…</string>
 	<string>Calendar access is needed to see upcoming meetings</string>
 	<key>Yaklaşan toplantıları haber vermek için.</key>
 	<string>To let you know about upcoming meetings.</string>
+	<key>Yalnızca pildeyken geçerli. Kapak kapalıyken Mac çantada ısınabilir; bu sınır pilin bitmesini ve aşırı ısınmayı önler.</key>
+	<string>Only applies on battery. With the lid closed a Mac in a bag can get hot; this limit keeps the battery from draining and the Mac from overheating.</string>
 	<key>Yapıştır</key>
 	<string>Paste</string>
 	<key>Yarın </key>
@@ -1086,12 +1140,18 @@ calculating…</string>
 	<string>Weak</string>
 	<key>Zorla Çıkış Yaptır</key>
 	<string>Force Quit</string>
+	<key>ekran kapanabilir</key>
+	<string>display may sleep</string>
 	<key>island "Build bitti" · island -s "Testler geçti" · island run npm test</key>
 	<string>island "Build done" · island -s "Tests passed" · island run npm test</string>
 	<key>island: %@ çalıştırılamadı: %@
 </key>
 	<string>island: couldn't run %@: %@
 </string>
+	<key>kapak kapalıyken de</key>
+	<string>lid closed too</string>
+	<key>kapandı, uyanık tut bitti</key>
+	<string>quit, keep awake ended</string>
 	<key>kullanım: island run &lt;komut&gt; [argümanlar]
 </key>
 	<string>usage: island run &lt;command&gt; [arguments]
@@ -1104,6 +1164,8 @@ calculating…</string>
 	<string>Show on the island instead of the macOS indicator</string>
 	<key>macOS vurgu rengi</key>
 	<string>macOS accent color</string>
+	<key>macOS şifre penceresi açılır. Sisteme yalnızca uykuyu açıp kapatma komutu eklenir; izin buradan tamamen kaldırılabilir.</key>
+	<string>macOS asks for your password. Only the command that turns sleep on and off is allowed; you can remove the permission here at any time.</string>
 	<key>macOS'unkinin yerine adada, istediğin stilde.</key>
 	<string>On the island instead of macOS's, in the style you like.</string>
 	<key>otomatik</key>
@@ -1206,10 +1268,16 @@ calculating…</string>
 	<string>Permission needed</string>
 	<key>İzin ver</key>
 	<string>Allow</string>
+	<key>İzin verildi</key>
+	<string>Permission granted</string>
+	<key>İzin verilmedi.</key>
+	<string>Permission wasn't granted.</string>
 	<key>İzin ver…</key>
 	<string>Allow…</string>
 	<key>İzinler</key>
 	<string>Permissions</string>
+	<key>İzni kaldır</key>
+	<string>Remove permission</string>
 	<key>İş</key>
 	<string>Work</string>
 	<key>İşlem ara</key>
@@ -1260,6 +1328,8 @@ full in %@</string>
 	<string>Nothing is playing</string>
 	<key>Şu anki tam kapasite</key>
 	<string>Current full capacity</string>
+	<key>Şu saate kadar</key>
+	<string>Until</string>
 	<key>–</key>
 	<string>–</string>
 	<key>“%@” bulunamadı</key>
@@ -1270,5 +1340,7 @@ full in %@</string>
 	<string>Hold ⇧⌥ for 1% fine steps.</string>
 	<key>☕ Uyanık</key>
 	<string>☕ Awake</string>
+	<key>💻 Uyanık</key>
+	<string>💻 Awake</string>
 </dict>
 </plist>

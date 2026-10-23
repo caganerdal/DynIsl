@@ -218,6 +218,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             awake.addItem(it)
         }
         awake.addItem(.separator())
+        awake.addItem(item(String(localized: "Ekran kapanabilir"), #selector(toggleDisplaySleep)))
+        awake.addItem(item(String(localized: "Kapak kapalıyken de"), #selector(toggleLidMode)))
+        awake.addItem(item(String(localized: "Ayrıntılar…"), #selector(openKeepAwakePage)))
+        awake.addItem(.separator())
         awake.addItem(item(String(localized: "Kapat"), #selector(keepAwakeOff)))
         let awakeItem = NSMenuItem(title: String(localized: "Uyanık tut"), action: nil, keyEquivalent: "")
         awakeItem.submenu = awake
@@ -262,6 +266,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         model.keepAwake.start(KeepAwake.durations[sender.tag].value)
     }
     @objc private func keepAwakeOff() { model.keepAwake.stop() }
+    @objc private func toggleDisplaySleep() { model.keepAwake.allowDisplaySleep.toggle() }
+    @objc private func toggleLidMode() {
+        if model.keepAwake.lid.isInstalled { model.keepAwake.lidClosedMode.toggle() } else { openKeepAwakePage() }
+    }
+    @objc private func openKeepAwakePage() { DashboardWindow.show(model: model, page: .keepAwake) }
 
     @objc private func togglePresentation() { model.presentation.toggleManual() }
     @objc private func reportProblem() { UpdateChecker.reportProblem() }
@@ -282,6 +291,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let k = model.keepAwake
         for it in menu.items where it.action == #selector(keepAwakeFor(_:)) {
             it.state = k.isActive && KeepAwake.durations[it.tag].value == k.duration ? .on : .off
+        }
+        for it in menu.items {
+            if it.action == #selector(toggleDisplaySleep) { it.state = k.allowDisplaySleep ? .on : .off }
+            if it.action == #selector(toggleLidMode) {
+                it.state = k.lidClosedMode && k.lid.isInstalled ? .on : .off
+                it.title = k.lid.isInstalled ? String(localized: "Kapak kapalıyken de") : String(localized: "Kapak kapalıyken de (izin gerekli)…")
+            }
         }
         if let off = menu.items.last {
             off.title = k.remainingText.map { String(localized: "Kapat (\($0))") } ?? (k.isActive ? String(localized: "Kapat") : String(localized: "Kapalı"))

@@ -634,7 +634,7 @@ extension View {
             .environmentObject(m.weather).environmentObject(m.system).environmentObject(m.batteryInfo)
             .environmentObject(m.details).environmentObject(m.speedTest).environmentObject(m.alerts)
             .environmentObject(m.hud).environmentObject(m.desktopCleaner)
-            .environmentObject(m.keepAwake).environmentObject(m.updates).environmentObject(m.presentation)
+            .environmentObject(m.keepAwake).environmentObject(m.keepAwake.lid).environmentObject(m.updates).environmentObject(m.presentation)
             .environmentObject(m.downloadsCleaner).environmentObject(m.settings)
     }
 }
