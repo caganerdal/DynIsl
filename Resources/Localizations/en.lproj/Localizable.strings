@@ -790,6 +790,8 @@ charging on hold</string>
 	<string>Battery analysis</string>
 	<key>Pil azaldı</key>
 	<string>Battery low</string>
+	<key>Pil bu seviyeye inince kapat</key>
+	<string>Turn off when battery reaches this level</string>
 	<key>Pil gücü</key>
 	<string>On battery</string>
 	<key>Pil için çıkarabilirsin</key>
@@ -798,8 +800,6 @@ charging on hold</string>
 	<string>If battery health drops below 80%</string>
 	<key>Pil sağlığı %@</key>
 	<string>Battery health %@</string>
-	<key>Pil şu seviyenin altına düşünce kapat</key>
-	<string>Turn off when battery falls below</string>
 	<key>Pilde
 hesaplanıyor…</key>
 	<string>On battery
@@ -1280,6 +1280,8 @@ calculating…</string>
 	<string>Waiting for permission</string>
 	<key>İzin gerekli</key>
 	<string>Permission needed</string>
+	<key>İzin kaldırılmadı.</key>
+	<string>Permission was not removed.</string>
 	<key>İzin ver</key>
 	<string>Allow</string>
 	<key>İzin verildi</key>

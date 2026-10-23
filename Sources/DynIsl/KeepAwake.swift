@@ -27,6 +27,9 @@ final class KeepAwake: ObservableObject {
     private var assertions: [IOPMAssertionID] = []
     private var timer: Timer?
     private var appObserver: NSObjectProtocol?
+    private var wakeObserver: NSObjectProtocol?
+    private var lidWanted = false
+    private var lidGeneration = 0
 
     static let durations: [(title: String, value: KeepAwakeDuration)] = [
         (String(localized: "Süresiz"), .indefinite), (String(localized: "15 dakika"), .minutes(15)),
@@ -41,6 +44,11 @@ final class KeepAwake: ObservableObject {
         lidClosedMode = d.bool(forKey: "keepAwakeLidMode")
         batteryThreshold = d.integer(forKey: "keepAwakeBatteryThreshold")
         lid.recoverIfNeeded()
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.handleWake() }
+        }
     }
 
     func start(_ duration: KeepAwakeDuration) {
@@ -54,26 +62,34 @@ final class KeepAwake: ObservableObject {
                             trailing: String(localized: "Önce şarja tak")))
             return
         }
-        applyAssertions()
-        guard !assertions.isEmpty else { return }
+        guard applyAssertions() else { return }
         isActive = true
         self.duration = duration
         applyLid()
+        endDate = KeepAwakeRules.endDate(for: duration, now: Date(), calendar: .current)
+        scheduleTimer()
+        watchApp(duration)
+        onChange?(.init(icon: lidWanted ? "laptopcomputer" : "cup.and.saucer.fill", tint: .orange, title: String(localized: "Uyanık tut"),
+                        trailing: Self.label(duration)))
+    }
+
+    func handleWake(now: Date = Date()) {
+        guard isActive, let endDate else { return }
+        if endDate <= now { stop(reason: .expired) } else { scheduleTimer(now: now) }
+    }
+
+    func shutdown() {
+        let engaged = lidWanted || lidActive
+        stop()
+        if engaged { lid.setDisabledNow(false) }
+    }
+
+    private func scheduleTimer(now: Date = Date()) {
         timer?.invalidate()
         timer = nil
-        endDate = KeepAwakeRules.endDate(for: duration, now: Date(), calendar: .current)
-        if let endDate {
-            timer = Timer.scheduledTimer(withTimeInterval: max(endDate.timeIntervalSinceNow, 1), repeats: false) { [weak self] _ in
-                MainActor.assumeIsolated { self?.stop(reason: .expired) }
-            }
-        }
-        watchApp(duration)
-        if lidError {
-            onChange?(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: String(localized: "Kapak modu açılamadı"),
-                            trailing: String(localized: "Normal uyanık tut açık")))
-        } else {
-            onChange?(.init(icon: lidActive ? "laptopcomputer" : "cup.and.saucer.fill", tint: .orange, title: String(localized: "Uyanık tut"),
-                            trailing: Self.label(duration)))
+        guard let endDate else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: max(endDate.timeIntervalSince(now), 1), repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated { self?.stop(reason: .expired) }
         }
     }
 
@@ -83,10 +99,10 @@ final class KeepAwake: ObservableObject {
         timer = nil
         if let o = appObserver { NSWorkspace.shared.notificationCenter.removeObserver(o); appObserver = nil }
         releaseAssertions()
-        if lidActive { lid.setDisabled(false) }
+        isActive = false
+        applyLid()
         lidActive = false
         lidError = false
-        isActive = false
         endDate = nil
         let app = { if case .whileApp(let id) = self.duration { return Self.appName(id) }; return nil }()
         duration = .indefinite
@@ -130,16 +146,24 @@ final class KeepAwake: ObservableObject {
             ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)?.deletingPathExtension().lastPathComponent
     }
 
-    private func applyAssertions() {
-        releaseAssertions()
+    @discardableResult
+    private func applyAssertions() -> Bool {
         let types = allowDisplaySleep ? [kIOPMAssertPreventUserIdleSystemSleep] : [kIOPMAssertPreventUserIdleDisplaySleep, kIOPMAssertPreventUserIdleSystemSleep]
+        var created: [IOPMAssertionID] = []
         for type in types {
             var id: IOPMAssertionID = 0
             if IOPMAssertionCreateWithName(type as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
                                            "DynIsl Keep Awake" as CFString, &id) == kIOReturnSuccess {
-                assertions.append(id)
+                created.append(id)
             }
         }
+        guard created.count == types.count else {
+            created.forEach { IOPMAssertionRelease($0) }
+            return !assertions.isEmpty
+        }
+        releaseAssertions()
+        assertions = created
+        return true
     }
 
     private func releaseAssertions() {
@@ -148,13 +172,20 @@ final class KeepAwake: ObservableObject {
     }
 
     private func applyLid() {
-        if lidClosedMode, !lidActive {
-            lidActive = lid.setDisabled(true)
-            lidError = !lidActive
-        } else if !lidClosedMode, lidActive {
-            lid.setDisabled(false)
-            lidActive = false
-            lidError = false
+        let want = isActive && lidClosedMode
+        guard want != lidWanted else { return }
+        lidWanted = want
+        lidGeneration += 1
+        let generation = lidGeneration
+        Task {
+            let ok = await lid.setDisabled(want)
+            guard generation == lidGeneration else { return }
+            lidActive = want && ok
+            lidError = want && !ok
+            if want && !ok {
+                onChange?(.init(icon: "exclamationmark.triangle.fill", tint: .orange, title: String(localized: "Kapak modu açılamadı"),
+                                trailing: String(localized: "Normal uyanık tut açık")))
+            }
         }
     }
 
@@ -162,6 +193,7 @@ final class KeepAwake: ObservableObject {
 
     private func reapplyIfActive() {
         guard isActive else { lidError = false; return }
+        if lidError { lidWanted = false }
         applyAssertions()
         applyLid()
     }

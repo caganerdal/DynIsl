@@ -58,7 +58,7 @@ struct KeepAwakePage: View {
                 Divider()
                 Stepper(value: $keepAwake.batteryThreshold, in: 5...50, step: 5) {
                     HStack {
-                        Text("Pil şu seviyenin altına düşünce kapat")
+                        Text("Pil bu seviyeye inince kapat")
                         Spacer()
                         Text(pc(keepAwake.batteryThreshold)).monospacedDigit().foregroundStyle(.secondary)
                     }
@@ -68,6 +68,8 @@ struct KeepAwakePage: View {
             }
         }
         .onAppear(perform: loadApps)
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didLaunchApplicationNotification)) { _ in loadApps() }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didTerminateApplicationNotification)) { _ in loadApps() }
     }
 
     private var statusCard: some View {
@@ -104,8 +106,11 @@ struct KeepAwakePage: View {
                 Label("İzin verildi", systemImage: "checkmark.shield.fill").foregroundStyle(.green)
                 Spacer()
                 Button("İzni kaldır") {
-                    keepAwake.lidClosedMode = false
-                    Task { _ = await lid.uninstall() }
+                    Task {
+                        let ok = await lid.uninstall()
+                        permissionMessage = ok ? nil : String(localized: "İzin kaldırılmadı.")
+                        if ok { keepAwake.lidClosedMode = false }
+                    }
                 }
             } else {
                 Label("Bir kez yönetici izni gerekiyor", systemImage: "lock.shield").foregroundStyle(.secondary)

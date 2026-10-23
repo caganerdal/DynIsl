@@ -8,6 +8,7 @@ final class LidSleepControl: ObservableObject {
 
     nonisolated static let sudoersPath = "/etc/sudoers.d/dynisl"
     private static let engagedKey = "lidSleepEngaged"
+    private let queue = DispatchQueue(label: "local.dynamicisland.lid")
 
     init() {
         refresh()
@@ -37,12 +38,26 @@ final class LidSleepControl: ObservableObject {
     }
 
     @discardableResult
-    func setDisabled(_ on: Bool) -> Bool {
-        let ok = Self.run("/usr/bin/sudo", ["-n", "/usr/bin/pmset", "-a", "disablesleep", on ? "1" : "0"]) == 0
-        if ok {
-            if on { UserDefaults.standard.set(true, forKey: Self.engagedKey) } else { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
-        }
+    func setDisabled(_ on: Bool) async -> Bool {
+        let ok = await withCheckedContinuation { c in queue.async { c.resume(returning: Self.pmset(on)) } }
+        record(on, ok)
         return ok
+    }
+
+    @discardableResult
+    func setDisabledNow(_ on: Bool) -> Bool {
+        let ok = queue.sync { Self.pmset(on) }
+        record(on, ok)
+        return ok
+    }
+
+    private func record(_ on: Bool, _ ok: Bool) {
+        guard ok else { return }
+        if on { UserDefaults.standard.set(true, forKey: Self.engagedKey) } else { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
+    }
+
+    private nonisolated static func pmset(_ on: Bool) -> Bool {
+        run("/usr/bin/sudo", ["-n", "/usr/bin/pmset", "-a", "disablesleep", on ? "1" : "0"]) == 0
     }
 
     nonisolated func currentlyDisabled() -> Bool {
@@ -60,14 +75,17 @@ final class LidSleepControl: ObservableObject {
 
     func recoverIfNeeded() {
         guard UserDefaults.standard.bool(forKey: Self.engagedKey) else { return }
-        if !setDisabled(false) {
-            if currentlyDisabled() { recoveryNeeded = true } else { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
+        Task {
+            guard !(await setDisabled(false)) else { return }
+            let stillDisabled = await withCheckedContinuation { c in queue.async { c.resume(returning: self.currentlyDisabled()) } }
+            if stillDisabled { recoveryNeeded = true } else { UserDefaults.standard.removeObject(forKey: Self.engagedKey) }
         }
     }
 
     func restoreSleepWithAdmin() async -> Bool {
         let ok = await runAsAdmin("/usr/bin/pmset -a disablesleep 0")
-        if ok, !currentlyDisabled() {
+        let stillDisabled = await withCheckedContinuation { c in queue.async { c.resume(returning: self.currentlyDisabled()) } }
+        if ok, !stillDisabled {
             UserDefaults.standard.removeObject(forKey: Self.engagedKey)
             recoveryNeeded = false
             return true

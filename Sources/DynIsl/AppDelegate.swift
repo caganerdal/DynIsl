@@ -419,7 +419,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func cleanUpBeforeExit() {
-        model.keepAwake.stop()
+        model.keepAwake.shutdown()
         ClipboardMonitor.wipeStore()
         model.speedTest.cancel()
     }

@@ -4229,6 +4229,16 @@
         }
       }
     },
+    "Pil bu seviyeye inince kapat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off when battery reaches this level"
+          }
+        }
+      }
+    },
     "Pil gücü": {
       "localizations": {
         "en": {
@@ -4265,16 +4275,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Battery health %@"
-          }
-        }
-      }
-    },
-    "Pil şu seviyenin altına düşünce kapat": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Turn off when battery falls below"
           }
         }
       }
@@ -6635,6 +6635,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Permission needed"
+          }
+        }
+      }
+    },
+    "İzin kaldırılmadı.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission was not removed."
           }
         }
       }
