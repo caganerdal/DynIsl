@@ -6839,6 +6839,16 @@
         }
       }
     },
+    "Önce DynIsl'ı Uygulamalar klasörüne taşıyıp oradan aç.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move DynIsl to the Applications folder and open it from there first."
+          }
+        }
+      }
+    },
     "Önce şarja tak": {
       "localizations": {
         "en": {

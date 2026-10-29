@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: En yeni Xcode
         run: |
           XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
@@ -28,4 +28,4 @@ jobs:
         run: |
           mkdir -p build/DynIsl.app/Contents/MacOS
           cp .build/release/DynIsl build/DynIsl.app/Contents/MacOS/
-          ./build/DynIsl.app/Contents/MacOS/DynIsl --help
+          echo '{}' | ./build/DynIsl.app/Contents/MacOS/DynIsl claude-status

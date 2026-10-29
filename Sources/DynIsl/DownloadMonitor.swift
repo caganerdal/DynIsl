@@ -73,7 +73,7 @@ final class DownloadMonitor: ObservableObject {
         let finalURL = Self.stripTempExtension(url)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
             MainActor.assumeIsolated {
-                if FileManager.default.fileExists(atPath: finalURL.path) {
+                if getxattr(finalURL.path, "com.apple.quarantine", nil, 0, 0, 0) >= 0 {
                     self?.onFinished?(finalURL)
                 }
             }

@@ -246,4 +246,11 @@ struct AIUsageRulesTests {
         #expect(AIUsageRules.parseUsageReport(Data(#"{"type":"assistant","usage_report":{"rate_limits":null}}"#.utf8), now: now) == nil)
         #expect(AIUsageRules.parseUsageReport(Data("garbage".utf8), now: now) == nil)
     }
+
+    @Test func linkOnlyFromStableLocation() {
+        #expect(AIUsageRules.isStableLocation("/Applications/DynIsl.app/Contents/MacOS/DynIsl"))
+        #expect(!AIUsageRules.isStableLocation("/Volumes/DynIsl 0.8.0/DynIsl.app/Contents/MacOS/DynIsl"))
+        #expect(!AIUsageRules.isStableLocation("/private/var/folders/x/T/AppTranslocation/U/d/DynIsl.app/Contents/MacOS/DynIsl"))
+        #expect(!AIUsageRules.isStableLocation("/x/.build/debug/DynIsl"))
+    }
 }

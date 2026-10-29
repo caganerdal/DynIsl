@@ -212,7 +212,7 @@ final class NowPlayingService: ObservableObject {
     nonisolated static func parse(_ str: String, source: MediaSource) -> NowPlayingInfo? {
         guard str != "stopped" else { return nil }
         let f = str.components(separatedBy: sep)
-        guard f.count >= 15 else { return nil }
+        guard f.count == 15 else { return nil }
         let num = { (s: String) in Double(s.replacingOccurrences(of: ",", with: ".")) ?? 0 }
         var duration = num(f[4])
         if source == .spotify { duration /= 1000 }
@@ -352,11 +352,17 @@ final class NowPlayingService: ObservableObject {
         send("activate", refreshAfter: false)
     }
 
-    var shareLink: URL? {
-        guard let uri = info?.shareURI else { return nil }
+    var shareLink: URL? { info?.shareURI.flatMap(Self.shareURL(for:)) }
+
+    nonisolated static func shareURL(for uri: String) -> URL? {
         let parts = uri.split(separator: ":")
-        guard parts.count == 3, parts[0] == "spotify" else { return URL(string: uri) }
+        guard parts.count == 3, parts[0] == "spotify", parts[1...].allSatisfy({ $0.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber) } }) else { return nil }
         return URL(string: "https://open.spotify.com/\(parts[1])/\(parts[2])")
+    }
+
+    nonisolated static func isAllowedArtwork(_ url: URL) -> Bool {
+        guard url.scheme == "https", let host = url.host?.lowercased() else { return false }
+        return ["scdn.co", "spotifycdn.com"].contains { host == $0 || host.hasSuffix("." + $0) }
     }
 
     private func send(_ command: String, refreshAfter: Bool = true) {
@@ -408,7 +414,7 @@ final class NowPlayingService: ObservableObject {
         }
         switch info.source {
         case .spotify:
-            guard let s = info.artworkURL, let url = URL(string: s), url.scheme?.lowercased() == "https" else { finish(nil); return }
+            guard let s = info.artworkURL, let url = URL(string: s), Self.isAllowedArtwork(url) else { finish(nil); return }
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 finish(data)
             }.resume()

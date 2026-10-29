@@ -57,13 +57,13 @@ enum ShelfConverter {
         switch kind {
         case .toJPEG:
             for u in urls {
-                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + ".jpg"))
-                if writeJPEG(from: u, to: out, maxPixel: nil, quality: 0.9) { r.outputs.append(out) } else { r.failed += 1 }
+                let want = folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + ".jpg")
+                if let out = save(want, { writeJPEG(from: u, to: $0, maxPixel: nil, quality: 0.9) }) { r.outputs.append(out) } else { r.failed += 1 }
             }
         case .shrink:
             for u in urls {
-                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).jpg")))
-                guard writeJPEG(from: u, to: out, maxPixel: 1600, quality: 0.75) else { r.failed += 1; continue }
+                let want = folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).jpg"))
+                guard let out = save(want, { writeJPEG(from: u, to: $0, maxPixel: 1600, quality: 0.75) }) else { r.failed += 1; continue }
                 let delta = size(u) - size(out)
                 if delta <= 0 { try? FileManager.default.removeItem(at: out); r.skipped += 1; continue }
                 r.saved += delta
@@ -82,14 +82,14 @@ enum ShelfConverter {
             }
             let f = DateFormatter()
             f.dateFormat = "yyyy-MM-dd HH.mm"
-            let out = unique(folder(for: urls[0]).appendingPathComponent(String(localized: "Birleştirilmiş \(f.string(from: Date())).pdf")))
-            if doc.pageCount > 0, doc.write(to: out) { r.outputs.append(out) } else { r.failed += 1 }
+            let want = folder(for: urls[0]).appendingPathComponent(String(localized: "Birleştirilmiş \(f.string(from: Date())).pdf"))
+            if doc.pageCount > 0, let out = save(want, { doc.write(to: $0) }) { r.outputs.append(out) } else { r.failed += 1 }
         case .compressPDF:
             for u in urls {
                 guard let doc = PDFDocument(url: u) else { r.failed += 1; continue }
-                let out = unique(folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).pdf")))
+                let want = folder(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + String(localized: " (küçük).pdf"))
                 guard let filter = reduceFilter,
-                      doc.write(to: out, withOptions: [PDFDocumentWriteOption(rawValue: "QuartzFilter"): filter]) else {
+                      let out = save(want, { doc.write(to: $0, withOptions: [PDFDocumentWriteOption(rawValue: "QuartzFilter"): filter]) }) else {
                     r.failed += 1; continue
                 }
                 let delta = size(u) - size(out)
@@ -132,15 +132,20 @@ enum ShelfConverter {
         Int64((try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
     }
 
-    private static func unique(_ url: URL) -> URL {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: url.path) else { return url }
-        let base = url.deletingPathExtension().lastPathComponent, ext = url.pathExtension
-        var i = 2
-        while true {
-            let c = url.deletingLastPathComponent().appendingPathComponent("\(base) \(i).\(ext)")
-            if !fm.fileExists(atPath: c.path) { return c }
-            i += 1
+    private static func save(_ want: URL, _ write: (URL) -> Bool) -> URL? {
+        let dir = want.deletingLastPathComponent()
+        let tmp = dir.appendingPathComponent(".dynisl-\(UUID().uuidString).\(want.pathExtension)")
+        guard write(tmp) else {
+            try? FileManager.default.removeItem(at: tmp)
+            return nil
         }
+        let base = want.deletingPathExtension().lastPathComponent, ext = want.pathExtension
+        for i in 1...999 {
+            let c = i == 1 ? want : dir.appendingPathComponent("\(base) \(i).\(ext)")
+            if renamex_np(tmp.path, c.path, UInt32(RENAME_EXCL)) == 0 { return c }
+            if errno != EEXIST { break }
+        }
+        try? FileManager.default.removeItem(at: tmp)
+        return nil
     }
 }

@@ -75,3 +75,30 @@ struct FormattingTests {
         #expect(DesktopCleaner.dateInName("foto.png") == nil)
     }
 }
+
+struct HardeningTests {
+    @Test func parseRejectsExtraFields() {
+        let f = ["playing", "A|~|B", "Artist", "Album", "1000", "1", "id", "https://i.scdn.co/a", "40", "false", "false", "false", "false", "false", "spotify:track:x"]
+        #expect(NowPlayingService.parse(f.joined(separator: NowPlayingService.sep), source: .spotify) == nil)
+    }
+
+    @Test func shareURLOnlyForSpotifyURIs() {
+        #expect(NowPlayingService.shareURL(for: "spotify:track:abc") == URL(string: "https://open.spotify.com/track/abc"))
+        #expect(NowPlayingService.shareURL(for: "https://evil.example/x") == nil)
+        #expect(NowPlayingService.shareURL(for: "spotify:track:a/b") == nil)
+    }
+
+    @Test func artworkOnlyFromSpotifyCDN() {
+        #expect(NowPlayingService.isAllowedArtwork(URL(string: "https://i.scdn.co/image/ab")!))
+        #expect(NowPlayingService.isAllowedArtwork(URL(string: "https://image-cdn-ak.spotifycdn.com/image/ab")!))
+        #expect(!NowPlayingService.isAllowedArtwork(URL(string: "https://evil.example/a.png")!))
+        #expect(!NowPlayingService.isAllowedArtwork(URL(string: "http://i.scdn.co/image/ab")!))
+        #expect(!NowPlayingService.isAllowedArtwork(URL(string: "https://i.scdn.co.evil.example/a")!))
+    }
+
+    @Test func releasePageMustBeThisRepo() {
+        #expect(UpdateChecker.isReleasePage(URL(string: "https://github.com/caganerdal/DynIsl/releases/tag/v0.8.0")!))
+        #expect(!UpdateChecker.isReleasePage(URL(string: "https://github.com/someone/else/releases/tag/v1")!))
+        #expect(!UpdateChecker.isReleasePage(URL(string: "http://github.com/caganerdal/DynIsl/releases/tag/v1")!))
+    }
+}

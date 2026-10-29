@@ -72,10 +72,24 @@ final class AIUsageStore: ObservableObject {
         if alertsEnabled, let a = alerts.last { announce(a) }
     }
 
+    nonisolated static func isTrustedExecutable(_ path: String) -> Bool {
+        let fm = FileManager.default
+        guard fm.isExecutableFile(atPath: path) else { return false }
+        let real = URL(fileURLWithPath: path).resolvingSymlinksInPath().path
+        let uid = getuid()
+        for p in Set([path, real, (path as NSString).deletingLastPathComponent, (real as NSString).deletingLastPathComponent]) {
+            guard let a = try? fm.attributesOfItem(atPath: p),
+                  let owner = (a[.ownerAccountID] as? NSNumber)?.uint32Value,
+                  let mode = (a[.posixPermissions] as? NSNumber)?.intValue,
+                  owner == uid || owner == 0, mode & 0o022 == 0 else { return false }
+        }
+        return true
+    }
+
     nonisolated static func findClaude() -> String? {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return ["\(home)/.local/bin/claude", "/opt/homebrew/bin/claude", "/usr/local/bin/claude", "\(home)/.claude/local/claude"]
-            .first { FileManager.default.isExecutableFile(atPath: $0) }
+        return ["\(home)/.local/bin/claude", "\(home)/.claude/local/claude", "/opt/homebrew/bin/claude", "/usr/local/bin/claude"]
+            .first(where: isTrustedExecutable)
     }
 
     func pollLimits(force: Bool = false) {
@@ -112,8 +126,10 @@ final class AIUsageStore: ObservableObject {
         p.arguments = ["-p", "/usage", "--output-format", "stream-json", "--verbose", "--no-session-persistence",
                        "--setting-sources", "", "--strict-mcp-config"]
         p.currentDirectoryURL = dir
-        var env = ProcessInfo.processInfo.environment
-        env["PATH"] = ((env["PATH"].map { [$0] } ?? []) + ["/usr/bin", "/bin", "/usr/sbin", "/sbin", "/opt/homebrew/bin", "/usr/local/bin"]).joined(separator: ":")
+        let keep = ["HOME", "USER", "LOGNAME", "TMPDIR", "LANG", "LC_ALL", "SHELL", "CLAUDE_CONFIG_DIR",
+                    "HTTPS_PROXY", "HTTP_PROXY", "NO_PROXY", "https_proxy", "http_proxy", "no_proxy"]
+        var env = ProcessInfo.processInfo.environment.filter { keep.contains($0.key) }
+        env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
         p.environment = env
         let out = Pipe()
         p.standardOutput = out
@@ -226,6 +242,10 @@ final class AIUsageStore: ObservableObject {
 
 
     func connect() {
+        guard AIUsageRules.isStableLocation(executable) else {
+            linkMessage = String(localized: "Önce DynIsl'ı Uygulamalar klasörüne taşıyıp oradan aç.")
+            return
+        }
         let current = try? Data(contentsOf: settingsTarget)
         do {
             let out = try AIUsageRules.connect(settings: current, command: linkCommand)

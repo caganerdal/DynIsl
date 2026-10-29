@@ -166,10 +166,12 @@ final class DesktopCleaner: ObservableObject {
         month.dateFormat = "yyyy-MM LLLL"
         var moves: [(URL, URL)] = []
         var failed = 0
+        let root = desktop.resolvingSymlinksInPath().path + "/"
         for f in list {
             let dir = folder(for: f.category).appendingPathComponent(month.string(from: f.date), isDirectory: true)
             do {
                 try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+                guard dir.resolvingSymlinksInPath().path.hasPrefix(root) else { failed += 1; continue }
                 let dest = Self.uniqueURL(dir.appendingPathComponent(f.name))
                 try fm.moveItem(at: f.url, to: dest)
                 moves.append((f.url, dest))

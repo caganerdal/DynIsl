@@ -20,7 +20,9 @@ final class ScreenshotMonitor: ObservableObject {
 
     func start() {
         query.predicate = NSPredicate(format: "kMDItemIsScreenCapture == 1")
-        query.searchScopes = [NSMetadataQueryUserHomeScope]
+        let custom = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location")
+        query.searchScopes = [custom.map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
+            ?? FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]]
         NotificationCenter.default.addObserver(forName: .NSMetadataQueryDidFinishGathering, object: query, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.markExistingAsSeen() }
         }

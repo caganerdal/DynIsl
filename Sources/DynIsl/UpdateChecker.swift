@@ -18,6 +18,10 @@ final class UpdateChecker: ObservableObject {
     static let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     static let sourcePath = Bundle.main.infoDictionary?["DynIslSourcePath"] as? String
     private static let api = URL(string: "https://api.github.com/repos/caganerdal/DynIsl/releases/latest")!
+
+    nonisolated static func isReleasePage(_ url: URL) -> Bool {
+        url.scheme == "https" && url.host == "github.com" && url.path.hasPrefix("/caganerdal/DynIsl/releases/")
+    }
     private static let interval: TimeInterval = 24 * 3600
 
     private let d = UserDefaults.standard
@@ -69,7 +73,7 @@ final class UpdateChecker: ObservableObject {
         d.set(Date(), forKey: "updateLastCheck")
         guard let json, let tag = json["tag_name"] as? String,
               let page = (json["html_url"] as? String).flatMap(URL.init(string:)),
-              page.host == "github.com",
+              Self.isReleasePage(page),
               Self.isNewer(tag, than: Self.current) else {
             available = nil
             lastResult = String(localized: "Güncelsin (v\(Self.current))")

@@ -178,10 +178,13 @@ enum AIUsageRules {
         executablePath(fromCommand: command)?.hasSuffix(appExecutableSuffix) == true
     }
 
+    static func isStableLocation(_ executable: String) -> Bool {
+        executable.hasSuffix(appExecutableSuffix) && !executable.contains("/AppTranslocation/") && !executable.hasPrefix("/Volumes/")
+    }
+
     static func shouldRelink(current: String, executable: String, exists: (String) -> Bool) -> Bool {
         guard let old = executablePath(fromCommand: current), old.hasSuffix(appExecutableSuffix),
-              executable.hasSuffix(appExecutableSuffix), !executable.contains("/AppTranslocation/"),
-              old != executable else { return false }
+              isStableLocation(executable), old != executable else { return false }
         return !exists(old)
     }
 

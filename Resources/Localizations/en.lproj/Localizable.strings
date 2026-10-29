@@ -1316,6 +1316,8 @@ calculating…</string>
 	<string>Measuring… %lld s</string>
 	<key>Önbellek</key>
 	<string>Cached</string>
+	<key>Önce DynIsl'ı Uygulamalar klasörüne taşıyıp oradan aç.</key>
+	<string>Move DynIsl to the Applications folder and open it from there first.</string>
 	<key>Önce şarja tak</key>
 	<string>Plug in first</string>
 	<key>Özel</key>
