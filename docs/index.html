@@ -19,12 +19,12 @@
   --soft: #f5f5f7;
   --blue: #0071e3;
   --blue-hover: #0077ed;
-  --link: #0066cc;
+  --link: #137333;
   --green: #30d158;
   --night: #000;
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-padding-top: 52px; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 60px; }
 body {
   margin: 0; background: #fff; color: var(--text);
   font: 17px/1.47 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
@@ -34,38 +34,47 @@ body {
 h1, h2, h3, .display { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif; }
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
-:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 8px; }
 img { max-width: 100%; }
 
 .nav {
-  position: sticky; top: 0; z-index: 50;
-  height: 52px; display: flex; align-items: center; justify-content: space-between;
-  padding: 0 max(22px, calc((100vw - 1000px) / 2));
-  background: rgba(255,255,255,.72);
-  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(0,0,0,.08);
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 14px;
+  height: 44px; padding: 0 7px 0 16px;
+  background: #000; color: #f5f5f7;
+  border-radius: 0 0 22px 22px;
+  max-width: calc(100vw - 16px); white-space: nowrap;
+  box-shadow: 0 12px 30px -14px rgba(0,0,0,.55);
 }
-.nav .brand { display: flex; align-items: center; gap: 10px; font: 600 21px/1 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; color: var(--text); }
-.nav .brand img { width: 26px; height: 26px; }
-.nav .links { display: flex; align-items: center; gap: 22px; font-size: 12px; }
-.nav .links a { color: var(--text); opacity: .85; }
-.lang button { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; padding: 4px 5px; cursor: pointer; }
-.lang button[aria-pressed="true"] { color: var(--text); font-weight: 600; }
+.nav .brand { display: flex; align-items: center; gap: 8px; font: 600 16px/1 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; color: #f5f5f7; }
+.nav .brand img { width: 22px; height: 22px; }
+.live { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); flex: none; }
+.nav .links { display: flex; align-items: center; gap: 18px; font-size: 13px; overflow: hidden; max-width: 320px; transition: max-width .5s cubic-bezier(.3,1.25,.4,1), opacity .3s; }
+.nav .links a { color: #d2d2d7; }
+.nav.compact:not(:hover):not(:focus-within) .links { max-width: 0; opacity: 0; }
+.lang button { font: inherit; font-size: 12px; color: #86868b; background: none; border: 0; padding: 4px 4px; cursor: pointer; }
+.lang button[aria-pressed="true"] { color: #fff; font-weight: 600; }
 .pill {
-  display: inline-block; background: var(--blue); color: #fff !important; opacity: 1 !important;
-  padding: 4px 11px; border-radius: 980px; font-size: 12px; text-decoration: none !important;
+  display: inline-block; background: var(--green); color: #00340f !important;
+  padding: 6px 14px; border-radius: 980px; font-size: 13px; font-weight: 600; text-decoration: none !important;
 }
-.pill:hover { background: var(--blue-hover); }
-@media (max-width: 640px) { .nav .links .hide-s { display: none; } }
+.pill:hover { background: #4ade80; }
+.nav > * { flex: none; }
+@media (max-width: 640px) { .nav .links, .nav .live { display: none; } }
 
 .button {
-  display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
-  padding: 12px 24px; border-radius: 980px; font-size: 17px; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #000; color: #fff; text-decoration: none;
+  padding: 14px 26px 14px 22px; border-radius: 980px; font-size: 17px; font-weight: 500;
+  box-shadow: 0 14px 30px -16px rgba(0,0,0,.6);
 }
-.button:hover { background: var(--blue-hover); text-decoration: none; }
+.button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+.button .ver-in { max-width: 0; overflow: hidden; white-space: nowrap; color: #86868b; font-weight: 400; transition: max-width .5s cubic-bezier(.3,1.25,.4,1); }
+.button:hover, .button:focus-visible { text-decoration: none; }
+.button:hover .ver-in, .button:focus-visible .ver-in { max-width: 170px; }
 .more::after { content: " ›"; }
 
-.hero { text-align: center; padding: 56px 22px 0; overflow: hidden; }
+.hero { text-align: center; padding: 96px 22px 0; overflow: hidden; }
 .hero .name { font: 600 28px/1.1 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; margin: 0 0 6px; }
 .hero h1 { font-size: clamp(44px, 7.4vw, 88px); line-height: 1.04; font-weight: 700; letter-spacing: -.035em; margin: 0 auto 18px; max-width: 13ch; }
 .hero .sub { font-size: clamp(19px, 2.2vw, 24px); color: var(--muted); max-width: 30em; margin: 0 auto 26px; }
@@ -73,9 +82,9 @@ img { max-width: 100%; }
 .hero .fine { font-size: 13px; color: var(--muted); margin-top: 14px; }
 
 .story { height: 520vh; position: relative; background: #fff; }
-.story .stage { position: sticky; top: 52px; height: calc(100vh - 52px); overflow: hidden; display: flex; align-items: flex-start; justify-content: center; }
+.story .stage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; }
 .mac {
-  margin-top: 6vh;
+  margin-top: 10vh;
   width: min(1040px, 92vw);
   transform-origin: 50% 0;
   will-change: transform;
@@ -140,6 +149,19 @@ img { max-width: 100%; }
 .caption p { color: var(--muted); font-size: clamp(16px, 1.6vw, 21px); margin: 0 auto; max-width: 32em; }
 .story .stage::after { content: ""; position: absolute; inset: auto 0 0 0; height: 30vh; background: linear-gradient(rgba(255,255,255,0), #fff 62%); pointer-events: none; z-index: 0; }
 .captions { z-index: 1; }
+.pet { position: absolute; right: 7%; bottom: 10%; height: 74%; aspect-ratio: 1.1; transition: opacity .3s; }
+.island.open .pet { opacity: 0; }
+.pet svg { height: 100%; width: auto; display: block; transform-origin: 50% 100%; }
+.pet .fx { position: absolute; left: 70%; bottom: 60%; font-size: 1.1em; font-weight: 700; opacity: 0; }
+.pet.sleep svg { animation: breathe 1.8s ease-in-out infinite alternate; }
+.pet.sleep .z { animation: float 3s ease-out infinite; color: rgba(255,255,255,.85); }
+.pet.sleep .z:nth-of-type(2) { animation-delay: 1s; } .pet.sleep .z:nth-of-type(3) { animation-delay: 2s; }
+.pet.dance svg { animation: bob .42s ease-in-out infinite alternate; }
+.pet.dance .n { animation: float 1.8s ease-out infinite; color: #ff375f; }
+.pet.dance .n:nth-of-type(5) { animation-delay: .9s; }
+@keyframes breathe { to { transform: scaleY(1.07); } }
+@keyframes bob { from { transform: rotate(-11deg) translateY(0); } to { transform: rotate(11deg) translateY(-6%); } }
+@keyframes float { 0% { opacity: 0; transform: translate(0, 0) scale(.7); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(60%, -160%) scale(1.15); } }
 @media (max-width: 700px) { .captions { bottom: auto; top: 60vh; } .story .stage::after { height: 40vh; } }
 
 .statement { background: #fff; padding: 18vh 22px; }
@@ -203,6 +225,8 @@ footer a { color: var(--text); }
   .caption { position: relative; display: none; transition: none; }
   .caption.on { display: block; }
   .island, .panel, .reveal, .statement .w { transition: none; }
+  .pet svg, .pet .fx { animation: none !important; }
+  .nav .links, .button .ver-in { transition: none; }
   .reveal { opacity: 1; transform: none; }
   .statement .w { color: var(--text); }
 }
@@ -212,13 +236,14 @@ footer a { color: var(--text); }
 
 <nav class="nav" aria-label="DynIsl">
   <a class="brand" href="#top"><img src="icon.png" alt="">DynIsl</a>
+  <span class="live" aria-hidden="true"></span>
   <div class="links">
-    <a class="hide-s" href="#features" data-t="navF">Features</a>
-    <a class="hide-s" href="#privacy" data-t="navP">Privacy</a>
-    <a class="hide-s" href="https://github.com/caganerdal/DynIsl">GitHub</a>
-    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></span>
-    <a class="pill dl" href="https://github.com/caganerdal/DynIsl/releases/latest" data-t="get">Download</a>
+    <a href="#features" data-t="navF">Features</a>
+    <a href="#privacy" data-t="navP">Privacy</a>
+    <a href="https://github.com/caganerdal/DynIsl">GitHub</a>
   </div>
+  <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></span>
+  <a class="pill dl" href="https://github.com/caganerdal/DynIsl/releases/latest" data-t="get">Download</a>
 </nav>
 
 <header class="hero" id="top">
@@ -226,7 +251,7 @@ footer a { color: var(--text); }
   <h1 data-t="h1">Your notch has a job now.</h1>
   <p class="sub" data-t="sub">Music, meetings, battery, AI limits and more, right where the notch is. Plus a full system dashboard.</p>
   <div class="actions">
-    <a class="button dl" href="https://github.com/caganerdal/DynIsl/releases/latest" data-t="dlMac">Download for Mac</a>
+    <a class="button dl" href="https://github.com/caganerdal/DynIsl/releases/latest"><span data-t="dlMac">Download for Mac</span><span class="ver-in"></span></a>
     <a class="more" href="https://github.com/caganerdal/DynIsl" data-t="source">View the source</a>
   </div>
   <p class="fine"><span class="ver">Free</span> · <span data-t="req">macOS 14 or later, Apple silicon</span></p>
@@ -238,6 +263,7 @@ footer a { color: var(--text); }
       <div class="screen">
         <div class="menubar"><span><b></b><b>Finder</b><b class="hide-s">File</b></span><span class="clock"></span></div>
         <div class="island">
+          <div class="pet sleep"><svg viewBox="0 0 26 24"><g fill="#fff"><path d="M5 1.5l4.2 4.8H6.5z"/><path d="M5 1.5L4 7.5h3z"/><path d="M17 1.5l-4.2 4.8h2.7z"/><path d="M17 1.5l1 6h-3z"/><ellipse cx="11" cy="8.6" rx="6.8" ry="5.2"/><path d="M5.2 11.5C3.6 14 3.2 18 4 22.6h14c.8-4.6.4-8.6-1.2-11.1z"/></g><path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M17.6 21.4c3.4.3 6.1-1.6 6.1-4.8 0-1.7-.8-2.8-1.9-3.4"/><g fill="#000"><ellipse cx="8.4" cy="8.8" rx="1" ry=".55"/><ellipse cx="13.6" cy="8.8" rx="1" ry=".55"/></g></svg><span class="fx z">z</span><span class="fx z">z</span><span class="fx z">z</span><span class="fx n">♪</span><span class="fx n">♫</span></div>
           <div class="panel" data-p="1">
             <div class="art"></div>
             <div class="track"><b>Midnight Drive</b><small>Neon Coast</small><div class="bar"><i></i></div><div class="controls"><span>⏮</span><span>⏸</span><span>⏭</span></div></div>
@@ -248,7 +274,7 @@ footer a { color: var(--text); }
             <span class="join" data-t="join">Join</span>
           </div>
           <div class="panel" data-p="3">
-            <div class="pct">86%<small data-t="charging">Charging · full by 23:40</small></div>
+            <div class="pct"><span class="pv">86%</span><small data-t="charging">Charging · full by 23:40</small></div>
             <svg class="graph" viewBox="0 0 200 80" preserveAspectRatio="none"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#30d158" stop-opacity=".45"/><stop offset="1" stop-color="#30d158" stop-opacity="0"/></linearGradient></defs><path d="M0 8 C20 8 25 30 40 34 S70 36 80 60 S100 72 110 72 S125 10 140 8 S180 8 200 14 V80 H0Z" fill="url(#gg)"/><path d="M0 8 C20 8 25 30 40 34 S70 36 80 60 S100 72 110 72 S125 10 140 8 S180 8 200 14" fill="none" stroke="#30d158" stroke-width="2.5"/></svg>
           </div>
           <div class="panel" data-p="4">
@@ -309,7 +335,7 @@ footer a { color: var(--text); }
 <section class="final">
   <img src="icon.png" alt="DynIsl icon" width="128" height="128">
   <h2 data-t="finalH">Give your notch a job.</h2>
-  <a class="button dl" href="https://github.com/caganerdal/DynIsl/releases/latest" data-t="dlMac">Download for Mac</a>
+  <a class="button dl" href="https://github.com/caganerdal/DynIsl/releases/latest"><span data-t="dlMac">Download for Mac</span><span class="ver-in"></span></a>
   <p class="fine"><span class="ver">Free</span> · <span data-t="signed">Signed and notarized by Apple</span></p>
   <ol class="steps"><li data-t="s1">Open the DMG</li><li data-t="s2">Drag DynIsl to Applications</li><li data-t="s3">Pick what it can show</li></ol>
 </section>
@@ -371,9 +397,20 @@ function setLang(l) {
   document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   try { localStorage.setItem("lang", l); } catch (e) {}
   tick();
+  if (battery) battery();
   onScroll();
 }
 
+let battery = null;
+const nav = document.querySelector(".nav");
+const pet = document.querySelector(".pet");
+let petTimer = null;
+function wake() {
+  if (reduce) return;
+  pet.classList.replace("sleep", "dance");
+  clearTimeout(petTimer);
+  petTimer = setTimeout(() => pet.classList.replace("dance", "sleep"), 900);
+}
 const clock = document.querySelector(".clock");
 function tick() {
   clock.textContent = new Date().toLocaleString(lang === "tr" ? "tr-TR" : "en-US", { weekday: "short", hour: "2-digit", minute: "2-digit" });
@@ -404,6 +441,7 @@ function progress(el) {
 }
 
 function onScroll() {
+  nav.classList.toggle("compact", scrollY > 240);
   if (reduce) { setStage(4); document.querySelectorAll(".statement .w").forEach(w => w.classList.add("lit")); return; }
   const p = progress(story);
   const z = clamp(p / 0.16, 0, 1);
@@ -425,6 +463,7 @@ function onScroll() {
 }
 
 let queued = false;
+addEventListener("scroll", wake, { passive: true });
 addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; onScroll(); }); } }, { passive: true });
 addEventListener("resize", onScroll);
 
@@ -436,13 +475,28 @@ let saved = null;
 try { saved = localStorage.getItem("lang"); } catch (e) {}
 setLang(saved || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en"));
 
+if (navigator.getBattery) {
+  navigator.getBattery().then(b => {
+    battery = () => {
+      document.querySelector(".pv").textContent = Math.round(b.level * 100) + "%";
+      const tr = lang === "tr";
+      document.querySelector("[data-t=charging]").textContent =
+        (b.charging ? (tr ? "Şarj oluyor" : "Charging") : (tr ? "Pilde" : "On battery")) + (tr ? " · bu cihaz" : " · this device");
+    };
+    battery();
+    b.addEventListener("levelchange", battery);
+    b.addEventListener("chargingchange", battery);
+  }).catch(() => {});
+}
+
 fetch("https://api.github.com/repos/caganerdal/DynIsl/releases/latest")
   .then(r => r.ok ? r.json() : Promise.reject())
   .then(rel => {
     const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
     if (!dmg) return;
     document.querySelectorAll(".dl").forEach(a => { a.href = dmg.browser_download_url; });
-    document.querySelectorAll(".ver").forEach(s => { s.textContent = rel.tag_name + " · " + (dmg.size / 1048576).toFixed(1) + " MB"; });
+    const v = rel.tag_name + " · " + (dmg.size / 1048576).toFixed(1) + " MB";
+    document.querySelectorAll(".ver, .ver-in").forEach(s => { s.textContent = v; });
   })
   .catch(() => {});
 </script>
