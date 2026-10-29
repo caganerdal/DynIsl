@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DynIsl — an island for your MacBook notch</title>
+<meta name="description" content="DynIsl turns the MacBook notch into a live island for music, meetings, battery, AI limits and more, plus a full system dashboard. Free, open source, native Swift.">
+<meta property="og:title" content="DynIsl">
+<meta property="og:description" content="Your notch has a job now. Free, open-source notch island and system dashboard for macOS.">
+<meta property="og:image" content="https://caganerdal.github.io/DynIsl/images/island.png">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --alu: #e4e6e9;
+  --alu-deep: #cfd3d8;
+  --ink: #16181b;
+  --ink-soft: #565b63;
+  --island: #000;
+  --glow: #30d158;
+  --glow-ink: #0b3d1a;
+  --line: #c4c8ce;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--alu);
+  color: var(--ink);
+  font: 17px/1.6 "IBM Plex Sans", system-ui, sans-serif;
+}
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--glow); outline-offset: 3px; border-radius: 6px; }
+
+.bar {
+  position: sticky; top: 0; z-index: 10;
+  height: 38px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(228, 230, 233, .82);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  font-size: 14px; font-weight: 500;
+}
+.bar-left, .bar-right { display: flex; gap: 18px; align-items: center; }
+.bar-left b { font-weight: 600; }
+.bar button {
+  font: inherit; color: inherit; background: none; border: 0; padding: 2px 6px; cursor: pointer; border-radius: 5px;
+}
+.bar button[aria-pressed="true"] { background: rgba(0,0,0,.09); }
+.bar .clock { font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .bar .hide-s, .bar .clock { display: none; }
+  .island:not([aria-expanded="true"]) { width: 150px; }
+}
+
+.island-wrap { position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 11; }
+.island {
+  display: block;
+  margin: 0; padding: 0; border: 0; cursor: pointer;
+  background: var(--island); color: #fff;
+  width: 210px; height: 34px;
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+  font: 500 13px/1 "IBM Plex Sans", system-ui, sans-serif;
+  transition: width .45s cubic-bezier(.32,1.2,.4,1), height .45s cubic-bezier(.32,1.2,.4,1), border-radius .45s;
+  text-align: left;
+}
+.island[aria-expanded="true"] { width: min(440px, calc(100vw - 24px)); height: 168px; border-radius: 0 0 30px 30px; }
+.compact { display: flex; align-items: center; justify-content: space-between; height: 34px; padding: 0 14px; gap: 10px; }
+.compact .lead { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.compact .lead span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot-art { width: 18px; height: 18px; border-radius: 5px; background: linear-gradient(140deg, #ff9f0a, #bf5af2); flex: none; }
+.ring { width: 18px; height: 18px; flex: none; }
+.ring circle { fill: none; stroke-width: 3; }
+.ring .track { stroke: rgba(255,255,255,.18); }
+.ring .val { stroke: var(--glow); stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; }
+.eq { display: flex; gap: 2px; align-items: end; height: 12px; }
+.eq i { width: 3px; background: var(--glow); border-radius: 2px; animation: eq 1s ease-in-out infinite; }
+.eq i:nth-child(2) { animation-delay: -.3s; } .eq i:nth-child(3) { animation-delay: -.6s; }
+@keyframes eq { 0%,100% { height: 4px; } 50% { height: 12px; } }
+
+.expanded { display: none; padding: 6px 22px 18px; gap: 22px; align-items: center; height: 134px; }
+.island[aria-expanded="true"] .expanded { display: flex; }
+.island[aria-expanded="true"] .compact { visibility: hidden; height: 34px; }
+.gauge { text-align: center; color: #c7c9cd; font-size: 11px; }
+.gauge svg { width: 64px; height: 64px; display: block; margin: 0 auto 6px; }
+.gauge text { fill: #fff; font: 600 15px "IBM Plex Sans", sans-serif; }
+.big { font: 800 34px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.02em; }
+.big small { display: block; font: 400 12px/1.4 "IBM Plex Sans", sans-serif; color: #c7c9cd; letter-spacing: 0; margin-top: 6px; }
+
+main { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+.hero { padding: 120px 0 72px; display: grid; grid-template-columns: minmax(0, 1fr); }
+.hero h1 {
+  font: 800 clamp(48px, 9vw, 112px)/.92 "Bricolage Grotesque", sans-serif;
+  font-variation-settings: "opsz" 96;
+  letter-spacing: -.035em;
+  margin: 0 0 28px;
+  max-width: 12ch;
+}
+.hero p.lede { font-size: 21px; line-height: 1.5; color: var(--ink-soft); max-width: 34em; margin: 0 0 36px; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; }
+.download {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--ink); color: #fff; text-decoration: none;
+  padding: 16px 26px; border-radius: 14px;
+  font: 600 18px "IBM Plex Sans", sans-serif;
+}
+.download:hover { background: #000; }
+.download svg { width: 20px; height: 20px; }
+.meta { color: var(--ink-soft); font-size: 15px; }
+.meta a { color: var(--ink); }
+
+section { padding: 72px 0; border-top: 1px solid var(--line); }
+h2 {
+  font: 600 clamp(30px, 4.4vw, 46px)/1.05 "Bricolage Grotesque", sans-serif;
+  letter-spacing: -.02em; margin: 0 0 14px; max-width: 18ch;
+}
+.sub { color: var(--ink-soft); max-width: 36em; margin: 0 0 36px; }
+.shot { width: 100%; height: auto; display: block; border-radius: 18px; box-shadow: 0 30px 60px -30px rgba(22,24,27,.45); }
+
+.activities { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 40px; margin: 44px 0 0; padding: 0; list-style: none; }
+.activities li { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.activities b { display: block; font-weight: 600; }
+.activities span { color: var(--ink-soft); font-size: 15px; }
+
+.split { display: grid; grid-template-columns: 1fr; gap: 40px; }
+@media (min-width: 900px) { .split { grid-template-columns: 5fr 7fr; align-items: center; } }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 28px; }
+@media (min-width: 760px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+.steps li { counter-increment: step; }
+.steps li::before {
+  content: counter(step);
+  display: block; font: 800 56px/1 "Bricolage Grotesque", sans-serif; color: var(--alu-deep);
+  -webkit-text-stroke: 1.5px var(--ink); margin-bottom: 10px;
+}
+.steps b { display: block; font-weight: 600; margin-bottom: 4px; }
+.steps span { color: var(--ink-soft); }
+code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(0,0,0,.06); padding: 2px 6px; border-radius: 6px; }
+
+.privacy p { max-width: 40em; color: var(--ink-soft); }
+footer { border-top: 1px solid var(--line); padding: 36px 0 60px; color: var(--ink-soft); font-size: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .island { transition: none; }
+  .eq i { animation: none; height: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bar" role="presentation">
+  <div class="bar-left"><b>DynIsl</b><a class="hide-s" href="https://github.com/caganerdal/DynIsl">GitHub</a><a class="hide-s" href="https://github.com/caganerdal/DynIsl/releases" data-t="releases">Releases</a></div>
+  <div class="bar-right">
+    <span role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="tr" aria-pressed="false">TR</button>
+    </span>
+    <span class="clock" aria-hidden="true"></span>
+  </div>
+</div>
+
+<div class="island-wrap">
+  <button class="island" type="button" aria-expanded="false" aria-label="DynIsl island preview, click to expand">
+    <div class="compact" aria-live="polite"></div>
+    <div class="expanded">
+      <div class="gauge">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,.18)" stroke-width="7" fill="none"/><circle cx="32" cy="32" r="27" stroke="#30d158" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="98" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">42%</text></svg>
+        <span data-t="g5">5 hours</span>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,.18)" stroke-width="7" fill="none"/><circle cx="32" cy="32" r="27" stroke="#30d158" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="139" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">18%</text></svg>
+        <span data-t="gw">Week</span>
+      </div>
+      <div class="big">1.2M<small data-t="today">tokens today</small></div>
+    </div>
+  </button>
+</div>
+
+<main>
+  <div class="hero">
+    <h1 data-t="h1">Your notch has a job now.</h1>
+    <p class="lede" data-t="lede">DynIsl turns the black notch on your MacBook into a live island: the song that's playing, your next meeting, battery and AirPods, Claude limits, downloads and more. Plus a full system dashboard. Free, open source, native Swift.</p>
+    <div class="cta">
+      <a class="download" id="dl" href="https://github.com/caganerdal/DynIsl/releases/latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+        <span data-t="dl">Download for Mac</span>
+      </a>
+      <span class="meta"><span id="ver">DMG</span> · <span data-t="req">macOS 14 or later, Apple silicon</span><br><span data-t="or">or</span> <a href="https://github.com/caganerdal/DynIsl#install" data-t="src">build from source</a></span>
+    </div>
+  </div>
+
+  <section>
+    <h2 data-t="s1h">It lives where the notch is.</h2>
+    <p class="sub" data-t="s1p">Hover or click the notch to open it. It grows only as much as it needs and goes back when you leave.</p>
+    <img class="shot" src="images/island.png" width="1384" height="527" alt="DynIsl island expanded under the notch, showing battery history" loading="lazy">
+    <ul class="activities">
+      <li><b data-t="a1">Music</b><span data-t="a1d">Spotify and Apple Music with artwork, controls and a glow in the cover's color.</span></li>
+      <li><b data-t="a2">Meetings</b><span data-t="a2d">A countdown before calendar events and a join button for Zoom, Meet and Teams.</span></li>
+      <li><b data-t="a3">Battery and AirPods</b><span data-t="a3d">Charging, health, 24-hour history and AirPods battery when they connect.</span></li>
+      <li><b data-t="a4">AI usage</b><span data-t="a4d">Your Claude 5-hour and weekly limits, when they reset, and Claude Code tokens.</span></li>
+      <li><b data-t="a5">Shelf</b><span data-t="a5d">Drop files on the island, AirDrop them, or convert images and PDFs on the spot.</span></li>
+      <li><b data-t="a6">Keep awake</b><span data-t="a6d">Keep the Mac awake for a while, until a time, while an app runs, even with the lid closed.</span></li>
+      <li><b data-t="a7">Volume and brightness</b><span data-t="a7d">Five HUD styles that replace the system one.</span></li>
+      <li><b data-t="a8">Clipboard history</b><span data-t="a8d">Recent copies, kept on your Mac and cleared when the screen locks.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="split">
+      <div>
+        <h2 data-t="s2h">And a dashboard for the rest.</h2>
+        <p class="sub" data-t="s2p">Processor, graphics, memory, storage, network, battery, displays and Bluetooth in one window. Tidy the desktop by type and month, clean old downloads, run a speed test.</p>
+      </div>
+      <img class="shot" src="images/dashboard.png" width="2040" height="1360" alt="DynIsl system dashboard overview" loading="lazy">
+    </div>
+  </section>
+
+  <section>
+    <h2 data-t="s3h">Install in a minute.</h2>
+    <ol class="steps">
+      <li><b data-t="st1">Download the DMG</b><span data-t="st1d">Signed with a Developer ID and notarized by Apple.</span></li>
+      <li><b data-t="st2">Drag DynIsl to Applications</b><span data-t="st2d">Then open it from Applications or Launchpad.</span></li>
+      <li><b data-t="st3">Pick what it can show</b><span data-t="st3d">Every permission is optional. Skip one and only that feature stays off.</span></li>
+    </ol>
+  </section>
+
+  <section class="privacy">
+    <h2 data-t="s4h">Stays on your Mac.</h2>
+    <p data-t="s4p">No accounts, no analytics. DynIsl only goes online for weather, Spotify artwork, a daily update check and speed tests you start. The island is hidden from screen sharing by default.</p>
+  </section>
+
+  <footer>
+    <span data-t="foot">Made by caganerdal. MIT licensed.</span>
+    <span data-t="tm">Apple, Mac, MacBook and macOS are trademarks of Apple Inc. Not affiliated with Apple.</span>
+  </footer>
+</main>
+
+<script>
+const tr = {
+  releases: "Sürümler", g5: "5 saat", gw: "Hafta", today: "bugün token",
+  h1: "Çentiğin artık bir işi var.",
+  lede: "DynIsl, MacBook'undaki siyah çentiği canlı bir adaya çevirir: çalan şarkı, sıradaki toplantın, pil ve AirPods, Claude limitlerin, indirmeler ve daha fazlası. Yanında eksiksiz bir sistem paneli. Ücretsiz, açık kaynak, Swift ile yazılmış.",
+  dl: "Mac için indir", req: "macOS 14 ve üstü, Apple silicon", or: "ya da", src: "kaynaktan derle",
+  s1h: "Çentiğin olduğu yerde yaşar.", s1p: "Açmak için üzerine gel ya da tıkla. Ne kadar gerekiyorsa o kadar büyür, ayrılınca geri döner.",
+  a1: "Müzik", a1d: "Spotify ve Apple Music; kapak, kontroller ve kapak renginde bir parıltı.",
+  a2: "Toplantılar", a2d: "Takvim etkinliklerinden önce geri sayım, Zoom, Meet ve Teams için katıl düğmesi.",
+  a3: "Pil ve AirPods", a3d: "Şarj, sağlık, son 24 saat ve bağlanınca AirPods pili.",
+  a4: "AI kullanımı", a4d: "Claude'un 5 saatlik ve haftalık limitleri, ne zaman yenileneceği ve Claude Code token'ları.",
+  a5: "Raf", a5d: "Dosyaları adaya bırak, AirDrop'la ya da görselleri ve PDF'leri anında dönüştür.",
+  a6: "Uyanık tut", a6d: "Mac'i bir süre, bir saate kadar, bir uygulama açıkken, kapak kapalıyken bile uyanık tut.",
+  a7: "Ses ve parlaklık", a7d: "Sistemin göstergesinin yerine beş farklı stil.",
+  a8: "Pano geçmişi", a8d: "Son kopyaladıkların; Mac'inde kalır, ekran kilitlenince silinir.",
+  s2h: "Gerisi için bir sistem paneli.", s2p: "İşlemci, grafik, bellek, depolama, ağ, pil, ekranlar ve Bluetooth tek pencerede. Masaüstünü türe ve aya göre düzenle, eski indirmeleri temizle, hız testi yap.",
+  s3h: "Bir dakikada kurulur.",
+  st1: "DMG'yi indir", st1d: "Developer ID ile imzalı ve Apple onaylı.",
+  st2: "DynIsl'ı Uygulamalar'a sürükle", st2d: "Sonra Uygulamalar'dan ya da Launchpad'den aç.",
+  st3: "Neleri göstereceğini seç", st3d: "Her izin isteğe bağlı. Vermediğin izin sadece o özelliği kapatır.",
+  s4h: "Mac'inde kalır.", s4p: "Hesap yok, analiz yok. DynIsl internete yalnızca hava durumu, Spotify kapakları, günlük güncelleme denetimi ve senin başlattığın hız testleri için çıkar. Ada varsayılan olarak ekran paylaşımında gizlidir.",
+  foot: "caganerdal yaptı. MIT lisanslı.", tm: "Apple, Mac, MacBook ve macOS, Apple Inc.'in ticari markalarıdır. Apple ile bağlantılı değildir."
+};
+const en = {};
+document.querySelectorAll("[data-t]").forEach(el => { en[el.dataset.t] = el.textContent; });
+
+let lang = "en";
+function setLang(l) {
+  lang = l;
+  const dict = l === "tr" ? tr : en;
+  document.querySelectorAll("[data-t]").forEach(el => { if (dict[el.dataset.t]) el.textContent = dict[el.dataset.t]; });
+  document.documentElement.lang = l;
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+  try { localStorage.setItem("lang", l); } catch (e) {}
+  renderCompact();
+  tick();
+}
+
+const states = [
+  { en: '<span class="lead"><i class="dot-art"></i><span>Midnight Drive</span></span><span class="eq"><i></i><i></i><i></i></span>',
+    tr: '<span class="lead"><i class="dot-art"></i><span>Gece Yolu</span></span><span class="eq"><i></i><i></i><i></i></span>' },
+  { en: '<span class="lead"><svg class="ring" viewBox="0 0 18 18"><circle class="track" cx="9" cy="9" r="7"/><circle class="val" cx="9" cy="9" r="7" stroke-dasharray="44" stroke-dashoffset="25.5"/></svg><span>Claude</span></span><span>42%</span>',
+    tr: '<span class="lead"><svg class="ring" viewBox="0 0 18 18"><circle class="track" cx="9" cy="9" r="7"/><circle class="val" cx="9" cy="9" r="7" stroke-dasharray="44" stroke-dashoffset="25.5"/></svg><span>Claude</span></span><span>%42</span>' },
+  { en: '<span class="lead"><span style="color:#30d158">⚡</span><span>Charging</span></span><span>86%</span>',
+    tr: '<span class="lead"><span style="color:#30d158">⚡</span><span>Şarj oluyor</span></span><span>%86</span>' },
+  { en: '<span class="lead"><span>📅</span><span>Standup in 5 min</span></span><span>Join</span>',
+    tr: '<span class="lead"><span>📅</span><span>5 dk sonra toplantı</span></span><span>Katıl</span>' }
+];
+let s = 0;
+const compact = document.querySelector(".compact");
+function renderCompact() { compact.innerHTML = states[s][lang]; }
+
+const island = document.querySelector(".island");
+let hovering = false;
+island.addEventListener("click", () => island.setAttribute("aria-expanded", hovering || island.getAttribute("aria-expanded") !== "true"));
+if (matchMedia("(hover: hover)").matches) {
+  island.addEventListener("mouseenter", () => { hovering = true; island.setAttribute("aria-expanded", "true"); });
+  island.addEventListener("mouseleave", () => { hovering = false; island.setAttribute("aria-expanded", "false"); });
+}
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  setInterval(() => { if (island.getAttribute("aria-expanded") !== "true") { s = (s + 1) % states.length; renderCompact(); } }, 3200);
+}
+
+const clock = document.querySelector(".clock");
+function tick() {
+  clock.textContent = new Date().toLocaleString(lang === "tr" ? "tr-TR" : "en-US", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+}
+setInterval(tick, 15000);
+
+document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+let saved = null;
+try { saved = localStorage.getItem("lang"); } catch (e) {}
+setLang(saved || ((navigator.language || "").toLowerCase().startsWith("tr") ? "tr" : "en"));
+
+fetch("https://api.github.com/repos/caganerdal/DynIsl/releases/latest")
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(rel => {
+    const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
+    if (!dmg) return;
+    document.getElementById("dl").href = dmg.browser_download_url;
+    document.getElementById("ver").textContent = rel.tag_name + " · " + (dmg.size / 1048576).toFixed(1) + " MB";
+  })
+  .catch(() => {});
+</script>
+</body>
+</html>
